@@ -2,5 +2,10 @@
     "login": "Login",
     "logout": "Logout",
     "username": "Username",
-    "password": "Password"
+    "password": "Password",
+    "title": {
+        "super_admin": "Welcome, USD Boss",
+        "admin": "Admin Panel",
+        "user": "User Area"
+    }
 }
