@@ -3,7 +3,7 @@ import axios from "axios";
 import Cookies from "js-cookie";
 import { useAuthStore } from "../../store/authStore";
 import { toastService } from "../toast";
-import  handleApiError  from "./handleError";
+import handleApiError from "./handleError";
 
 export const BASE_URL = "https://api.usderp.uz/crm";
 
@@ -11,6 +11,23 @@ export const $api = axios.create({
     baseURL: `${BASE_URL}/api`,
     // headers: { "Content-Type": "application/json" },
 });
+
+/* ===============================
+   GLOBAL REFRESH STATE
+================================ */
+let isRefreshing = false;
+let failedQueue = [];
+
+const processQueue = (error, token = null) => {
+    failedQueue.forEach(prom => {
+        if (error) {
+            prom.reject(error);
+        } else {
+            prom.resolve(token);
+        }
+    });
+    failedQueue = [];
+};
 
 /* ============================
    REQUEST INTERCEPTOR
@@ -26,7 +43,7 @@ $api.interceptors.request.use(
     },
     (error) => {
         toastService.error("So'rov yuborishda xatolik!")
-        Promise.reject(error)
+        return Promise.reject(error)
     }
 );
 
@@ -49,7 +66,21 @@ $api.interceptors.response.use(
 
         // Refresh required
         if (error.response?.status === 401 && !originalRequest._retry) {
+            // if refreshing wait
+            if (isRefreshing) {
+                return new Promise((resolve, reject) => {
+                    failedQueue.push({
+                        resolve: (token) => {
+                            originalRequest.headers.Authorization = 'Bearer ' + token;
+                            resolve($api(originalRequest));
+                        },
+                        reject,
+                    });
+                });
+            }
+
             originalRequest._retry = true;
+            isRefreshing = true;
 
             try {
                 const refreshToken = Cookies.get("refresh_token");
@@ -74,15 +105,23 @@ $api.interceptors.response.use(
                     refreshToken: newRefresh,
                 });
 
+                $api.defaults.headers.Authorization = `Bearer ${newAccess}`;
+
+                // Continue CRUDs in process queue
+                processQueue(null, newAccess);
+
                 // ---- Retry original request ----
                 originalRequest.headers.Authorization = `Bearer ${newAccess}`;
                 return $api(originalRequest);
             } catch (err) {
                 // Clear auth + redirect
+                processQueue(err, null);
                 toastService.error("Sessiya tugadi. Iltimos qayta kiring.")
                 store.logout();
                 window.location.href = "/login";
                 return Promise.reject(err);
+            }finally {
+                isRefreshing = false
             }
         }
         /* ============================

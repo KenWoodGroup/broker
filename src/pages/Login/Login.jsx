@@ -12,7 +12,6 @@ import {
     Link,
 } from "@chakra-ui/react";
 import { useRef, useState } from "react";
-import { useLoading } from "../../hooks/useLoading";
 import { Auth } from "../../utils/Controllers/Auth";
 import { useAuth } from "../../hooks/useAuth";
 import { toastService } from "../../utils/toast";
@@ -20,20 +19,22 @@ import { useNavigate } from "react-router";
 
 export default function Login() {
     const { login } = useAuth();
-    const navigate = useNavigate()
+    const navigate = useNavigate();
+    // UI states
+    const [loading, setLoading] = useState(false)
 
     const passInput = useRef("");
     const logInput = useRef("");
 
     const [errors, setErrors] = useState({ login: "", password: "" });
-    const { action, startAction, stopAction } = useLoading()
 
     // ❗ Input o'zgarsa error avtomatik tozalanadi
     const clearError = (field) => {
         setErrors((prev) => ({ ...prev, [field]: "" }));
     };
 
-    const handleSubmit = async () => {
+    const handleSubmit = async (e) => {
+        e.preventDefault()
         const loginText = logInput.current.value.trim();
         const password = passInput.current.value.trim();
 
@@ -62,7 +63,7 @@ export default function Login() {
                 username: logInput.current.value,
                 password: passInput.current.value
             }
-            startAction("create");
+            setLoading(true)
             const res = await Auth.Login(payload);
             if (res.status == 200 || res.status == 201) {
                 const data = res.data
@@ -75,7 +76,14 @@ export default function Login() {
                 if (data.newUser.role === "admin") {
                     navigate("/")
                     toastService.success("Successfully");
-                } else {
+                } else if (data.newUser.role === "super_admin") {
+                    navigate("/superadmin");
+                    toastService.success("Successfully, Welocome Boss !")
+                } else if (data.newUser.role === "broker") {
+                    navigate('/operator');
+                    toastService.success("Successfully")
+                }
+                else {
                     toastService.error("Role mos kelmadi")
                 }
             } else {
@@ -87,7 +95,7 @@ export default function Login() {
 
             if (err) { toastService.error(err?.response?.data?.message || "Tizim xatosi") }
         } finally {
-            stopAction("create");
+            setLoading(false)
         }
 
     };
@@ -104,8 +112,9 @@ export default function Login() {
             >
                 Tema
             </Button> */}
-
             <Box
+                as="form"
+                onSubmit={(e) => handleSubmit(e)}
                 w={{ base: "100%", sm: "400px" }}
                 bg="surface"
                 p={8}
@@ -172,10 +181,11 @@ export default function Login() {
 
                 {/* Login button */}
                 <Button
-                    style={{cursor:action.create ? "progress" :"pointer"}}
-                    onClick={handleSubmit}
+                    type="submit"
+                    style={{ cursor: loading ? "progress" : "pointer" }}
                     w="100%"
-                    isLoading={action.create}
+                    isLoading={loading}
+                    _hover={{ bg: "secondary" }}
                     loadingText="Loading..."
                     variant="solidPrimary"
                 >

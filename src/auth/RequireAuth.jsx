@@ -2,11 +2,21 @@
 import { Navigate, Outlet, useLocation } from "react-router-dom";
 import { useAuthStore } from "../store/authStore";
 
-export default function RequireAuth() {
+export default function RequireAuth({role}) {
     const isAuth = useAuthStore((s) => s.isAuthenticated());
+    const {user} = useAuthStore()
     const location = useLocation();
-
-    if (!isAuth) {
+    const permissionKey = (r)=> {
+        switch(r) {
+            case "super_admin":
+                return "SuperAdmin";
+            case "broker" :
+                return "Broker";
+            case "admin" :
+                return "Admin"
+        }
+    }
+    if (!isAuth || role !== permissionKey(user?.role)) {
         return <Navigate to="/login" replace state={{ from: location }} />;
     }
 

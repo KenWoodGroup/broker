@@ -10,25 +10,16 @@ import {
     MenuList,
     MenuItem,
     Button,
-    Collapse,
     Tooltip,
     useColorMode,
-    color,
 } from "@chakra-ui/react";
 import { NavLink } from "react-router-dom";
 import {
-    Home,
-    List,
-    LayoutGrid,
-    Boxes,
-    Settings,
-    LogOut,
     ChevronLeft,
     ChevronRight,
     LucideLogOut,
     Globe,
     SunMoon,
-    LogInIcon,
     LogOutIcon,
 } from "lucide-react";
 
@@ -40,16 +31,8 @@ import { changeLanguage } from "i18next";
 import { useTranslation } from "react-i18next";
 import LogoutModal from "./LogoutModal";
 
-const links = [
-    { label: "Home", to: "/", icon: Home },
-    { label: "Categories", to: "/categories", icon: List },
-    { label: "Subcategories", to: "/subcategories", icon: LayoutGrid },
-    { label: "Minicategories", to: "/minisubcategories", icon: Settings },
-    { label: "Products", to: "/products", icon: Boxes },
-];
 
-
-export default function Sidebar({ collapsed }) {
+export default function Sidebar({ collapsed, links=[], end }) {
     const { toggleColorMode } = useColorMode()
     const setCollapsed = useUIStore((s) => s.toggleSidebar);
     const { logout } = useAuth();
@@ -91,11 +74,11 @@ export default function Sidebar({ collapsed }) {
             >
                 {collapsed ? <ChevronRight /> : <ChevronLeft />}
             </Button>
-
+            
             {/* TOP LINKS */}
             <VStack align="stretch" spacing={1} mt={10}>
                 {links.map((item) => (
-                    <NavLink key={item.to} to={item.to} style={{ textDecoration: "none" }}>
+                    <NavLink key={item.to} to={item.to}  style={{ textDecoration: "none" }}>
                         {({ isActive }) => (
                             <Tooltip label={collapsed ? item.label : ""} placement="right">
                                 <Flex
