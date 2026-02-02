@@ -13,6 +13,7 @@ import {
     Tbody,
     Td,
     Tooltip,
+    Heading,
 } from "@chakra-ui/react";
 import React, { useEffect, useState, useCallback, useRef } from "react";
 import { ChevronLeft, ChevronRight, LayoutGrid, Search, X } from "lucide-react";
@@ -20,14 +21,18 @@ import { apiLocalProducts } from "../../utils/Controllers/apiLocalProducts";
 import { useNavigate, useParams } from "react-router";
 import TableSkeleton from "../../components/ui/TableSkeleton";
 import { formatDateTime } from "../../utils/tools/formatDateTime";
+import { useSearchParams } from "react-router-dom";
 
 const FACTORY_PAGE_KEY = "factories_page";
 const SEARCH_DEBOUNCE = 500;
 const HOLD_DELAY = 300;
 
-export default function ADfacProducts({ reloadDependance, }) {
+export default function ADfacProductsByCategory({ reloadDependance, }) {
+    const [searchParams] = useSearchParams();
+    const categoryName = searchParams.get('name')
     const navigate = useNavigate()
-    const { factoryId } = useParams()
+    const { factoryId } = useParams();
+    const { categoryId } = useParams();
     const [factories, setFactories] = useState([]);
     const [loading, setLoading] = useState(false);
     const [totalPage, setTotalPage] = useState(1);
@@ -81,7 +86,7 @@ export default function ADfacProducts({ reloadDependance, }) {
         try {
             setLoading(true);
 
-            const res = await apiLocalProducts.pageAll(page, searchText, factoryId, "product");
+            const res = await apiLocalProducts.pageAllbyCategoryId(page, searchText, categoryId, factoryId, "product");
 
             setFactories(res.data.data.records);
             setTotalPage(res.data.data.pagination.total_pages);
@@ -142,6 +147,8 @@ export default function ADfacProducts({ reloadDependance, }) {
     /* ---------------- render ---------------- */
     return (
         <Box pb={"20px"}>
+            <Heading size={"lg"} mb={"22px"}>{categoryName}</Heading>
+
             {/* Search */}
             <Flex mb="20px" maxW="400px" justifyContent="space-between" w="100%" minW={"100%"}>
                 <InputGroup maxW={"60%"}>

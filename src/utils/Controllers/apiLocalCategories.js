@@ -1,12 +1,8 @@
 import { $api } from "../api/axios";
 import { BASE_URL } from "../api/axios";
-class apiLocalProducts {
-    static pageAll = async (page, searchText, locId, type) => {
-        const response = await $api.get(`${BASE_URL}/api/local-products/paginateProduct/${type}/${locId}/page?name=${searchText}&page=${page}`)
-        return response;
-    }
-    static pageAllbyCategoryId = async (page, searchText, catId, locId, prdType) => {
-        const response = await $api.get(`${BASE_URL}/api/local-products/paginate/${prdType}/${locId}/${catId}/page?name=${searchText}&page=${page}`)
+class apiLocalCategories {
+    static pageAll = async (page, searchText, locId, prdType) => {
+        const response = await $api.get(`${BASE_URL}/api/local-categories/paginate/${prdType}/${locId}/page?name=${searchText}&page=${page}`)
         return response;
     }
     // static getFactoriesByCategory = async (id, page, searchText) => {
@@ -27,4 +23,4 @@ class apiLocalProducts {
     // }
 }
 
-export { apiLocalProducts };
+export { apiLocalCategories };
