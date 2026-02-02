@@ -7,20 +7,34 @@ import {
     InputGroup,
     InputRightElement,
     IconButton,
-    Tooltip,
+    Heading,
+    Text,
 } from "@chakra-ui/react";
 import React, { useEffect, useState, useCallback, useRef } from "react";
 import { ChevronLeft, ChevronRight, Search, X } from "lucide-react";
 import FactoryCard from "./_components/FactoryCard";
 import FactoryCardSkeleton from "./_components/FactoryCardSkeleton";
 import { apiLocations } from "../../utils/Controllers/Locations";
-import FactoriesHeader from "./_components/FactoriesHeader";
+import { useParams } from "react-router";
+import { useSearchParams } from "react-router-dom";
+import { apiCategories } from "../../utils/Controllers/Categories";
 
 const FACTORY_PAGE_KEY = "factories_page";
 const SEARCH_DEBOUNCE = 500;
 const HOLD_DELAY = 300;
 
-export default function ADfactories({ reloadDependance }) {
+export default function ADfactoriesBycategory({ reloadDependance }) {
+    const { id } = useParams();
+    const [searchParams] = useSearchParams();
+    const categoryName = searchParams.get('name')
+    useEffect(() => {
+        // Factorylarni olish
+        // GET /factories?categoryId=id
+        console.log("Category ID:", id);
+        console.log(categoryName);
+
+    }, [id]);
+
     const [factories, setFactories] = useState([]);
     const [loading, setLoading] = useState(false);
     const [totalPage, setTotalPage] = useState(1);
@@ -74,7 +88,7 @@ export default function ADfactories({ reloadDependance }) {
         try {
             setLoading(true);
 
-            const res = await apiLocations.pageAll(page, searchText, "factory");
+            const res = await apiCategories.getFactoriesByCategory(id, page, searchText,);
 
             setFactories(res.data.data.records);
             setTotalPage(res.data.data.pagination.total_pages);
@@ -135,7 +149,12 @@ export default function ADfactories({ reloadDependance }) {
     /* ---------------- render ---------------- */
     return (
         <Box pr={"20px"} pb={"20px"}>
-            <FactoriesHeader onReload={()=>fetchFactories(factoryPage, debouncedSearch)}/>
+            <Flex justifyContent={"space-between"} py="20px">
+                <Heading size={"lg"}>Factories / <Text size="12px" display={"inline"}>{categoryName}</Text></Heading>
+                <Flex gap={"24px"}>
+                   
+                </Flex>
+            </Flex>
             {/* Search */}
             <Box mb="20px" maxW="400px">
                 <InputGroup>
@@ -168,10 +187,10 @@ export default function ADfactories({ reloadDependance }) {
                     ))
                     : factories.map((factory) => (
                         <FactoryCard
-                            key={factory.id}
-                            factory={factory}
+                            key={factory?.location?.id}
+                            factory={factory?.location}
                             onEdit={() => fetchFactories(factoryPage, debouncedSearch)}
-                            onDelete={() =>fetchFactories(factoryPage, debouncedSearch)}
+                            onDelete={() => fetchFactories(factoryPage, debouncedSearch)}
                         />
                     ))
                 }

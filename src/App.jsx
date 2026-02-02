@@ -10,9 +10,8 @@ import SuperAdminLayout from './layouts/SuperAdminLayout'
 import superAdminRoutes from './utils/routes/superAdminRoutes'
 import BrokerLayout from './layouts/BrokerLayout'
 import brokerRoutes from './utils/routes/brokerRoutes'
-import ADfactories from './pages/ADfactories/ADfactories'
-import ADcontrol from './pages/ADcontrol/ADcontrol'
-import ADcategories from './pages/ADcategories/ADcategories'
+import AdminFactoryLayout from './layouts/AdminFactoryLayout'
+import adminFacRoutes from './utils/routes/adminFacRoutes'
 
 function App() {
 
@@ -36,9 +35,12 @@ function App() {
                 <Route key={r.name} path={r.path} element={r.element} />
               )
             })}
-            <Route path='factories' element={<ADcontrol />}>
-              <Route index element={<ADfactories />} />
-              <Route path='categories' element={<ADcategories />} />
+            <Route path='/factories/:factoryId' element={<AdminFactoryLayout/>}>
+              {adminFacRoutes.map((r)=> {
+                return (
+                  <Route key={r.name} path={r.path} element={r.element}/>
+                )
+              })}
             </Route>
           </Route>
         </Route>
