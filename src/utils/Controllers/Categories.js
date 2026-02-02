@@ -9,6 +9,10 @@ class apiCategories {
         const response = await $api.get(`${BASE_URL}/api/location-location-categories/category/page?category_id=${id}&name=${searchText}&page=${page}`)
         return response;
     }
+    static getNotFactoriesByCategory = async (id, page, searchText) => {
+        const response = await $api.get(`${BASE_URL}/api/locations/category/page?category_id=${id}&name=${searchText}&page=${page}`)
+        return response;
+    }
     static Add = async (data) => {
         const response = await $api.post(`${BASE_URL}/api/location-categories`, data, { showSuccessToast: "Category successfully created" })
         return response;
