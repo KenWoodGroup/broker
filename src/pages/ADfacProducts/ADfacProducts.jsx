@@ -1,26 +1,31 @@
 import {
     Box,
-    SimpleGrid,
     Flex,
     Button,
     Input,
     InputGroup,
     InputRightElement,
     IconButton,
-    Tooltip,
+    Table,
+    Thead,
+    Tr,
+    Th,
+    Tbody,
+    Td,
 } from "@chakra-ui/react";
 import React, { useEffect, useState, useCallback, useRef } from "react";
 import { ChevronLeft, ChevronRight, Search, X } from "lucide-react";
-import FactoryCard from "./_components/FactoryCard";
-import FactoryCardSkeleton from "./_components/FactoryCardSkeleton";
-import { apiLocations } from "../../utils/Controllers/Locations";
-import FactoriesHeader from "./_components/FactoriesHeader";
+import { apiLocalProducts } from "../../utils/Controllers/apiLocalProducts";
+import { useParams } from "react-router";
+import TableSkeleton from "../../components/ui/TableSkeleton";
+import { formatDateTime } from "../../utils/tools/formatDateTime";
 
 const FACTORY_PAGE_KEY = "factories_page";
 const SEARCH_DEBOUNCE = 500;
 const HOLD_DELAY = 300;
 
-export default function ADfactories({ reloadDependance }) {
+export default function ADfacProducts({ reloadDependance }) {
+    const { factoryId } = useParams()
     const [factories, setFactories] = useState([]);
     const [loading, setLoading] = useState(false);
     const [totalPage, setTotalPage] = useState(1);
@@ -70,11 +75,11 @@ export default function ADfactories({ reloadDependance }) {
     }, [search]);
 
     /* ---------------- fetch factories ---------------- */
-    const fetchFactories = useCallback(async (page, searchText) => {
+    const fetchProducts = useCallback(async (page, searchText) => {
         try {
             setLoading(true);
 
-            const res = await apiLocations.pageAll(page, searchText, "factory");
+            const res = await apiLocalProducts.pageAll(page, searchText, factoryId, "product");
 
             setFactories(res.data.data.records);
             setTotalPage(res.data.data.pagination.total_pages);
@@ -125,22 +130,21 @@ export default function ADfactories({ reloadDependance }) {
 
     /* ---------------- effects ---------------- */
     useEffect(() => {
-        fetchFactories(factoryPage, debouncedSearch);
-    }, [factoryPage, debouncedSearch, fetchFactories]);
+        fetchProducts(factoryPage, debouncedSearch);
+    }, [factoryPage, debouncedSearch, fetchProducts]);
 
     useEffect(() => {
-        fetchFactories(factoryPage, debouncedSearch);
-    }, [reloadDependance, fetchFactories, factoryPage, debouncedSearch]);
+        fetchProducts(factoryPage, debouncedSearch);
+    }, [reloadDependance, fetchProducts, factoryPage, debouncedSearch]);
 
     /* ---------------- render ---------------- */
     return (
         <Box pr={"20px"} pb={"20px"}>
-            <FactoriesHeader onReload={()=>fetchFactories(factoryPage, debouncedSearch)}/>
             {/* Search */}
             <Box mb="20px" maxW="400px">
                 <InputGroup>
                     <Input
-                        placeholder="Search factories..."
+                        placeholder="Search products..."
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
                     />
@@ -161,21 +165,70 @@ export default function ADfactories({ reloadDependance }) {
             </Box>
 
             {/* Cards */}
-            <SimpleGrid columns={{ base: 1, md: 2, xl: 3 }} spacing="20px">
-                {loading
-                    ? Array.from({ length: 15 }).map((_, i) => (
-                        <FactoryCardSkeleton key={i} />
-                    ))
-                    : factories.map((factory) => (
-                        <FactoryCard
-                            key={factory.id}
-                            factory={factory}
-                            onEdit={() => fetchFactories(factoryPage, debouncedSearch)}
-                            onDelete={() =>fetchFactories(factoryPage, debouncedSearch)}
-                        />
-                    ))
-                }
-            </SimpleGrid>
+            <Box
+                bg="bg"
+                rounded="xl"
+                shadow="md"
+                overflow="hidden"
+                p={4}
+            >
+                {loading ? (
+                    <Box textAlign="center">
+                        <Table>
+                            <Thead bg={"surface"}>
+                                <Tr>
+                                    <Th>#</Th>
+                                    <Th>Name</Th>
+                                    <Th>Unit</Th>
+                                    <Th>Created time</Th>
+                                    <Th>Last updated</Th>
+                                    <Th>Category</Th>
+                                </Tr>
+                            </Thead>
+                            <Tbody>
+                                <TableSkeleton rows={15} columns={6} />
+                            </Tbody>
+                        </Table>
+                        {/* <Spinner marginTop={"10px"} size="lg" /> */}
+                    </Box>
+                ) : factories.length > 0 ? (
+                    <Table>
+                        <Thead>
+                            <Tr>
+                                <Th>#</Th>
+                                <Th>Name</Th>
+                                <Th>Unit</Th>
+                                <Th>Created time</Th>
+                                <Th>Last updated</Th>
+                                <Th>Category</Th>
+                            </Tr>
+                        </Thead>
+
+                        <Tbody>
+                            {factories.map((item, index) => (
+                                <Tr key={item.id}>
+                                    <Td>{index + 1}</Td>
+                                    <Td>{item?.name}</Td>
+                                    <Td>{item?.unit}</Td>
+                                    <Td>{formatDateTime(item?.createdAt, 'uz-UZ', {
+                                        month: 'numeric'
+                                    })}</Td>
+                                    <Td>{formatDateTime(item?.updatedAt, 'uz-Uz', {
+                                        month: 'numeric'
+                                    })}</Td>
+                                    <Td>
+                                        {item?.category?.name}
+                                    </Td>
+                                </Tr>
+                            ))}
+                        </Tbody>
+                    </Table>
+                ) : (
+                    <Box textAlign="center" py={6} color="gray.500">
+                        No products found
+                    </Box>
+                )}
+            </Box>
 
             {/* Pagination */}
             <Flex justify="center" align="center" gap="20px" mt="30px">
