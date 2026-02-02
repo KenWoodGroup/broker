@@ -6,32 +6,42 @@ import {
     useColorModeValue,
     VStack,
     HStack,
-    useDisclosure
+    Checkbox,
+    useDisclosure,
 } from "@chakra-ui/react";
-import { MapPin, Phone, MoreVertical, Pencil, Trash2 } from "lucide-react";
+import { MapPin, Phone, Plus, Minus, RemoveFormatting, CircleMinus } from "lucide-react";
 import React, { useState } from "react";
 import ConfirmDelModal from "../../../components/common/ConfirmDelModal";
-import { apiLocations } from "../../../utils/Controllers/Locations";
+import { apiLocationCategories } from "../../../utils/Controllers/apiLocationCategory";
 
-const FactoryCard = React.memo(function FactoryCard({ factory, onEdit, onDelete }) {
-    const delModal = useDisclosure()
+const FactoryCard = React.memo(function FactoryCard({
+    factory,
+    id,
+    categoryName,
+    joinMode = false,
+    checked = false,
+    onToggleSelect,
+    onDeleted,
+}) {
     const bg = useColorModeValue("white", "gray.800");
     const border = useColorModeValue("gray.200", "gray.700");
     const textSub = useColorModeValue("gray.600", "gray.400");
-    // states
-    const [delLoading, setDelLoading] = useState(false);
-    const deleteFactory = async () => {
-        setDelLoading(true);
+    const [loading, setLoading] = useState(false)
+    const confirmModal = useDisclosure();
+    const [selectedItem, setSelectedItem] = useState();
+
+    const deleteFactoryFromCategory = async () => {
+        setLoading(true)
         try {
-            const res = await apiLocations.Delete(factory?.id, "Factory");
-            delModal.onClose()
-            if (onDelete) {
-                onDelete();
+            const res = await apiLocationCategories.Delete(id);
+            confirmModal.onClose();
+            if(onDeleted) {
+                onDeleted()
             }
         } finally {
-            setDelLoading(false)
+            setLoading(false)
         }
-    };
+    }
 
     return (
         <Box
@@ -43,59 +53,32 @@ const FactoryCard = React.memo(function FactoryCard({ factory, onEdit, onDelete 
             p="16px"
             transition="all .2s"
             _hover={{ shadow: "md" }}
-            role="group"
         >
-            {/* Actions */}
-            <Box position="absolute" top="8px" right="8px">
-                {/* ⋮ icon */}
+            {/* Join checkbox */}
+            {joinMode ? (
                 <IconButton
-                    size="sm"
-                    variant="ghost"
-                    icon={<MoreVertical size={18} />}
-                    aria-label="Actions"
-                    transition="all .2s"
-                    _groupHover={{
-                        opacity: 0,
-                        pointerEvents: "none",
-                    }}
-                />
-
-                {/* OLD vertical actions (unchanged design) */}
-                <Flex
-                    direction="column"
                     position="absolute"
-                    top="8px"          // 👈 sal tepaga ko‘tarildi
-                    right="0"
-                    bg={bg}
-                    border="1px solid"
-                    borderColor={border}
-                    borderRadius="8px"
-                    opacity={0}
-                    pointerEvents="none"
-                    transition="all .2s"
-                    _groupHover={{
-                        opacity: 1,
-                        pointerEvents: "auto",
-                    }}
-                    zIndex={2}
-                >
-                    {/* <IconButton
-                        size="sm"
-                        variant="ghost"
-                        icon={<Pencil size={16} />}
-                        onClick={() => onEdit(factory)}
-                        aria-label="Edit"
-                    /> */}
-                    <IconButton
-                        size="sm"
-                        variant="ghost"
-                        colorScheme="red"
-                        icon={<Trash2 size={16} />}
-                        onClick={delModal.onOpen}
-                        aria-label="Delete"
-                    />
-                </Flex>
-            </Box>
+                    top="8px"
+                    right="8px"
+                    size="sm"
+                    colorScheme={checked ? "green" : "gray"}
+                    icon={checked ? <Minus size={16} /> : <Plus size={16} />}
+                    aria-label="select"
+                    onClick={() => onToggleSelect(factory)}
+                />
+            ) : (
+                <IconButton
+                    position="absolute"
+                    borderRadius={"50%"}
+                    top="8px"
+                    right="8px"
+                    size="30px"
+                    colorScheme={"red"}
+                    icon={<CircleMinus size={"22px"} />}
+                    aria-label="select"
+                    onClick={confirmModal.onOpen}
+                />
+            )}
 
             {/* Content */}
             <VStack align="start" spacing="10px">
@@ -112,20 +95,11 @@ const FactoryCard = React.memo(function FactoryCard({ factory, onEdit, onDelete 
 
                 <HStack spacing="8px" color={textSub}>
                     <Phone size={16} />
-                    <Text fontSize="sm">
-                        {factory?.phone || "-"}
-                    </Text>
+                    <Text fontSize="sm">{factory?.phone || "-"}</Text>
                 </HStack>
             </VStack>
-
-            <ConfirmDelModal
-                isOpen={delModal.isOpen}
-                onClose={delModal.onClose}
-                typeItem={"Factory"}
-                itemName={factory?.name}
-                loading={delLoading}
-                onConfirm={deleteFactory}
-            />
+            {/* Confirm Remove Modal */}
+            <ConfirmDelModal isOpen={confirmModal.isOpen} onClose={confirmModal.onClose} onConfirm={deleteFactoryFromCategory} itemName={factory?.name} loading={loading} typeItem={`location from category(${categoryName})`}/>
         </Box>
     );
 });
