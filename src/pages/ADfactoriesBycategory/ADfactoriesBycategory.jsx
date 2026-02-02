@@ -150,7 +150,7 @@ export default function ADfactoriesBycategory({ reloadDependance }) {
     return (
         <Box pr={"20px"} pb={"20px"}>
             <Flex justifyContent={"space-between"} py="20px">
-                <Heading size={"lg"}>Factories / <Text size="12px" display={"inline"}>{categoryName}</Text></Heading>
+                <Heading size={"lg"}>Factories / <Text fontSize="24px" display={"inline"}>{categoryName}</Text></Heading>
                 <Flex gap={"24px"}>
                    
                 </Flex>

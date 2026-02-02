@@ -5,6 +5,10 @@ class apiLocations {
         const response = await $api.get(`${BASE_URL}/api/locations/type/${locType}/${searchText}/page?page=${page}`)
         return response;
     }
+    static getLocation = async (id)=> {
+        const response = await $api.get(`${BASE_URL}/api/locations/${id}`);
+        return response
+    }
     static Add = async (data, locType) => {
         const response = await $api.post(`${BASE_URL}/api/locations`, data, { showSuccessToast: `${locType} successfully created` })
         return response;
