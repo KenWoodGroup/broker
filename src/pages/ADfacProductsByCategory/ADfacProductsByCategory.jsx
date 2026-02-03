@@ -21,7 +21,7 @@ import { apiLocalProducts } from "../../utils/Controllers/apiLocalProducts";
 import { useNavigate, useParams } from "react-router";
 import TableSkeleton from "../../components/ui/TableSkeleton";
 import { formatDateTime } from "../../utils/tools/formatDateTime";
-import { useSearchParams } from "react-router-dom";
+import { NavLink, useSearchParams } from "react-router-dom";
 
 const FACTORY_PAGE_KEY = "factories_page";
 const SEARCH_DEBOUNCE = 500;
@@ -147,42 +147,30 @@ export default function ADfacProductsByCategory({ reloadDependance, }) {
     /* ---------------- render ---------------- */
     return (
         <Box pb={"20px"}>
-            <Heading size={"lg"} mb={"22px"}>{categoryName}</Heading>
+            <Heading fontSize={"22px"} mb="24px"> <NavLink to={`/factories/${factoryId}`}>Products</NavLink> / {categoryName}</Heading>
 
             {/* Search */}
-            <Flex mb="20px" maxW="400px" justifyContent="space-between" w="100%" minW={"100%"}>
-                <InputGroup maxW={"60%"}>
-                    <Input
-                        placeholder="Search products..."
-                        value={search}
-                        onChange={(e) => setSearch(e.target.value)}
-                    />
-                    <InputRightElement>
-                        {search ? (
-                            <IconButton
-                                size="sm"
-                                variant="ghost"
-                                icon={<X size={16} />}
-                                aria-label="Clear"
-                                onClick={() => setSearch("")}
-                            />
-                        ) : (
-                            <Search size={16} />
-                        )}
-                    </InputRightElement>
-                </InputGroup>
-                <Tooltip label={"Category"} placement="left">
-                    <IconButton
-                        onClick={() => {
-                            navigate(`/factories/${factoryId}`)
-                        }}
-                        bg={"neutral.300"}
-                        _hover={{ bg: "" }} color={"brand.800"}
-                        icon={<LayoutGrid />}
-                    />
-                </Tooltip>
-            </Flex>
 
+            <InputGroup maxW={"60%"}>
+                <Input
+                    placeholder="Search products..."
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                />
+                <InputRightElement>
+                    {search ? (
+                        <IconButton
+                            size="sm"
+                            variant="ghost"
+                            icon={<X size={16} />}
+                            aria-label="Clear"
+                            onClick={() => setSearch("")}
+                        />
+                    ) : (
+                        <Search size={16} />
+                    )}
+                </InputRightElement>
+            </InputGroup>
             {/* Table */}
             <Box
                 bg="bg"
