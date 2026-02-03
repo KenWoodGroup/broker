@@ -33,7 +33,7 @@ const STORAGE_PREFIX = "factory_header";
 export default function FactoryHeader({ factoryId, onBack }) {
   const border = useColorModeValue("border", "border");
   const textSub = useColorModeValue("neutral.500", "neutral.400");
-  const [loading, setLoading] = useState(false)
+  const [loading, setLoading] = useState(false);
 
   const storageKey = `${STORAGE_PREFIX}:${factoryId}`;
 

@@ -22,7 +22,7 @@ import { useSearchParams } from "react-router-dom";
 const CATEGORY_PAGE_KEY = "categories_page";
 
 export default function ADfacLocalCats({ reloadDependance }) {
-    
+
     const navigate = useNavigate();
     const { factoryId } = useParams()
     const [categories, setCategories] = useState([]);
@@ -101,29 +101,9 @@ export default function ADfacLocalCats({ reloadDependance }) {
     /* ---------------- render ---------------- */
     return (
         <Box pb={"20px"}>
-            {/* Search */}
-            <Flex mb="20px" maxW="400px" justifyContent="space-between" w="100%" minW={"100%"}>
-                <InputGroup maxW={"60%"}>
-                    <Input
-                        placeholder="Search products..."
-                        value={search}
-                        onChange={(e) => setSearch(e.target.value)}
-                    />
-                    <InputRightElement>
-                        {search ? (
-                            <IconButton
-                                size="sm"
-                                variant="ghost"
-                                icon={<X size={16} />}
-                                aria-label="Clear"
-                                onClick={() => setSearch("")}
-                            />
-                        ) : (
-                            <Search size={16} />
-                        )}
-                    </InputRightElement>
-                </InputGroup>
-                <Tooltip label={"Table"} placement="left">
+            <Flex mb="24px"  justifyContent="space-between">
+                <Heading fontSize={"22px"}>Products</Heading>
+                <Tooltip label={"Table"} placement="left" >
                     <IconButton
                         onClick={() => {
                             navigate('products')
@@ -135,7 +115,27 @@ export default function ADfacLocalCats({ reloadDependance }) {
                     />
                 </Tooltip>
             </Flex>
-
+            {/* Search */}
+            <InputGroup maxW={"60%"} mb={"22px"}>
+                <Input
+                    placeholder="Search products..."
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                />
+                <InputRightElement>
+                    {search ? (
+                        <IconButton
+                            size="sm"
+                            variant="ghost"
+                            icon={<X size={16} />}
+                            aria-label="Clear"
+                            onClick={() => setSearch("")}
+                        />
+                    ) : (
+                        <Search size={16} />
+                    )}
+                </InputRightElement>
+            </InputGroup>
             {/* Cards */}
             <SimpleGrid columns={{ base: 1, md: 2, xl: 3 }} spacing="20px">
                 {loading
@@ -150,7 +150,7 @@ export default function ADfacLocalCats({ reloadDependance }) {
                             onDelete={() => fetchCategories(page, debouncedSearch)}
                             onOpen={() => {
                                 // 👉 bu yerda category factories sahifasiga o‘tasiz
-                                navigate(`${cat.id}?name=${encodeURIComponent(cat?.name)}`)
+                                navigate(`category/${cat.id}?name=${encodeURIComponent(cat?.name)}`)
                             }}
                         />
                     ))}

@@ -12,7 +12,7 @@ export default function AdminFactoryLayout() {
         <Box pr="20px" pt="20px">
             <FactoryHeader
                 factoryId={factoryId}
-                onBack={() => navigate("/factories")}
+                onBack={() => navigate(-1)}
             />
 
 

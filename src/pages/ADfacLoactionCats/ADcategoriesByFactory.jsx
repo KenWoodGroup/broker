@@ -17,36 +17,31 @@ import {
 } from "@chakra-ui/react";
 import React, { useEffect, useState, useCallback, useRef } from "react";
 import { ChevronLeft, ChevronRight, Search, X, Link2, Save } from "lucide-react";
-import FactoryCard from "./_components/FactoryCard";
-import FactoryCardSkeleton from "./_components/FactoryCardSkeleton";
+import CategoryCard from "./_components/CategoryCard";
 import { useParams } from "react-router";
-import { NavLink, useSearchParams } from "react-router-dom";
-import { apiCategories } from "../../utils/Controllers/Categories";
-import { apiLocalCategories } from "../../utils/Controllers/apiLocalCategories";
+import CategoryCardSkeleton from "../../components/ui/CategoryCardSkeleton";
 import { apiLocationCategories } from "../../utils/Controllers/apiLocationCategory";
 
-const FACTORY_PAGE_KEY = "factories_page";
+const PAGE_KEY = "factory_categories_page";
 const SEARCH_DEBOUNCE = 500;
 const HOLD_DELAY = 300;
 
-export default function ADfactoriesBycategory({ reloadDependance }) {
-    const { id } = useParams();
-    const [searchParams] = useSearchParams();
-    const categoryName = searchParams.get("name");
+export default function ADcategoriesByFactory({ reloadDependance }) {
+    const { factoryId } = useParams();
 
     /* ---------------- main states ---------------- */
-    const [factories, setFactories] = useState([]);
+    const [categories, setCategories] = useState([]);
     const [loading, setLoading] = useState(false);
     const [saveLoading, setSaveLoading] = useState(false)
     const [totalPage, setTotalPage] = useState(1);
 
     /* ---------------- join mode ---------------- */
     const [joinMode, setJoinMode] = useState(false);
-    const [selected, setSelected] = useState([]); // factory(location) objects
+    const [selected, setSelected] = useState([]);
 
     /* ---------------- pagination ---------------- */
-    const [factoryPage, setFactoryPage] = useState(() => {
-        const saved = sessionStorage.getItem(FACTORY_PAGE_KEY);
+    const [page, setPage] = useState(() => {
+        const saved = sessionStorage.getItem(PAGE_KEY);
         return saved ? Number(saved) : 1;
     });
 
@@ -56,17 +51,17 @@ export default function ADfactoriesBycategory({ reloadDependance }) {
     const isFirstRender = useRef(true);
 
     /* ---------------- holding pagination ---------------- */
-    const [number, setNumber] = useState(factoryPage);
+    const [number, setNumber] = useState(page);
     const [holding, setHolding] = useState(false);
     const holdTimeoutRef = useRef(null);
     const holdIntervalRef = useRef(null);
 
     /* ---------------- pagination change ---------------- */
     const changePagination = useCallback(
-        (page) => {
-            if (page > 0 && page <= totalPage) {
-                setFactoryPage(page);
-                sessionStorage.setItem(FACTORY_PAGE_KEY, page);
+        (p) => {
+            if (p > 0 && p <= totalPage) {
+                setPage(p);
+                sessionStorage.setItem(PAGE_KEY, p);
             }
         },
         [totalPage]
@@ -79,8 +74,8 @@ export default function ADfactoriesBycategory({ reloadDependance }) {
             setDebouncedSearch(value === "" ? "all" : value);
 
             if (!isFirstRender.current) {
-                setFactoryPage(1);
-                sessionStorage.setItem(FACTORY_PAGE_KEY, 1);
+                setPage(1);
+                sessionStorage.setItem(PAGE_KEY, 1);
             }
             isFirstRender.current = false;
         }, SEARCH_DEBOUNCE);
@@ -88,30 +83,74 @@ export default function ADfactoriesBycategory({ reloadDependance }) {
         return () => clearTimeout(handler);
     }, [search]);
 
-    /* ---------------- fetch factories ---------------- */
-    const fetchFactories = useCallback(
-        async (page, searchText) => {
+    /* ---------------- fetch categories ---------------- */
+    const fetchCategories = useCallback(
+        async (p, searchText) => {
             try {
                 setLoading(true);
 
                 const res = joinMode
-                    ? await apiCategories.getNotFactoriesByCategory(id, page, searchText)
-                    : await apiCategories.getFactoriesByCategory(id, page, searchText);
+                    ? await apiLocationCategories.getNotCategoriesByFactoryId(
+                        factoryId,
+                        p,
+                        searchText
+                    )
+                    : await apiLocationCategories.getCategoriesByFactoryId(
+                        factoryId,
+                        p,
+                        searchText
+                    );
 
-                setFactories(res.data.data.records);
+                setCategories(res.data.data.records);
                 setTotalPage(res.data.data.pagination.total_pages);
-                
             } catch (err) {
                 if (joinMode) {
                     setJoinMode(false)
                 }
-            } finally {
+            }
+            finally {
                 setLoading(false);
-
             }
         },
-        [id, joinMode]
+        [factoryId, joinMode]
     );
+
+    /* ---------------- effects ---------------- */
+    useEffect(() => {
+        fetchCategories(page, debouncedSearch);
+    }, [page, debouncedSearch, fetchCategories, reloadDependance]);
+
+    /* ---------------- join helpers ---------------- */
+    const toggleSelect = (category) => {
+        setSelected((prev) => {
+            const exists = prev.find((c) => c.id === category.id);
+            if (exists) {
+                return prev.filter((c) => c.id !== category.id);
+            }
+            return [...prev, category];
+        });
+    };
+
+    const removeSelected = (categoryId) => {
+        setSelected((prev) => prev.filter((c) => c.id !== categoryId));
+    };
+
+    const saveJoinPayload = async () => {
+        const payload = {
+            items: selected.map((c) => ({
+                category_id: c.id,
+                factory_id: factoryId,
+            })),
+        };
+        setSaveLoading(true);
+        try {
+            const res = await apiLocationCategories.Add(payload);
+            setJoinMode(false);
+        } finally {
+            setSaveLoading(false)
+        }
+
+    };
 
     /* ---------------- pagination click ---------------- */
     const handleClick = (type) => {
@@ -119,17 +158,16 @@ export default function ADfactoriesBycategory({ reloadDependance }) {
 
         const next =
             type === "inc"
-                ? Math.min(factoryPage + 1, totalPage)
-                : Math.max(factoryPage - 1, 1);
+                ? Math.min(page + 1, totalPage)
+                : Math.max(page - 1, 1);
 
         changePagination(next);
     };
 
-    /* ---------------- long press ---------------- */
     const startHolding = (type) => {
         holdTimeoutRef.current = setTimeout(() => {
             setHolding(true);
-            setNumber(factoryPage);
+            setNumber(page);
 
             holdIntervalRef.current = setInterval(() => {
                 setNumber((prev) =>
@@ -149,54 +187,12 @@ export default function ADfactoriesBycategory({ reloadDependance }) {
         setHolding(false);
     };
 
-    /* ---------------- effects ---------------- */
-    useEffect(() => {
-        fetchFactories(factoryPage, debouncedSearch);
-    }, [factoryPage, debouncedSearch, fetchFactories, reloadDependance]);
-
-    /* ---------------- join helpers ---------------- */
-    const toggleSelect = (factory) => {
-        setSelected((prev) => {
-            const exists = prev.find((i) => i.id === factory.id);
-            if (exists) {
-                return prev.filter((i) => i.id !== factory.id);
-            }
-            return [...prev, factory];
-        });
-    };
-
-    const removeSelected = (factoryId) => {
-        setSelected((prev) => prev.filter((i) => i.id !== factoryId));
-    };
-
-    const saveJoinPayload = async () => {
-        const payload = {
-            items: selected.map((f) => ({
-                location_id: f.id,
-                category_id: id,
-            })),
-        };
-
-        setSaveLoading(true)
-        try {
-            const res = await apiLocationCategories.Add(payload);
-            setJoinMode(false);
-        } finally {
-            setSaveLoading(false)
-        }
-    };
-
     /* ---------------- render ---------------- */
     return (
         <Box pr="20px" pb="20px">
             {/* Header */}
             <Flex justify="space-between" py="20px" align="center">
-                <Heading size="lg">
-                  <NavLink to={"/factories/categories"}>  Factories </NavLink>/{" "}
-                    <Text fontSize="24px" display="inline">
-                        {categoryName}
-                    </Text>
-                </Heading>
+                <Heading size="lg">Factory categories</Heading>
 
                 <HStack gap="12px">
                     {joinMode && (
@@ -212,14 +208,14 @@ export default function ADfactoriesBycategory({ reloadDependance }) {
 
                     <Button
                         leftIcon={<Link2 size={16} />}
-                        variant={joinMode ? "solidPrimary" : ""}
+                        variant={joinMode ? "solid" : "outline"}
                         onClick={() => {
                             setJoinMode(!joinMode);
                             setSelected([]);
-                            setFactoryPage(1);
+                            setPage(1);
                         }}
                     >
-                        Join factories
+                        Join categories
                     </Button>
                 </HStack>
             </Flex>
@@ -228,13 +224,15 @@ export default function ADfactoriesBycategory({ reloadDependance }) {
             {joinMode && selected.length > 0 && (
                 <Box mb="16px">
                     <Text mb="8px" fontWeight="600">
-                        Selected factories ({selected.length})
+                        Selected categories ({selected.length})
                     </Text>
                     <HStack wrap="wrap" spacing="8px">
-                        {selected.map((f) => (
-                            <Tag key={f.id} size="lg" borderRadius="full">
-                                <TagLabel>{f.name}</TagLabel>
-                                <TagCloseButton onClick={() => removeSelected(f.id)} />
+                        {selected.map((c) => (
+                            <Tag key={c.id} size="lg" borderRadius="full">
+                                <TagLabel>{c.name}</TagLabel>
+                                <TagCloseButton
+                                    onClick={() => removeSelected(c.id)}
+                                />
                             </Tag>
                         ))}
                     </HStack>
@@ -246,7 +244,7 @@ export default function ADfactoriesBycategory({ reloadDependance }) {
             <Box mb="20px" maxW="400px">
                 <InputGroup>
                     <Input
-                        placeholder="Search factories..."
+                        placeholder="Search categories..."
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
                     />
@@ -270,25 +268,15 @@ export default function ADfactoriesBycategory({ reloadDependance }) {
             <SimpleGrid columns={{ base: 1, md: 2, xl: 3 }} spacing="20px">
                 {loading
                     ? Array.from({ length: 12 }).map((_, i) => (
-                        <FactoryCardSkeleton key={i} />
+                        <CategoryCardSkeleton key={i} />
                     ))
-                    : factories.map((factory, index) => (
-                        <FactoryCard
-                            
-                            key={index}
-                            factory={joinMode ? factory : factory?.location}
-                            id={factory?.id}
-                            categoryName={categoryName}
+                    : categories.map((cat) => (
+                        <CategoryCard
+                            key={cat.id}
+                            category={joinMode ? cat : cat?.category}
                             joinMode={joinMode}
-                            checked={
-                                !!selected.find(
-                                    (i) => i.id === (factory?.location?.id || factory?.id)
-                                )
-                            }
+                            checked={!!selected.find((c) => c.id === cat.id)}
                             onToggleSelect={toggleSelect}
-                            onDeleted={()=> {
-                                fetchFactories(factoryPage, debouncedSearch)                              
-                            }}
                         />
                     ))}
             </SimpleGrid>
@@ -298,7 +286,7 @@ export default function ADfactoriesBycategory({ reloadDependance }) {
                 <Button onClick={() => changePagination(1)}>First</Button>
 
                 <Button
-                    isDisabled={factoryPage === 1}
+                    isDisabled={page === 1}
                     onClick={() => handleClick("dec")}
                     onMouseDown={() => startHolding("dec")}
                     onMouseUp={stopHolding}
@@ -307,10 +295,10 @@ export default function ADfactoriesBycategory({ reloadDependance }) {
                     <ChevronLeft />
                 </Button>
 
-                {(holding ? number : factoryPage) + " / " + totalPage}
+                {(holding ? number : page) + " / " + totalPage}
 
                 <Button
-                    isDisabled={factoryPage === totalPage}
+                    isDisabled={page === totalPage}
                     onClick={() => handleClick("inc")}
                     onMouseDown={() => startHolding("inc")}
                     onMouseUp={stopHolding}

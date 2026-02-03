@@ -13,6 +13,7 @@ import {
     Tbody,
     Td,
     Tooltip,
+    Heading,
 } from "@chakra-ui/react";
 import React, { useEffect, useState, useCallback, useRef } from "react";
 import { ChevronLeft, ChevronRight, LayoutGrid, Search, X } from "lucide-react";
@@ -143,27 +144,8 @@ export default function ADfacProducts({ reloadDependance, }) {
     return (
         <Box pb={"20px"}>
             {/* Search */}
-            <Flex mb="20px" maxW="400px" justifyContent="space-between" w="100%" minW={"100%"}>
-                <InputGroup maxW={"60%"}>
-                    <Input
-                        placeholder="Search products..."
-                        value={search}
-                        onChange={(e) => setSearch(e.target.value)}
-                    />
-                    <InputRightElement>
-                        {search ? (
-                            <IconButton
-                                size="sm"
-                                variant="ghost"
-                                icon={<X size={16} />}
-                                aria-label="Clear"
-                                onClick={() => setSearch("")}
-                            />
-                        ) : (
-                            <Search size={16} />
-                        )}
-                    </InputRightElement>
-                </InputGroup>
+            <Flex mb="24px" justifyContent="space-between">
+                <Heading fontSize={"22px"}>Products</Heading>
                 <Tooltip label={"Category"} placement="left">
                     <IconButton
                         onClick={() => {
@@ -175,7 +157,26 @@ export default function ADfacProducts({ reloadDependance, }) {
                     />
                 </Tooltip>
             </Flex>
-
+            <InputGroup maxW={"60%"}>
+                <Input
+                    placeholder="Search products..."
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                />
+                <InputRightElement>
+                    {search ? (
+                        <IconButton
+                            size="sm"
+                            variant="ghost"
+                            icon={<X size={16} />}
+                            aria-label="Clear"
+                            onClick={() => setSearch("")}
+                        />
+                    ) : (
+                        <Search size={16} />
+                    )}
+                </InputRightElement>
+            </InputGroup>
             {/* Table */}
             <Box
                 bg="bg"
