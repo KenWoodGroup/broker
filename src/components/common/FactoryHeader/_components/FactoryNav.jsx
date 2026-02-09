@@ -6,6 +6,7 @@ const navItems = [
     { label: "Warehouses", to: "/warehouses" },
     { label: "Options", to: "/options" },
     { label: "Clients", to: "/clients" },
+    { label: "Users", to: "/users" },
 ];
 
 export default function FactoryNav() {

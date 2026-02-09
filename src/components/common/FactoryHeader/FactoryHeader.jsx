@@ -68,7 +68,8 @@ export default function FactoryHeader({ factoryId, onBack }) {
       position="sticky"
       top="12px"
       zIndex={10}
-      bg="surface"
+      bg="surfBlur"
+      backdropFilter={"blur(5px)"}
       border="1px solid"
       borderColor={border}
       borderRadius="12px"

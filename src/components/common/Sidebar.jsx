@@ -32,7 +32,7 @@ import { useTranslation } from "react-i18next";
 import LogoutModal from "./LogoutModal";
 
 
-export default function Sidebar({ collapsed, links=[], end }) {
+export default function Sidebar({ collapsed, links = [], end }) {
     const { toggleColorMode } = useColorMode()
     const setCollapsed = useUIStore((s) => s.toggleSidebar);
     const { logout } = useAuth();
@@ -48,7 +48,8 @@ export default function Sidebar({ collapsed, links=[], end }) {
             position="fixed"
             w={collapsed ? "80px" : "250px"}
             minH="100vh"
-            bg="surface"
+            bg="surfBlur"
+            backdropFilter={"blur(5px)"}
             color="text"
             direction="column"
             justify="space-between"
@@ -74,11 +75,10 @@ export default function Sidebar({ collapsed, links=[], end }) {
             >
                 {collapsed ? <ChevronRight /> : <ChevronLeft />}
             </Button>
-            
             {/* TOP LINKS */}
-            <VStack align="stretch" spacing={1} mt={10}>
+            <VStack align="stretch" spacing={1} mt={10} position={"relative"} zIndex={1000}>
                 {links.map((item) => (
-                    <NavLink key={item.to} to={item.to}  style={{ textDecoration: "none" }}>
+                    <NavLink key={item.to} to={item.to} style={{ textDecoration: "none" }}>
                         {({ isActive }) => (
                             <Tooltip label={collapsed ? item.label : ""} placement="right">
                                 <Flex
@@ -150,7 +150,7 @@ export default function Sidebar({ collapsed, links=[], end }) {
                         openDelay={200}
                     >
                         <Flex alignItems={"center"}>
-                            <MenuButton w="100%" cursor={collapsed ? "pointer" :"default"}>
+                            <MenuButton w="100%" cursor={collapsed ? "pointer" : "default"}>
                                 <Flex
                                     align="center"
                                     gap={3}
@@ -181,7 +181,7 @@ export default function Sidebar({ collapsed, links=[], end }) {
                                 </Flex>
                             </MenuButton>
                             {!collapsed ?
-                                <LogoutModal/>
+                                <LogoutModal />
                                 : <noscript></noscript>
                             }
                         </Flex>
@@ -193,7 +193,7 @@ export default function Sidebar({ collapsed, links=[], end }) {
                             <MenuItem
                                 icon={<LucideLogOut />}
                                 bg="surface"
-                                _hover={{ bg: "red.300", color:"red"}}
+                                _hover={{ bg: "red.300", color: "red" }}
                                 onClick={logout}
                             >
                                 Logout

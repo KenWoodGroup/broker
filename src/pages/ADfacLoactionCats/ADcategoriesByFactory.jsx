@@ -139,7 +139,7 @@ export default function ADcategoriesByFactory({ reloadDependance }) {
         const payload = {
             items: selected.map((c) => ({
                 category_id: c.id,
-                factory_id: factoryId,
+                location_id: factoryId,
             })),
         };
         setSaveLoading(true);
@@ -272,11 +272,13 @@ export default function ADcategoriesByFactory({ reloadDependance }) {
                     ))
                     : categories.map((cat) => (
                         <CategoryCard
+                            pairId={cat.id}
                             key={cat.id}
                             category={joinMode ? cat : cat?.category}
                             joinMode={joinMode}
                             checked={!!selected.find((c) => c.id === cat.id)}
                             onToggleSelect={toggleSelect}
+                            reload={()=>fetchCategories(page, debouncedSearch)}
                         />
                     ))}
             </SimpleGrid>

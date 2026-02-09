@@ -10,7 +10,7 @@ const semanticTokens = {
         },
         surfBlur:{
             default:'rgba(255, 255, 255, 0.7)',
-            _dark:"rgba(20, 20, 20, 0.65)"
+            _dark:"rgba(26, 32, 44, 0.7)"
         },
         text: {
             default: "neutral.800",

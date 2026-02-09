@@ -2,6 +2,7 @@ import ADcategoriesByFactory from "../../pages/ADfacLoactionCats/ADcategoriesByF
 import ADfacLocalCats from "../../pages/ADfacLocalCats/ADfacLocalCats";
 import ADfacProducts from "../../pages/ADfacProducts/ADfacProducts";
 import ADfacProductsByCategory from "../../pages/ADfacProductsByCategory/ADfacProductsByCategory";
+import FactoryOptionsPage from "../../pages/ADfactoryOptions/ADfactoryOptions";
 
 const adminFacRoutes = [
     {
@@ -23,6 +24,11 @@ const adminFacRoutes = [
         name:"ad categories bs factory",
         path:"categories",
         element:<ADcategoriesByFactory/>
+    },
+    {
+        name:"ad factory options",
+        path:'options',
+        element:<FactoryOptionsPage/>
     }
 ];
 export default adminFacRoutes

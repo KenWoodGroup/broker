@@ -5,8 +5,8 @@ import { apiManagers } from "../../utils/Controllers/Managers";
 import CopyUsername from "../../components/common/CopyUsername";
 import { formatDateTime } from "../../utils/tools/formatDateTime";
 import ManagerModal from "./_components/ManagerModal";
-import ConfirmDelModal from "../../components/common/ConfirmDelModal";
 import ResetPassModal from "../../components/common/ResetPassModal";
+import ConfirmDelModal from "../../components/common/ConfirmDelModal";
 
 export default function SPmanagers() {
     const formModal = useDisclosure();

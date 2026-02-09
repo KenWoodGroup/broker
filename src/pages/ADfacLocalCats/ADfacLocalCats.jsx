@@ -11,15 +11,16 @@ import {
     Heading
 } from "@chakra-ui/react";
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { ChevronLeft, ChevronRight, LayoutGrid, Search, X } from "lucide-react";
+import { ChevronLeft, ChevronRight, FileSpreadsheet, FileUp, LayoutGrid, Search, Upload, X } from "lucide-react";
 import useDebounce from "../../hooks/useDebounce";
 import { useNavigate, useParams } from "react-router";
 import { apiLocalCategories } from "../../utils/Controllers/apiLocalCategories";
 import CategoryCardSkeleton from "../../components/ui/CategoryCardSkeleton";
 import CategoryCard from "./_components/CategoryCard";
 import { useSearchParams } from "react-router-dom";
+import UploadProductsByExcel from "./_components/UploadProductsByExcel";
 
-const CATEGORY_PAGE_KEY = "categories_page";
+const CATEGORY_PAGE_KEY = "local_categories_page";
 
 export default function ADfacLocalCats({ reloadDependance }) {
 
@@ -101,19 +102,23 @@ export default function ADfacLocalCats({ reloadDependance }) {
     /* ---------------- render ---------------- */
     return (
         <Box pb={"20px"}>
-            <Flex mb="24px"  justifyContent="space-between">
+            <Flex mb="24px" justifyContent="space-between">
                 <Heading fontSize={"22px"}>Products</Heading>
-                <Tooltip label={"Table"} placement="left" >
-                    <IconButton
-                        onClick={() => {
-                            navigate('products')
-                        }}
-                        bg="brand.400"
-                        _hover={{ bg: "" }}
-                        color={"neutral.50"}
-                        icon={<LayoutGrid />}
-                    />
-                </Tooltip>
+                <Flex gap={3}>
+                    <UploadProductsByExcel factoryId={factoryId}/>
+                    <Tooltip label={"Table"} placement="bottom" >
+                        <IconButton
+                            onClick={() => {
+                                navigate('products')
+                            }}
+                            bg="brand.400"
+                            _hover={{ bg: "" }}
+                            color={"neutral.50"}
+                            icon={<LayoutGrid />}
+                        />
+                    </Tooltip>
+                </Flex>
+
             </Flex>
             {/* Search */}
             <InputGroup maxW={"60%"} mb={"22px"}>

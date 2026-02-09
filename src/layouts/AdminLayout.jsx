@@ -2,12 +2,12 @@ import { Outlet } from "react-router";
 import Sidebar from "../components/common/Sidebar";
 import { Box } from "@chakra-ui/react";
 import { useUIStore } from "../store/useUIStore";
-import { Factory, Home } from "lucide-react";
+import { Factory, Home, LucideTarget } from "lucide-react";
 
 const links = [
     { label: "Home", to: "/", icon: Home },
     { label: "Factory", to: "/factories", icon: Factory },
-    // { label: "Subcategories", to: "/subcategories", icon: LayoutGrid },
+    { label: "Options", to: "/options", icon: LucideTarget },
     // { label: "Minicategories", to: "/minisubcategories", icon: Settings },
     // { label: "Products", to: "/products", icon: Boxes },
 ];

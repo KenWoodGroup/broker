@@ -21,8 +21,9 @@ import { apiLocalProducts } from "../../utils/Controllers/apiLocalProducts";
 import { useNavigate, useParams } from "react-router";
 import TableSkeleton from "../../components/ui/TableSkeleton";
 import { formatDateTime } from "../../utils/tools/formatDateTime";
+import UploadProductsByExcel from "../ADfacLocalCats/_components/UploadProductsByExcel";
 
-const FACTORY_PAGE_KEY = "factories_page";
+const FACTORY_PAGE_KEY = "products_page";
 const SEARCH_DEBOUNCE = 500;
 const HOLD_DELAY = 300;
 
@@ -146,16 +147,19 @@ export default function ADfacProducts({ reloadDependance, }) {
             {/* Search */}
             <Flex mb="24px" justifyContent="space-between">
                 <Heading fontSize={"22px"}>Products</Heading>
-                <Tooltip label={"Category"} placement="left">
-                    <IconButton
-                        onClick={() => {
-                            navigate(`/factories/${factoryId}`)
-                        }}
-                        bg={"neutral.300"}
-                        _hover={{ bg: "" }} color={"brand.800"}
-                        icon={<LayoutGrid />}
-                    />
-                </Tooltip>
+                <Flex gap={3}>
+                    <UploadProductsByExcel/>
+                    <Tooltip label={"Category"} placement="bottom">
+                        <IconButton
+                            onClick={() => {
+                                navigate(`/factories/${factoryId}`)
+                            }}
+                            bg={"neutral.300"}
+                            _hover={{ bg: "" }} color={"brand.800"}
+                            icon={<LayoutGrid />}
+                        />
+                    </Tooltip>
+                </Flex>
             </Flex>
             <InputGroup maxW={"60%"}>
                 <Input
