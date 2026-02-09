@@ -23,7 +23,7 @@ import TableSkeleton from "../../components/ui/TableSkeleton";
 import { formatDateTime } from "../../utils/tools/formatDateTime";
 import { NavLink, useSearchParams } from "react-router-dom";
 
-const FACTORY_PAGE_KEY = "factories_page";
+const FACTORY_PAGE_KEY = "fac_products_page_by_category";
 const SEARCH_DEBOUNCE = 500;
 const HOLD_DELAY = 300;
 

@@ -9,6 +9,10 @@ class apiLocalProducts {
         const response = await $api.get(`${BASE_URL}/api/local-products/paginate/${prdType}/${locId}/${catId}/page?name=${searchText}&page=${page}`)
         return response;
     }
+    static uploadProducts = async (facID, data) => {
+        const response = await $api.post(`${BASE_URL}/api/local-products/upload-product/${facID}`, data);
+        return response;
+    }
     // static getFactoriesByCategory = async (id, page, searchText) => {
     //     const response = await $api.get(`${BASE_URL}/api/location-location-categories/category/page?category_id=${id}&name=${searchText}&page=${page}`)
     //     return response;

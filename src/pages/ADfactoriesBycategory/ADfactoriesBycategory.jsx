@@ -25,7 +25,7 @@ import { apiCategories } from "../../utils/Controllers/Categories";
 import { apiLocalCategories } from "../../utils/Controllers/apiLocalCategories";
 import { apiLocationCategories } from "../../utils/Controllers/apiLocationCategory";
 
-const FACTORY_PAGE_KEY = "factories_page";
+const FACTORY_PAGE_KEY = "factories_page_by_category";
 const SEARCH_DEBOUNCE = 500;
 const HOLD_DELAY = 300;
 

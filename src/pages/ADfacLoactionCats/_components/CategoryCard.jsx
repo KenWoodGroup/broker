@@ -4,18 +4,39 @@ import {
     IconButton,
     useColorModeValue,
     VStack,
+    useDisclosure,
 } from "@chakra-ui/react";
 import { Plus, Minus, X } from "lucide-react";
-import React from "react";
+import React, { useState } from "react";
+import ConfirmDelModal from "../../../components/common/ConfirmDelModal";
+import { apiLocationCategories } from "../../../utils/Controllers/apiLocationCategory";
 
 const CategoryCard = React.memo(function CategoryCard({
     category,
+    pairId,
     joinMode = false,
     checked = false,
     onToggleSelect,
+    reload,
 }) {
     const bg = useColorModeValue("white", "gray.800");
     const border = useColorModeValue("gray.200", "gray.700");
+    const confirmModal = useDisclosure();
+
+    const [loading, setLoading] = useState();
+
+    const deletePair = async () => {
+        setLoading(true);
+        try{
+            await apiLocationCategories.Delete(pairId);
+            confirmModal.onClose();
+            if(reload) {
+                reload();
+            }
+        }finally {
+            setLoading(false)
+        }
+    }
 
     return (
         <Box
@@ -49,7 +70,7 @@ const CategoryCard = React.memo(function CategoryCard({
                     colorScheme="red"
                     icon={<X size={16} />}
                     aria-label="remove"
-                // remove functionni o‘zing ulaysan
+                    onClick={confirmModal.onOpen}
                 />
             )}
 
@@ -58,6 +79,8 @@ const CategoryCard = React.memo(function CategoryCard({
                     {category?.name || "-"}
                 </Text>
             </VStack>
+
+            <ConfirmDelModal isOpen={confirmModal.isOpen} onClose={confirmModal.onClose} onConfirm={deletePair} itemName={category?.name} loading={loading} typeItem={"category from factory"}/>
         </Box>
     );
 });
