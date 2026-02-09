@@ -30,10 +30,12 @@ export default function BRoffers() {
     // pagination + counters
     const [totalPages, setTotalPages] = useState(1);
     const [counts, setCounts] = useState({ new: 0, procces: 0, contract: 0, finished: 0, cancel: 0 });
+
     const changeCount = (c, num) => {
         setCounts({ ...counts, [c]: num })
     };
-    const changeStatus = (s)=> {
+
+    const changeStatus = (s) => {
         setStatus(s);
         sessionStorage.setItem('offers_status', s);
         setPage(1)
@@ -54,7 +56,6 @@ export default function BRoffers() {
             setLoading(false);
         }
     };
-
 
     useEffect(() => {
         fetchOffers(page, status);
@@ -84,7 +85,7 @@ export default function BRoffers() {
                     onClick={() => changeStatus('contract')}
                     colorScheme={status === "contract" ? "yellow" : "gray"}
                 >
-                    Contract {status === "contract" && ("(" + counts.procces + ")")}
+                    Contract {status === "contract" && ("(" + counts.contract + ")")}
                 </Button>
                 <Button
                     onClick={() => changeStatus('finished')}
@@ -96,7 +97,7 @@ export default function BRoffers() {
                     onClick={() => changeStatus('cancel')}
                     colorScheme={status === "cancel" ? "red" : "gray"}
                 >
-                    Canceled {status === "cancel" && ("(" + counts.finished + ")")}
+                    Canceled {status === "cancel" && ("(" + counts.cancel + ")")}
                 </Button>
             </ButtonGroup>
 
@@ -111,10 +112,15 @@ export default function BRoffers() {
                                     {/* Header */}
                                     <HStack justify="space-between" align="start">
                                         <VStack align="start" spacing={1}>
-                                            <Heading size="sm">{offer.full_name}</Heading>
+                                            <Heading size="sm">{offer.location?.name || 'N/A'}</Heading>
                                             <Text fontSize="sm" color="gray.600">
-                                                {offer.phone_number}
+                                                {offer.location?.phone || 'N/A'}
                                             </Text>
+                                            {offer.location?.address && (
+                                                <Text fontSize="xs" color="gray.500">
+                                                    {offer.location.address}
+                                                </Text>
+                                            )}
                                         </VStack>
 
                                         <Badge
@@ -123,12 +129,32 @@ export default function BRoffers() {
                                                     ? "blue"
                                                     : offer.status === "procces"
                                                         ? "orange"
-                                                        : "green"
+                                                        : offer.status === "contract"
+                                                            ? "yellow"
+                                                            : offer.status === "finished"
+                                                                ? "green"
+                                                                : "red"
                                             }
                                         >
                                             {offer.status}
                                         </Badge>
                                     </HStack>
+
+                                    {/* Contract and Note Info */}
+                                    {(offer.contract_number || offer.note) && (
+                                        <VStack align="start" spacing={1}>
+                                            {offer.contract_number && (
+                                                <Text fontSize="xs" color="gray.600">
+                                                    <strong>Contract:</strong> {offer.contract_number}
+                                                </Text>
+                                            )}
+                                            {offer.note && (
+                                                <Text fontSize="xs" color="gray.600">
+                                                    <strong>Note:</strong> {offer.note}
+                                                </Text>
+                                            )}
+                                        </VStack>
+                                    )}
 
                                     {/* Products */}
                                     <Box flex="1">
@@ -137,17 +163,24 @@ export default function BRoffers() {
                                                 Requested products
                                             </Text>
                                             <Badge variant="subtle" colorScheme="gray">
-                                                {offer.products.length} products
+                                                {offer.offer_items?.length || 0} products
                                             </Badge>
                                         </HStack>
                                         <VStack align="start" spacing={2}>
-                                            {offer.products.map((product, i) => (
-                                                <Badge
-                                                    maxW="100%"
-                                                    whiteSpace="normal"
-                                                    wordBreak="break-word" key={i} colorScheme="blue">
-                                                    {product}
-                                                </Badge>
+                                            {offer.offer_items?.map((item) => (
+                                                <HStack key={item.id} w="100%" justify="space-between">
+                                                    <Badge
+                                                        maxW="70%"
+                                                        whiteSpace="normal"
+                                                        wordBreak="break-word"
+                                                        colorScheme="blue"
+                                                    >
+                                                        {item.product_name}
+                                                    </Badge>
+                                                    <Text fontSize="xs" fontWeight="bold">
+                                                        {parseFloat(item.quantity).toLocaleString()}
+                                                    </Text>
+                                                </HStack>
                                             ))}
                                         </VStack>
                                     </Box>
