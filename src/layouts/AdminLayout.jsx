@@ -7,7 +7,8 @@ import { Factory, Home, LucideTarget } from "lucide-react";
 const links = [
     { label: "Home", to: "/", icon: Home },
     { label: "Factory", to: "/factories", icon: Factory },
-    { label: "Options", to: "/options", icon: LucideTarget },
+    { label: "Qurilish kompaniyalari", to: "/company", icon: Factory },
+    // { label: "Options", to: "/options", icon: LucideTarget },
     // { label: "Minicategories", to: "/minisubcategories", icon: Settings },
     // { label: "Products", to: "/products", icon: Boxes },
 ];

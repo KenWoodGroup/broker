@@ -1,22 +1,28 @@
+import BRcompany from "../../pages/BRcompany/BRcompany";
 import BRhome from "../../pages/BRhome/BRhome";
 import OfferDetailPage from "../../pages/BROfferDetail/OfferDetailPage";
 import BRoffers from "../../pages/BRoffers/BRoffers";
 
 const brokerRoutes = [
     {
-        name:"broker home",
-        path:"",
-        element:<BRhome/>
+        name: "broker home",
+        path: "",
+        element: <BRhome />
     },
     {
-        name:"br offers",
-        path:"offers",
-        element:<BRoffers/>
+        name: "br offers",
+        path: "offers",
+        element: <BRoffers />
     },
     {
-        name:"br offer detail",
-        path:"offer/:id",
-        element:<OfferDetailPage/>
+        name: "br offer detail",
+        path: "offer/:id",
+        element: <OfferDetailPage />
+    },
+    {
+        name: "br  company",
+        path: "company",
+        element: <BRcompany />
     }
 ];
 export default brokerRoutes
