@@ -8,7 +8,7 @@ const links = [
     { label: "Home", to: "/operator", icon: Home },
     { label: "Offers", to: "/operator/offers", icon: Inbox },
     { label: "Company", to: "/operator/company", icon: Building2 },
-    // { label: "Operators", to: "/superadmin/operators", icon: Headset },
+    { label: "Map", to: "https://api.usderp.uz/dshk/", icon: Building2 },
     // { label: "Minicategories", to: "/minisubcategories", icon: Settings },
     // { label: "Products", to: "/products", icon: Boxes },
 ];

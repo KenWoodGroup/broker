@@ -1,5 +1,6 @@
 import BRcompany from "../../pages/BRcompany/BRcompany";
 import BRhome from "../../pages/BRhome/BRhome";
+import BRMap from "../../pages/BRMap/BRMap";
 import OfferDetailPage from "../../pages/BROfferDetail/OfferDetailPage";
 import BRoffers from "../../pages/BRoffers/BRoffers";
 
@@ -23,6 +24,11 @@ const brokerRoutes = [
         name: "br  company",
         path: "company",
         element: <BRcompany />
+    },
+    {
+        name: "br  Map",
+        path: "map",
+        element: <BRMap />
     }
 ];
 export default brokerRoutes

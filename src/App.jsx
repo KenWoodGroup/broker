@@ -13,6 +13,7 @@ import brokerRoutes from './utils/routes/brokerRoutes'
 import AdminFactoryLayout from './layouts/AdminFactoryLayout'
 import adminFacRoutes from './utils/routes/adminFacRoutes'
 
+
 function App() {
 
   return (
@@ -35,10 +36,10 @@ function App() {
                 <Route key={r.name} path={r.path} element={r.element} />
               )
             })}
-            <Route path='/factories/:factoryId' element={<AdminFactoryLayout/>}>
-              {adminFacRoutes.map((r)=> {
+            <Route path='/factories/:factoryId' element={<AdminFactoryLayout />}>
+              {adminFacRoutes.map((r) => {
                 return (
-                  <Route key={r.name} path={r.path} element={r.element}/>
+                  <Route key={r.name} path={r.path} element={r.element} />
                 )
               })}
             </Route>
