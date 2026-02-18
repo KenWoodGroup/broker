@@ -81,6 +81,7 @@ export default function FactoryHeader({ factoryId, onBack }) {
       {loading ? <Box mt={"44px"}><BarLoader/></Box> :
         <Box>
           {/* Top row: back + factory name */}
+          
           <Flex align="center" justify="space-between">
             <HStack spacing="12px">
               <IconButton
