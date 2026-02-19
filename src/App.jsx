@@ -12,6 +12,8 @@ import BrokerLayout from './layouts/BrokerLayout'
 import brokerRoutes from './utils/routes/brokerRoutes'
 import AdminFactoryLayout from './layouts/AdminFactoryLayout'
 import adminFacRoutes from './utils/routes/adminFacRoutes'
+import CallOperRoutes from './utils/routes/call-operatorRoutes'
+import CallOperatorLayout from './layouts/CallOperatorLayout'
 
 
 function App() {
@@ -48,6 +50,15 @@ function App() {
         <Route element={<RequireAuth role={"Broker"} />}>
           <Route path='/operator' element={<BrokerLayout />}>
             {brokerRoutes.map((r) => {
+              return (
+                <Route key={r.name} path={r.path} element={r.element} />
+              )
+            })}
+          </Route>
+        </Route>
+        <Route element={<RequireAuth role={"sales_rep"} />}>
+          <Route path='/call-operator' element={<CallOperatorLayout />}>
+            {CallOperRoutes.map((r) => {
               return (
                 <Route key={r.name} path={r.path} element={r.element} />
               )

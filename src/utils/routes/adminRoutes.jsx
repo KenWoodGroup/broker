@@ -3,6 +3,7 @@ import ADcategories from "../../pages/ADcategories/ADcategories";
 import ADfactories from "../../pages/ADfactories/ADfactories";
 import ADfactoriesBycategory from "../../pages/ADfactoriesBycategory/ADfactoriesBycategory";
 import ADcompany from "../../pages/BRcompany/BRcompany";
+import ADOperators from "../../pages/ADOperators/ADOperators";
 
 const adminRoutes = [
     {
@@ -24,6 +25,11 @@ const adminRoutes = [
         path: "factories/categories/:id",
         name: "factories by category",
         element: <ADfactoriesBycategory />
+    },
+    {
+        path: "operators",
+        name: "operators",
+        element: <ADOperators />
     },
 ];
 
