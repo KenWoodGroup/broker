@@ -5,12 +5,20 @@ class apiLocations {
         const response = await $api.get(`${BASE_URL}/api/locations/type/${locType}/${searchText}/page?page=${page}`)
         return response;
     }
-    static getLocation = async (id)=> {
+    static GetBySearchForOperator = async (page, searchText) => {
+        const response = await $api.get(`${BASE_URL}/api/locations/operator/${searchText}/page?page=${page}`)
+        return response;
+    }
+    static getLocation = async (id) => {
         const response = await $api.get(`${BASE_URL}/api/locations/${id}`);
         return response
     }
     static Add = async (data, locType) => {
         const response = await $api.post(`${BASE_URL}/api/locations`, data, { showSuccessToast: `${locType} successfully created` })
+        return response;
+    }
+    static AddWeb = async (data) => {
+        const response = await $api.post(`${BASE_URL}/api/locations/web`, data, { showSuccessToast: `successfully created` })
         return response;
     }
     static Update = async (data, id, locType) => {
@@ -21,6 +29,12 @@ class apiLocations {
         const response = await $api.delete(`${BASE_URL}/api/locations/${id}`, { showSuccessToast: `${locType} successfully deleted` })
         return response;
     }
+    static SearchByName = async (name) => {
+        const response = await $api.get(`${BASE_URL}/api/locations/by-name/factory/${name}`,)
+        return response;
+    }
+
+
 }
 
 export { apiLocations };

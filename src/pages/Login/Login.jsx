@@ -82,6 +82,9 @@ export default function Login() {
                 } else if (data.newUser.role === "broker") {
                     navigate('/operator');
                     toastService.success("Successfully")
+                } else if (data?.newUser?.role === "sales_rep") {
+                    navigate('/call-operator/dashboard');
+                    toastService.success("Successfully")
                 }
                 else {
                     toastService.error("Role mos kelmadi")

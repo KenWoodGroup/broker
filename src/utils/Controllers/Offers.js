@@ -9,6 +9,13 @@ class apiOffers {
         const response = await $api.get(`${BASE_URL}/api/offers/${id}`);
         return response
     }
+    static getOffersByLocationId = async (data) => {
+        const response = await $api.get(`${BASE_URL}/api/offers/location?location_id=${data?.location_id}&page=${data?.page}&limit=20`);
+        return response
+    }
+    static CreateOffer = async (data)=>{
+        const response = await $api.post(`${BASE_URL}/api/offers`, data)
+    }
     // static Add = async (data) => {
     //     const response = await $api.post(`${BASE_URL}/api/user`, data, {showSuccessToast:"Manager successfully created"})
     //     return response;
