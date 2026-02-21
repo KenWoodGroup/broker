@@ -4,6 +4,7 @@ import ADfactories from "../../pages/ADfactories/ADfactories";
 import ADfactoriesBycategory from "../../pages/ADfactoriesBycategory/ADfactoriesBycategory";
 import ADcompany from "../../pages/BRcompany/BRcompany";
 import ADOperators from "../../pages/ADOperators/ADOperators";
+import Clcompany from "../../pages/CLcompany/Clcompany";
 
 const adminRoutes = [
     {
@@ -31,6 +32,12 @@ const adminRoutes = [
         name: "operators",
         element: <ADOperators />
     },
+    {
+        path:'companies',
+        name:'companies',
+        element:<Clcompany role={'Admin'}/>
+    }
+
 ];
 
 export default adminRoutes

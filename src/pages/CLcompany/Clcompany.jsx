@@ -16,15 +16,18 @@ import {
     Badge,
     Input,
     InputGroup,
-    InputLeftElement
+    InputLeftElement,
+    IconButton,
+    Tooltip
 } from "@chakra-ui/react"
-import { Search } from "lucide-react"
+import { Search, Upload } from "lucide-react"
 import CreateCompany from "./__components/CreateCompany"
 import { apiLocations } from "../../utils/Controllers/Locations"
 import { useEffect, useState, useRef } from "react"
 import { useNavigate } from "react-router"
+import CreateCompanyByExcell from "./__components/CreateCompanyByExcell"
 
-export default function Clcompany() {
+export default function Clcompany({ role }) {
     const [companies, setCompanies] = useState([])
     const [pagination, setPagination] = useState(null)
     const [page, setPage] = useState(1)
@@ -67,8 +70,11 @@ export default function Clcompany() {
         <Box py="20px" pr="20px">
 
             <Flex justifyContent="space-between" mb="20px">
-                <Heading size="lg">Companiyalar</Heading>
-                <CreateCompany refresh={() => GetCompany(page, search)} />
+                <Heading size="lg">Kompaniyalar</Heading>
+                <Flex gap={4}>
+                    <CreateCompanyByExcell reload={GetCompany}/>
+                    <CreateCompany refresh={() => GetCompany(page, search)} />
+                </Flex>
             </Flex>
 
             {/* Search */}
@@ -115,7 +121,7 @@ export default function Clcompany() {
                         boxShadow="sm"
                     >
                         <Table variant="simple">
-                            <Thead bg="gray.100">
+                            <Thead>
                                 <Tr>
                                     <Th>#</Th>
                                     <Th>Nomi</Th>
@@ -129,7 +135,11 @@ export default function Clcompany() {
 
                             <Tbody>
                                 {companies.map((item, index) => (
-                                    <Tr cursor={'pointer'} key={item.id} onClick={() => navigate(`/call-operator/company/${item?.id}`)}>
+                                    <Tr cursor={role === 'Admin' ? 'default' : 'pointer'} key={item.id} onClick={() => {
+                                        if (role !== 'Admin') {
+                                            navigate(`/call-operator/company/${item?.id}`)
+                                        }
+                                    }}>
                                         <Td>{(page - 1) * 10 + index + 1}</Td>
                                         <Td fontWeight="medium">{item.name}</Td>
                                         <Td>
