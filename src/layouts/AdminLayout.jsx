@@ -1,14 +1,14 @@
 import { Outlet } from "react-router";
 import Sidebar from "../components/common/Sidebar";
-import { Box } from "@chakra-ui/react";
 import { useUIStore } from "../store/useUIStore";
-import { Factory, Home, User2 } from "lucide-react";
+import { BoxIcon, Factory, Home, User2 } from "lucide-react";
+import { Box } from "@chakra-ui/react";
 
 const links = [
     { label: "Home", to: "/", icon: Home },
     { label: "Factory", to: "/factories", icon: Factory },
+    { label: "Companies", to: "/companies", icon: BoxIcon },
     { label: "Operatorlar", to: "/operators", icon: User2 },
-    // { label: "Options", to: "/options", icon: LucideTarget },
     // { label: "Minicategories", to: "/minisubcategories", icon: Settings },
     // { label: "Products", to: "/products", icon: Boxes },
 ];
