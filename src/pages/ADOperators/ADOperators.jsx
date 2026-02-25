@@ -78,7 +78,7 @@ export default function ADOperators() {
                         boxShadow="md"
                     >
                         <Table variant="simple">
-                            <Thead bg="gray.100">
+                            <Thead>
                                 <Tr>
                                     <Th>#</Th>
                                     <Th>To'liq ism</Th>
