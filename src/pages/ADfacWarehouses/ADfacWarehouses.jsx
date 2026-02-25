@@ -50,7 +50,6 @@ import { apiLocations } from '../../utils/Controllers/Locations';
 import { apiOptions } from '../../utils/Controllers/apiOptions';
 import regions from '../../constants/regions/regions.json'
 import districts from '../../constants/regions/districts.json'
-import toast from 'react-hot-toast';
 import { toastService } from '../../utils/toast';
 
 const WarehousesPage = () => {
