@@ -5,6 +5,10 @@ class apiUsers {
         const response = await $api.get(`${BASE_URL}/api/user`)
         return response;
     }
+    static getFactoryUsers = async (facId) => {
+        const response = await $api.get(`${BASE_URL}/api/user/locationId/${facId}`)
+        return response;
+    }
     static getBrokers = async ()=> {
         const response = await $api.get(`${BASE_URL}/api/user/broker`);
         return response;

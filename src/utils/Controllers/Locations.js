@@ -29,6 +29,10 @@ class apiLocations {
         const response = await $api.post(`${BASE_URL}/api/locations/upload-building/${locType}`, file, { showSuccessToast: `${locType} successfully created` })
         return response;
     }
+    static CreateLocalClientsByExcell = async (facId, file ) => {
+        const response = await $api.post(`${BASE_URL}/api/locations/upload-client/${facId}`, file, { showSuccessToast: `Clients successfully created` })
+        return response;
+    }
     static AddWeb = async (data) => {
         const response = await $api.post(`${BASE_URL}/api/locations/web`, data, { showSuccessToast: `successfully created` })
         return response;
