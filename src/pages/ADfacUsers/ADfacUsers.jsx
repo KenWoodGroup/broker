@@ -143,10 +143,12 @@ const UsersPage = () => {
     const handleAddSubmit = async () => {
         // Validation
         if (!formData.full_name || !formData.username || !formData.role || !formData.password) {
+            toastService.error("Ma'lumotlar to'liq kirtilmagan")
             return;
         }
 
         if (formData.password !== formData.confirmPassword) {
+            toastService.error("Tastiqlash paroli mos emas")
             return;
         }
 

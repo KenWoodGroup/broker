@@ -5,6 +5,7 @@ import ADfactoriesBycategory from "../../pages/ADfactoriesBycategory/ADfactories
 import ADcompany from "../../pages/BRcompany/BRcompany";
 import ADOperators from "../../pages/ADOperators/ADOperators";
 import Clcompany from "../../pages/CLcompany/Clcompany";
+import OptionsPage from "../../pages/ADoptions/ADoptions";
 
 const adminRoutes = [
     {
@@ -36,6 +37,11 @@ const adminRoutes = [
         path:'companies',
         name:'companies',
         element:<Clcompany role={'Admin'}/>
+    },
+    {
+        path:'options',
+        name:'options',
+        element:<OptionsPage/>
     }
 
 ];
