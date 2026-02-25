@@ -2,11 +2,11 @@ import { HStack, Button } from "@chakra-ui/react";
 import { NavLink, useLocation, useMatch, useParams } from "react-router-dom";
 
 const navItems = [
-    { label: "Categories", to: "/categories" },
-    { label: "Warehouses", to: "/warehouses" },
-    { label: "Options", to: "/options" },
-    { label: "Clients", to: "/clients" },
-    { label: "Users", to: "/users" },
+    { label: "Categories", to: "/categories", end:true },
+    { label: "Warehouses", to: "/warehouses", end:false},
+    { label: "Options", to: "/options", end:true },
+    { label: "Clients", to: "/clients", end:true },
+    { label: "Users", to: "/users", end:true },
 ];
 
 export default function FactoryNav() {
@@ -52,7 +52,7 @@ export default function FactoryNav() {
                     key={item.label}
                     as={NavLink}
                     to={`/factories/${factoryId}${item.to}`}
-                    end={true}
+                    end={item.end}
                     variant="ghost"
                     size="sm"
                     fontWeight="600"

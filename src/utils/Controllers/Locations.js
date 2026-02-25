@@ -5,12 +5,20 @@ class apiLocations {
         const response = await $api.get(`${BASE_URL}/api/locations/type/${locType}/${searchText}/page?page=${page}`)
         return response;
     }
+    static pageFactoryWarehouses = async (page, factoryId) => {
+        const response = await $api.get(`${BASE_URL}/api/locations/warehouse/${factoryId}/page?page=${page}`)
+        return response;
+    }
     static GetBySearchForOperator = async (page, searchText) => {
         const response = await $api.get(`${BASE_URL}/api/locations/operator/${searchText}/page?page=${page}`)
         return response;
     }
     static getLocation = async (id) => {
         const response = await $api.get(`${BASE_URL}/api/locations/${id}`);
+        return response
+    }
+    static getLocalClients = async (facId, search, page) => {
+        const response = await $api.get(`${BASE_URL}/api/locations/type/${facId}/client/${search}/page?page=${page}`);
         return response
     }
     static Add = async (data, locType) => {

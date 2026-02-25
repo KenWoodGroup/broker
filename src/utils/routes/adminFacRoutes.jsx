@@ -3,6 +3,8 @@ import ADfacLocalCats from "../../pages/ADfacLocalCats/ADfacLocalCats";
 import ADfacProducts from "../../pages/ADfacProducts/ADfacProducts";
 import ADfacProductsByCategory from "../../pages/ADfacProductsByCategory/ADfacProductsByCategory";
 import FactoryOptionsPage from "../../pages/ADfactoryOptions/ADfactoryOptions";
+import WarehousesPage from "../../pages/ADfacWarehouses/ADfacWarehouses";
+import WarehouseStockPage from "../../pages/ADfacWarehouseStock/ADfacWarehouseStock";
 
 const adminFacRoutes = [
     {
@@ -29,6 +31,16 @@ const adminFacRoutes = [
         name:"ad factory options",
         path:'options',
         element:<FactoryOptionsPage/>
+    },
+    {
+        name:'ad factory warehouses',
+        path:'warehouses',
+        element:<WarehousesPage/>
+    },
+    {
+        name:'ad factory warehouse stock',
+        path:'warehouses/:warehouseId',
+        element:<WarehouseStockPage/>
     }
 ];
 export default adminFacRoutes

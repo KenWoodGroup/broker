@@ -1,5 +1,5 @@
 import axios from "axios";
-import { BASE_URL } from "../api/axios";
+import { $api, BASE_URL } from "../api/axios";
 
 class apiStock {
     static GetStock = async (data) => {
@@ -11,6 +11,10 @@ class apiStock {
         }
 
         const response = await axios.get(url);
+        return response;
+    }
+    static GetByLocationId = async (locationId, page) => {
+        const response = await $api.get(`/stock/location/${locationId}/page?page=${page}`)
         return response;
     }
 }
