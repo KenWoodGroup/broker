@@ -66,23 +66,31 @@ export default function Login() {
             setLoading(true)
             const res = await Auth.Login(payload);
             if (res.status == 200 || res.status == 201) {
-                const data = res.data
+                const data = res.data;
+                const userData = data.user || data.newUser;
+
+                if (!userData) {
+                    toastService.error("Foydalanuvchi ma'lumotlari topilmadi");
+                    return;
+                }
+
                 login({
                     token: data.tokens.access_token,
                     refreshToken: data.tokens.refresh_token,
-                    user: data.newUser
-                }
-                );
-                if (data.newUser.role === "admin") {
+                    user: userData
+                });
+
+                const role = userData.role;
+                if (role === "admin") {
                     navigate("/")
                     toastService.success("Successfully");
-                } else if (data.newUser.role === "super_admin") {
+                } else if (role === "super_admin") {
                     navigate("/superadmin");
-                    toastService.success("Successfully, Welocome Boss !")
-                } else if (data.newUser.role === "broker") {
+                    toastService.success("Successfully, Welcome Boss !")
+                } else if (role === "broker") {
                     navigate('/operator');
                     toastService.success("Successfully")
-                } else if (data?.newUser?.role === "sales_rep") {
+                } else if (role === "sales_rep") {
                     navigate('/call-operator/dashboard');
                     toastService.success("Successfully")
                 }
