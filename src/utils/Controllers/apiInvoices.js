@@ -16,7 +16,7 @@ class apiInvoices {
         )
         return response
     }
-     static UploadExelMaterial = async (id, data) => {
+    static UploadExelMaterial = async (id, data) => {
         const response = await $api.post(`/invoice-items/upload/${id}`, data,
             {
                 headers: {
@@ -24,7 +24,7 @@ class apiInvoices {
                 }
             }
         )
-        return response
+        return response;
     }
 
 }
