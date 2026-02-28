@@ -52,6 +52,7 @@ import { Factory, Building2 } from "lucide-react";
 import { apiStock } from "../../utils/Controllers/apiStock";
 import { apiLocations } from "../../utils/Controllers/Locations";
 import SelectedItemsModal from "./__components/CartModal";
+import { useParams } from "react-router";
 
 export default function CLOffersCreate() {
     const [searchData, setSearchData] = useState({
@@ -84,6 +85,7 @@ export default function CLOffersCreate() {
     const { isOpen, onOpen, onClose } = useDisclosure();
     const { isOpen: isFactoryModalOpen, onOpen: onFactoryModalOpen, onClose: onFactoryModalClose } = useDisclosure();
     const toast = useToast();
+    const { id } = useParams()
 
     // Factory search with debounce
     const debouncedFactorySearch = (searchTerm) => {
@@ -106,7 +108,7 @@ export default function CLOffersCreate() {
     const performFactorySearch = async (searchTerm) => {
         setFactoryLoading(true);
         try {
-            const response = await apiLocations.SearchByName(searchTerm);
+            const response = await apiLocations.getFactory(searchTerm, id);
             const factories = response.data || [];
             setFactorySearchResults(factories);
 
@@ -315,7 +317,10 @@ export default function CLOffersCreate() {
 
     // Re-run search when factory changes
     useEffect(() => {
-        if (searchData.name.trim()) {
+        if (selectedFactory) {
+            setSearchData(prev => ({ ...prev, name: "all", page: 1 }));
+            performSearch("all", 1);
+        } else if (searchData.name.trim()) {
             debouncedSearch(searchData.name, 1);
         }
     }, [selectedFactory]);
