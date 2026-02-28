@@ -54,7 +54,8 @@ export default function CartModal({
     itemQuantities,
     onQuantityChange,
     formatPrice,
-    getLocationName
+    getLocationName,
+    selectedFactory
 }) {
     const toast = useToast();
     const [isLoading, setIsLoading] = useState(false);
@@ -64,7 +65,7 @@ export default function CartModal({
         needLogistics: "ha",
         note: "",
         address: "",
-        location_id: id,
+        location_id: selectedFactory?.id || id,
     });
 
     const handleDeadlineChange = (e) => {
@@ -161,11 +162,13 @@ export default function CartModal({
 
             // API so'rovi uchun ma'lumotlarni tayyorlash
             const requestData = {
-                location_id: id,
+                location_id: selectedFactory?.id || id,
                 note: offerData.note.trim() || "Fast Delivery Co.",
                 items: selectedItemsData.map(item => ({
                     product_id: item.product?.id || item.id,
                     product_name: item.product?.name || "Maxsus buyurtma mahsulot",
+                    product_price: item.purchase_price,
+                    unit: "dona",
                     quantity: itemQuantities[item.id] || 1
                 })),
                 date: formattedDate,

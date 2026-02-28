@@ -56,8 +56,6 @@ export default function Login() {
 
         // Agar hatolik bo'lsa API chaqirilmaydi
         if (Object.keys(newErrors).length > 0) return;
-
-
         try {
             const payload = {
                 username: logInput.current.value,
@@ -68,18 +66,15 @@ export default function Login() {
             if (res.status == 200 || res.status == 201) {
                 const data = res.data;
                 const userData = data.user || data.newUser;
-
                 if (!userData) {
                     toastService.error("Foydalanuvchi ma'lumotlari topilmadi");
                     return;
                 }
-
                 login({
                     token: data.tokens.access_token,
                     refreshToken: data.tokens.refresh_token,
                     user: userData
                 });
-
                 const role = userData.role;
                 if (role === "admin") {
                     navigate("/")

@@ -758,6 +758,7 @@ export default function CLOffersCreate() {
                 onQuantityChange={handleQuantityChange}
                 formatPrice={formatPrice}
                 getLocationName={getLocationName}
+                selectedFactory={selectedFactory}
             />
         </Container>
     );
