@@ -1,6 +1,6 @@
 import { $api } from "../api/axios";
 import { BASE_URL } from "../api/axios";
-class apiLocations {
+class apiERPLocations {
     static pageAll = async (page, searchText, locType) => {
         const response = await $api.get(`${BASE_URL}/api/erp/locations/type/${locType}/${searchText}/page?page=${page}`)
         return response;
@@ -14,7 +14,7 @@ class apiLocations {
         return response;
     }
     static getLocation = async (id) => {
-        const response = await $api.get(`${BASE_URL}/api/locations/${id}`);
+        const response = await $api.get(`${BASE_URL}/api/erp/locations/${id}`);
         return response
     }
     static getFactory = async (name, location_id) => {
@@ -57,4 +57,4 @@ class apiLocations {
 
 }
 
-export { apiLocations };
+export { apiERPLocations };

@@ -191,7 +191,7 @@ export default function BRoffers() {
                                             <Clock size={14} />
                                             <Text>{formatDateTime(offer.createdAt)}</Text>
                                         </HStack>
-                                        <NavLink to={`/operator/offer/${offer?.id}`}>
+                                        <NavLink to={`/operator/offers/${offer?.id}`}>
                                             <Button
                                                 size="sm"
                                                 leftIcon={<Search size={16} />}

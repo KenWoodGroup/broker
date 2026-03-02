@@ -14,7 +14,7 @@ class apiLocationCategories {
         return response;
     }
     static Add = async (data) => {
-        const response = await $api.post(`${BASE_URL}/api/location-location-categories`, data, { showSuccessToast: "Successfully joined" })
+        const response = await $api.post(`${BASE_URL}/api/erp/location-location-categories`, data, { showSuccessToast: "Successfully joined" })
         return response;
     }
     // static Update = async (data, id) => {
@@ -22,7 +22,7 @@ class apiLocationCategories {
     //     return response;
     // }
     static Delete = async (id) => {
-        const response = await $api.delete(`${BASE_URL}/api/location-location-categories/${id}`, { showSuccessToast: "Successfully removed"})
+        const response = await $api.delete(`${BASE_URL}/api/erp/location-location-categories/${id}`, { showSuccessToast: "Successfully removed"})
         return response;
     }
 }

@@ -6,23 +6,23 @@ class apiCategories {
         return response;
     }
     static getFactoriesByCategory = async (id, page, searchText) => {
-        const response = await $api.get(`${BASE_URL}/api/location-location-categories/category/page?category_id=${id}&name=${searchText}&page=${page}`)
+        const response = await $api.get(`${BASE_URL}/api/erp/location-location-categories/category/page?category_id=${id}&name=${searchText}&page=${page}`)
         return response;
     }
     static getNotFactoriesByCategory = async (id, page, searchText) => {
-        const response = await $api.get(`${BASE_URL}/api/locations/category/page?category_id=${id}&name=${searchText}&page=${page}`)
+        const response = await $api.get(`${BASE_URL}/api/erp/locations/category/page?category_id=${id}&name=${searchText}&page=${page}`)
         return response;
     }
     static Add = async (data) => {
-        const response = await $api.post(`${BASE_URL}/api/location-categories`, data, { showSuccessToast: "Category successfully created" })
+        const response = await $api.post(`${BASE_URL}/api/erp/location-categories`, data, { showSuccessToast: "Category successfully created" })
         return response;
     }
     static Update = async (data, id) => {
-        const response = await $api.put(`${BASE_URL}/api/location-categories/${id}`, data, { showSuccessToast: "Category successfully updated" })
+        const response = await $api.put(`${BASE_URL}/api/erp/location-categories/${id}`, data, { showSuccessToast: "Category successfully updated" })
         return response;
     }
     static Delete = async (id) => {
-        const response = await $api.delete(`${BASE_URL}/api/location-categories/${id}`, { showSuccessToast: "Category successfully deleted" })
+        const response = await $api.delete(`${BASE_URL}/api/erp/location-categories/${id}`, { showSuccessToast: "Category successfully deleted" })
         return response;
     }
 }
