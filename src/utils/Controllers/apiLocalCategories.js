@@ -2,7 +2,7 @@ import { $api } from "../api/axios";
 import { BASE_URL } from "../api/axios";
 class apiLocalCategories {
     static pageAll = async (page, searchText, locId, prdType) => {
-        const response = await $api.get(`${BASE_URL}/api/local-categories/paginate/${prdType}/${locId}/page?name=${searchText}&page=${page}`)
+        const response = await $api.get(`${BASE_URL}/api/erp/local-categories/paginate/${prdType}/${locId}/page?name=${searchText}&page=${page}`)
         return response;
     }
     // static getFactoriesByCategory = async (id, page, searchText) => {

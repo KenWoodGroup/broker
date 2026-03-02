@@ -17,7 +17,7 @@ const brokerRoutes = [
     },
     {
         name: "br offer detail",
-        path: "offer/:id",
+        path: "offers/:id",
         element: <OfferDetailPage />
     },
     {

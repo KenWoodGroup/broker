@@ -2,7 +2,7 @@ import { $api } from "../api/axios";
 import { BASE_URL } from "../api/axios";
 class apiRequests {
     static getPage = async (page, name, address) => {
-        const response = await $api.get(`${BASE_URL}/api/requests/page?page=${page}&name=${name}${address ? `&address=${address}` : ''}`)
+        const response = await $api.get(`${BASE_URL}/api/erp/stock/operator?${address ? `address=${address}&` : ''}name=${name}&page=${page}`)
         return response;
     }
     // static Add = async (data) => {

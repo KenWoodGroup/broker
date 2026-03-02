@@ -21,7 +21,7 @@ import {
 import { useEffect, useState } from "react";
 import FactoryNav from "./_components/FactoryNav";
 import BarLoader from "../../ui/BarLoader";
-import { apiLocations } from "../../../utils/Controllers/Locations";
+import { apiERPLocations } from "../../../utils/Controllers/apiERPlocations";
 
 // ===============================
 // API REQUEST (WRITE YOURSELF)
@@ -51,7 +51,7 @@ export default function FactoryHeader({ factoryId, onBack }) {
   const fetchFactory = async () => {
     setLoading(true)
     try {
-      const res = await apiLocations.getLocation(factoryId);
+      const res = await apiERPLocations.getLocation(factoryId);
       setFactory(res.data)
     } finally {
       setLoading(false)
