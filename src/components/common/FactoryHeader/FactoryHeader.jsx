@@ -21,7 +21,7 @@ import {
 import { useEffect, useState } from "react";
 import FactoryNav from "./_components/FactoryNav";
 import BarLoader from "../../ui/BarLoader";
-import { apiERPLocations } from "../../../utils/Controllers/apiERPlocations";
+import { apiERPLocations } from "../../../utils/Controllers/apiERPLocations";
 
 // ===============================
 // API REQUEST (WRITE YOURSELF)
