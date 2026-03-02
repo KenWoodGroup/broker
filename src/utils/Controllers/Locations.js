@@ -2,7 +2,7 @@ import { $api } from "../api/axios";
 import { BASE_URL } from "../api/axios";
 class apiLocations {
     static pageAll = async (page, searchText, locType) => {
-        const response = await $api.get(`${BASE_URL}/api/locations/type/${locType}/${searchText}/page?page=${page}`)
+        const response = await $api.get(`${BASE_URL}/api/erp/locations/type/${locType}/${searchText}/page?page=${page}`)
         return response;
     }
     static pageFactoryWarehouses = async (page, factoryId) => {

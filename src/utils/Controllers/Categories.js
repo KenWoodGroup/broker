@@ -2,7 +2,7 @@ import { $api } from "../api/axios";
 import { BASE_URL } from "../api/axios";
 class apiCategories {
     static pageAll = async (page, searchText) => {
-        const response = await $api.get(`${BASE_URL}/api/location-categories/name?name=${searchText}&page=${page}`)
+        const response = await $api.get(`${BASE_URL}/api/erp/location-categories/name?name=${searchText}&page=${page}`)
         return response;
     }
     static getFactoriesByCategory = async (id, page, searchText) => {
