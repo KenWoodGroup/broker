@@ -17,23 +17,14 @@ import {
     HStack,
     Button,
     useColorMode,
-    IconButton,
     Card,
     CardBody,
     Container,
-    Stack,
-    Divider,
-    Stat,
-    StatLabel,
-    StatNumber,
-    SimpleGrid,
     Center,
     Alert,
     AlertIcon,
-    Tooltip,
-    useColorModeValue,
 } from "@chakra-ui/react";
-import { PhoneIcon, TimeIcon, ChevronLeftIcon, ChevronRightIcon, MoonIcon, SunIcon, CheckIcon, CloseIcon } from "@chakra-ui/icons";
+import { PhoneIcon, TimeIcon, ChevronLeftIcon, ChevronRightIcon } from "@chakra-ui/icons";
 import { MapPinIcon } from "lucide-react";
 import CreateCompany from "./_components/CreateCompany";
 
@@ -43,11 +34,11 @@ export default function BRcompany() {
     const [pagination, setPagination] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const { colorMode, toggleColorMode } = useColorMode();
+    const { colorMode } = useColorMode();
 
-    const tableBg = useColorModeValue("white", "gray.800");
-    const borderColor = useColorModeValue("gray.200", "gray.700");
-    const textColor = useColorModeValue("gray.800", "white");
+    const tableBg = colorMode === "light" ? "white" : "gray.800";
+    const borderColor = colorMode === "light" ? "gray.200" : "gray.700";
+    const textColor = colorMode === "light" ? "gray.800" : "white";
 
     const GetAllCompany = async () => {
         try {
@@ -56,13 +47,19 @@ export default function BRcompany() {
             const response = await apiLocations.pageAll(page, "all", "company");
 
             if (response.status === 200) {
-                setCompanies(response.data.data?.records);
+                // Конвертируем lat/lng в числа, чтобы безопасно использовать toFixed
+                const records = response.data.data?.records.map((c) => ({
+                    ...c,
+                    lat: c.lat !== null ? parseFloat(c.lat) : null,
+                    lng: c.lng !== null ? parseFloat(c.lng) : null,
+                }));
+                setCompanies(records);
                 setPagination(response.data.data?.pagination);
             } else {
                 throw new Error(`Ошибка: ${response.status}`);
             }
-        } catch (error) {
-            console.log(error);
+        } catch (err) {
+            console.log(err);
             setError("Не удалось загрузить данные. Пожалуйста, попробуйте позже.");
         } finally {
             setLoading(false);
@@ -85,15 +82,11 @@ export default function BRcompany() {
     };
 
     const handlePreviousPage = () => {
-        if (pagination && page > 1) {
-            setPage(page - 1);
-        }
+        if (pagination && page > 1) setPage(page - 1);
     };
 
     const handleNextPage = () => {
-        if (pagination && page < pagination.total_pages) {
-            setPage(page + 1);
-        }
+        if (pagination && page < pagination.total_pages) setPage(page + 1);
     };
 
     if (loading && companies.length === 0) {
@@ -153,12 +146,7 @@ export default function BRcompany() {
                                                 <Text fontWeight="medium" color={textColor}>
                                                     {company.name}
                                                 </Text>
-                                                <Badge
-                                                    colorScheme="blue"
-                                                    variant="subtle"
-                                                    fontSize="xs"
-                                                    mt={1}
-                                                >
+                                                <Badge colorScheme="blue" variant="subtle" fontSize="xs" mt={1}>
                                                     {company.type}
                                                 </Badge>
                                             </Td>
@@ -167,11 +155,11 @@ export default function BRcompany() {
                                                 <Flex align="center">
                                                     <MapPinIcon mr={2} color="gray.400" />
                                                     <Box>
-                                                        <Text color={textColor} fontSize="sm">
-                                                            {company.address}
-                                                        </Text>
+                                                        <Text color={textColor} fontSize="sm">{company.address}</Text>
                                                         <Text fontSize="xs" color="gray.500">
-                                                            {company.lat.toFixed(6)}, {company.lng.toFixed(6)}
+                                                            {typeof company.lat === "number" && typeof company.lng === "number"
+                                                                ? `${company.lat.toFixed(6)}, ${company.lng.toFixed(6)}`
+                                                                : "—"}
                                                         </Text>
                                                     </Box>
                                                 </Flex>
