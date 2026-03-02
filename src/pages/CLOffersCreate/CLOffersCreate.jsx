@@ -603,6 +603,7 @@ export default function CLOffersCreate() {
                                             />
                                         </Th>
                                         <Th>№</Th>
+                                        <Th>Nomi</Th>
                                         <Th>Kategoriya</Th>
                                         <Th>Ishlab chiqaruvchi</Th>
                                         <Th>Narxi</Th>
@@ -633,6 +634,9 @@ export default function CLOffersCreate() {
                                                 />
                                             </Td>
                                             <Td>{(pagination.currentPage - 1) * pagination.limit + index + 1}</Td>
+                                            <Td maxW="250px" whiteSpace="normal" fontWeight="medium" title={item.product?.name}>
+                                                {item.product?.name || "—"}
+                                            </Td>
                                             <Td>{item.product?.category?.name || "—"}</Td>
                                             <Td>
                                                 <VStack align="start" spacing={0}>
