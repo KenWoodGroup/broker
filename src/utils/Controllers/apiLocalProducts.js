@@ -2,15 +2,15 @@ import { $api } from "../api/axios";
 import { BASE_URL } from "../api/axios";
 class apiLocalProducts {
     static pageAll = async (page, searchText, locId, type) => {
-        const response = await $api.get(`${BASE_URL}/api/local-products/paginateProduct/${type}/${locId}/page?name=${searchText}&page=${page}`)
+        const response = await $api.get(`${BASE_URL}/api/erp/local-products/paginateProduct/${type}/${locId}/page?name=${searchText}&page=${page}`)
         return response;
     }
     static pageAllbyCategoryId = async (page, searchText, catId, locId, prdType) => {
-        const response = await $api.get(`${BASE_URL}/api/local-products/paginate/${prdType}/${locId}/${catId}/page?name=${searchText}&page=${page}`)
+        const response = await $api.get(`${BASE_URL}/api/erp/local-products/paginate/${prdType}/${locId}/${catId}/page?name=${searchText}&page=${page}`)
         return response;
     }
     static uploadProducts = async (facID, data) => {
-        const response = await $api.post(`${BASE_URL}/api/local-products/upload-product/${facID}`, data);
+        const response = await $api.post(`${BASE_URL}/api/erp/local-products/upload-product/${facID}`, data);
         return response;
     }
     // static getFactoriesByCategory = async (id, page, searchText) => {

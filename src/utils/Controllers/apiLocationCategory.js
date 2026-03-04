@@ -6,11 +6,11 @@ class apiLocationCategories {
     //     return response;
     // }
     static getCategoriesByFactoryId = async (id, page, searchText) => {
-        const response = await $api.get(`${BASE_URL}/api/location-location-categories/location/page?location_id=${id}&name=${searchText}&page=${page}`)
+        const response = await $api.get(`${BASE_URL}/api/erp/location-location-categories/location/page?location_id=${id}&name=${searchText}&page=${page}`)
         return response;
     }
     static getNotCategoriesByFactoryId = async (id, page, searchText) => {
-        const response = await $api.get(`${BASE_URL}/api/location-categories/location/page?location_id=${id}&name=${searchText}&page=${page}`)
+        const response = await $api.get(`${BASE_URL}/api/erp/location-categories/location/page?location_id=${id}&name=${searchText}&page=${page}`)
         return response;
     }
     static Add = async (data) => {

@@ -41,6 +41,8 @@ import { ChevronLeftIcon, ChevronRightIcon, DownloadIcon, CheckCircleIcon } from
 import { FiUpload, FiFile, FiPackage } from 'react-icons/fi';
 import { apiStock } from '../../utils/Controllers/apiStock';
 import { apiInvoices } from '../../utils/Controllers/apiInvoices';
+import { apiUsers } from '../../utils/Controllers/Users';
+import { toastService } from '../../utils/toast';
 
 const WarehouseStockPage = () => {
     const { factoryId, warehouseId } = useParams();
@@ -63,6 +65,7 @@ const WarehouseStockPage = () => {
     const [selectedFile, setSelectedFile] = useState(null);
     const [uploadLoading, setUploadLoading] = useState(false);
     const [uploadResult, setUploadResult] = useState(null);
+    const [factoryUser, setFactoryUser] = useState(null)
 
     // Fetch stocks
     const fetchStocks = async () => {
@@ -81,6 +84,22 @@ const WarehouseStockPage = () => {
         fetchStocks();
     }, [currentPage, warehouseId]);
 
+    // Fetch Users
+    const fetchUsers = async () => {
+        setLoading(true);
+        try {
+            const response = await apiUsers.getFactoryUsers(factoryId);
+            const director = response.data?.find((item)=> item.role === 'factory');
+            setFactoryUser(director)
+        } finally {
+            setLoading(false);
+        }
+    };
+    
+    useEffect(()=> {
+        fetchUsers()
+    },[])
+
     // Handle upload modal open
     const handleUploadClick = () => {
         setUploadStep(1);
@@ -88,14 +107,18 @@ const WarehouseStockPage = () => {
         setSelectedFile(null);
         setInvoiceId(null);
         setUploadResult(null);
-        onUploadOpen();
+        if(factoryUser?.id) {
+            onUploadOpen();
+        } else {
+            toastService.error("Zavod egasi topilmadi")
+        }
     };
 
     // Step 1: Create invoice
     const handleCreateInvoice = async () => {
         setUploadLoading(true);
         try {
-            const userId = Cookies.get('user_id');
+            const userId = factoryUser?.id;
             const data = {
                 created_by: userId,
                 note: invoiceNote,

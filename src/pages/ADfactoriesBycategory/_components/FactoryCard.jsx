@@ -43,7 +43,38 @@ const FactoryCard = React.memo(function FactoryCard({
         } finally {
             setLoading(false)
         }
+    };
+
+    const openMapWithCurrentLocation = (e) => {
+        e.stopPropagation();
+        const lat = factory?.lat;
+        const lng = factory?.lng;
+
+        navigator.geolocation.getCurrentPosition(
+            (position) => {
+                const originLat = position.coords.latitude;
+                const originLng = position.coords.longitude;
+
+                const url = `https://www.google.com/maps/dir/?api=1&origin=${originLat},${originLng}&destination=${lat},${lng}`;
+
+                window.open(
+                    url,
+                    "_blank",
+                    "noopener,noreferrer,width=1200,height=800"
+                );
+            },
+            (error) => {
+                // Agar location ruxsat berilmasa
+                const fallbackUrl = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`;
+                window.open(
+                    fallbackUrl,
+                    "_blank",
+                    "noopener,noreferrer,width=1200,height=800"
+                );
+            }
+        );
     }
+
 
     return (
         <Box
@@ -86,7 +117,7 @@ const FactoryCard = React.memo(function FactoryCard({
                     colorScheme={"red"}
                     icon={<CircleMinus size={"22px"} />}
                     aria-label="select"
-                    onClick={(e)=> {
+                    onClick={(e) => {
                         e.stopPropagation()
                         confirmModal.onOpen()
                     }}
@@ -101,7 +132,11 @@ const FactoryCard = React.memo(function FactoryCard({
 
                 <HStack spacing="8px" color={textSub}>
                     <MapPin size={16} />
-                    <Text fontSize="sm" noOfLines={1}>
+                    <Text 
+                        onClick={(e) => openMapWithCurrentLocation(e)}
+                        _hover={{ color: (factory?.lat && factory?.lng) ? 'link' : textSub, cursor: (factory?.lat && factory?.lng) ? 'pointer' : 'default' }}
+                        fontSize="sm" noOfLines={1}
+                    >
                         {factory?.address || "-"}
                     </Text>
                 </HStack>
