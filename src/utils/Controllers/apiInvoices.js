@@ -2,12 +2,12 @@ import { $api } from "../api/axios";
 
 class apiInvoices {
     static CreateInvoice = async (data) => {
-        const response = await $api.post(`/invoices`, data)
+        const response = await $api.post(`/erp/invoices`, data)
         return response;
     }
 
     static UploadExel = async (id, data) => {
-        const response = await $api.post(`/invoice-items/upload/${id}`, data,
+        const response = await $api.post(`/erp/invoice-items/upload/${id}`, data,
             {
                 headers: {
                     "Content-Type": "multipart/form-data",

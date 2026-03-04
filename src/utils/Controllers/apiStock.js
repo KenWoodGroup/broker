@@ -13,7 +13,7 @@ class apiStock {
         return response;
     }
     static GetByLocationId = async (locationId, page) => {
-        const response = await $api.get(`/stock/location/${locationId}/page?page=${page}`)
+        const response = await $api.get(`/erp/stock/location/${locationId}/page?page=${page}`)
         return response;
     }
 }

@@ -185,6 +185,7 @@ export default function ADfactoriesBycategory({ reloadDependance }) {
             setSaveLoading(false)
         }
     };
+    
 
     /* ---------------- render ---------------- */
     return (

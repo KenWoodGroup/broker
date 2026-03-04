@@ -95,6 +95,7 @@ const UsersPage = () => {
             order: 4,
         },
     };
+    const {storekeeper, ...accessedRolesForPost} = roleConfig
 
     // Fetch users
     const fetchUsers = async () => {
@@ -495,7 +496,7 @@ const UsersPage = () => {
                                     bg="bg"
                                     color="text"
                                 >
-                                    {Object.entries(roleConfig).map(([value, { label }]) => (
+                                    {Object.entries(accessedRolesForPost).map(([value, { label }]) => (
                                         <option key={value} value={value}>
                                             {label}
                                         </option>

@@ -10,11 +10,11 @@ class apiOptions {
     //     return response;
     // }
     static getLocalOptions = async (id) => {
-        const response = await $api.get(`${BASE_URL}/api/location-options/all/${id}`)
+        const response = await $api.get(`${BASE_URL}/api/erp/location-options/by-location/${id}`)
         return response;
     }
     static addLocalOption = async (data) => {
-        const response = await $api.post(`${BASE_URL}/api/location-options`, data, { showSuccessToast: "Opsiya successfully activated" })
+        const response = await $api.post(`${BASE_URL}/api/erp/location-options`, data, { showSuccessToast: "Opsiya successfully activated" })
         return response;
     }
     static Add = async (data ) => {
@@ -26,7 +26,7 @@ class apiOptions {
         return response;
     }
     static Delete = async (id) => {
-        const response = await $api.delete(`${BASE_URL}/api/location-options/${id}`, { showSuccessToast: "Opsiya successfully deleted" })
+        const response = await $api.delete(`${BASE_URL}/api/erp/location-options/${id}`, { showSuccessToast: "Opsiya successfully deleted" })
         return response;
     }
     static DeleteOption = async (id) => {

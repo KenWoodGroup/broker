@@ -2,11 +2,11 @@ import { $api } from "../api/axios";
 import { BASE_URL } from "../api/axios";
 class apiUsers {
     static All = async () => {
-        const response = await $api.get(`${BASE_URL}/api/user`)
+        const response = await $api.get(`${BASE_URL}/api/erp/user`)
         return response;
     }
     static getFactoryUsers = async (facId) => {
-        const response = await $api.get(`${BASE_URL}/api/user/locationId/${facId}`)
+        const response = await $api.get(`${BASE_URL}/api/erp/user/locationId/${facId}`)
         return response;
     }
     static getBrokers = async ()=> {
@@ -18,15 +18,15 @@ class apiUsers {
         return response;
     }
     static Add = async (data) => {
-        const response = await $api.post(`${BASE_URL}/api/user`, data, { showSuccessToast: "User successfully created" })
+        const response = await $api.post(`${BASE_URL}/api/erp/user`, data, { showSuccessToast: "User successfully created" })
         return response;
     }
     static Update = async (data, id) => {
-        const response = await $api.put(`${BASE_URL}/api/user/${id}`, data, { showSuccessToast: "User successfully updated" })
+        const response = await $api.put(`${BASE_URL}/api/erp/user/${id}`, data, { showSuccessToast: "User successfully updated" })
         return response;
     }
     static Delete = async (id) => {
-        const response = await $api.delete(`${BASE_URL}/api/user/${id}`, { showSuccessToast: "User successfully deleted" })
+        const response = await $api.delete(`${BASE_URL}/api/erp/user/${id}`, { showSuccessToast: "User successfully deleted" })
         return response;
     }
     static ResetPassword = async (id, data) => {
