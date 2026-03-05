@@ -40,7 +40,7 @@ import {
 import { NavLink } from "react-router-dom"
 import { apiOffers } from "../../utils/Controllers/Offers"
 
-export default function ClcompanyDetail() {
+export default function ClcompanyDetail({ role }) {
     const { id } = useParams()
     const [data, setData] = useState(null)
     const [offers, setOffers] = useState({ records: [] })
@@ -188,7 +188,7 @@ export default function ClcompanyDetail() {
                     )}
                 </Flex>
 
-                <NavLink to={`/call-operator/offer/create/${id}`}>
+                <NavLink to={role !== 'Admin' ? `/call-operator/offer/create/${id}` : `/create-offer/${id}`}>
                     <Button
                         colorScheme="blue"
                         leftIcon={<FileText size={18} />}

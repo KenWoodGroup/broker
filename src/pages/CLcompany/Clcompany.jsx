@@ -135,9 +135,11 @@ export default function Clcompany({ role }) {
 
                             <Tbody>
                                 {companies.map((item, index) => (
-                                    <Tr cursor={role === 'Admin' ? 'default' : 'pointer'} key={item.id} onClick={() => {
+                                    <Tr cursor={'pointer'} key={item.id} onClick={() => {
                                         if (role !== 'Admin') {
                                             navigate(`/call-operator/company/${item?.id}`)
+                                        }else{
+                                            navigate(`/company-detail/${item?.id}`)
                                         }
                                     }}>
                                         <Td>{(page - 1) * 10 + index + 1}</Td>

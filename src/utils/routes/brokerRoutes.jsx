@@ -3,6 +3,7 @@ import BRhome from "../../pages/BRhome/BRhome";
 import BRMap from "../../pages/BRMap/BRMap";
 import OfferDetailPage from "../../pages/BROfferDetail/OfferDetailPage";
 import BRoffers from "../../pages/BRoffers/BRoffers";
+import OPSearch from "../../pages/OPSearch/OPSearch";
 
 const brokerRoutes = [
     {
@@ -21,9 +22,9 @@ const brokerRoutes = [
         element: <OfferDetailPage />
     },
     {
-        name: "br  company",
-        path: "company",
-        element: <BRcompany />
+        name: "br  Search",
+        path: "/operator/search",
+        element: <OPSearch />
     },
     {
         name: "br  Map",
