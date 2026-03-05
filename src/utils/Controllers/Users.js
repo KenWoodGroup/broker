@@ -6,7 +6,7 @@ class apiUsers {
         return response;
     }
     static getFactoryUsers = async (facId) => {
-        const response = await $api.get(`${BASE_URL}/api/erp/user/locationId/${facId}`)
+        const response = await $api.get(`${BASE_URL}/api/erp/user/factory-user/${facId}`)
         return response;
     }
     static getBrokers = async ()=> {
