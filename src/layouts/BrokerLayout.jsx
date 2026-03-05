@@ -2,14 +2,13 @@ import { Outlet } from "react-router";
 import Sidebar from "../components/common/Sidebar";
 import { Box } from "@chakra-ui/react";
 import { useUIStore } from "../store/useUIStore";
-import { Home, Inbox, Building2, Map } from "lucide-react";
+import { Home, Inbox, Building2, Map, Search } from "lucide-react";
 
 const links = [
-    { label: "Home", to: "/operator", icon: Home, end:true },
-    { label: "Offers", to: "/operator/offers", icon: Inbox, end:false },
-    { label: "Company", to: "/operator/company", icon: Building2, end:true },
-    { label: "Map", to: "https://api.usderp.uz/dshk/", icon: Map, end:true },
-    // { label: "Minicategories", to: "/minisubcategories", icon: Settings },
+    { label: "Home", to: "/operator", icon: Home, end: true },
+    { label: "Offers", to: "/operator/offers", icon: Inbox, end: false },
+    { label: "Map", to: "https://api.usderp.uz/dshk/", icon: Map, end: true },
+    { label: "Search", to: "/operator/search", icon: Search },
     // { label: "Products", to: "/products", icon: Boxes },
 ];
 

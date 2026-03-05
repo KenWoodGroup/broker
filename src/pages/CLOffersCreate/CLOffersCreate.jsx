@@ -54,7 +54,7 @@ import { apiLocations } from "../../utils/Controllers/Locations";
 import SelectedItemsModal from "./__components/CartModal";
 import { useParams } from "react-router";
 
-export default function CLOffersCreate() {
+export default function CLOffersCreate({role}) {
     const [searchData, setSearchData] = useState({
         name: "",
         page: 1,

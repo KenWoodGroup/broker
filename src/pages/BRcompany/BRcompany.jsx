@@ -44,7 +44,7 @@ export default function BRcompany() {
         try {
             setLoading(true);
             setError(null);
-            const response = await apiLocations.pageAll(page, "all", "company");
+            const response = await apiLocations.GetBySearchForOperator(page, "all",);
 
             if (response.status === 200) {
                 // Конвертируем lat/lng в числа, чтобы безопасно использовать toFixed
@@ -136,7 +136,7 @@ export default function BRcompany() {
                                     </Tr>
                                 </Thead>
                                 <Tbody>
-                                    {companies.map((company) => (
+                                    {companies?.map((company) => (
                                         <Tr
                                             key={company.id}
                                             _hover={{ bg: colorMode === "light" ? "gray.50" : "gray.700" }}
