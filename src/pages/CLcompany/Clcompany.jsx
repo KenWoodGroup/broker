@@ -26,6 +26,7 @@ import { apiLocations } from "../../utils/Controllers/Locations"
 import { useEffect, useState, useRef } from "react"
 import { useNavigate } from "react-router"
 import CreateCompanyByExcell from "./__components/CreateCompanyByExcell"
+import DeleteCompany from "./__components/DeleteCompany"
 
 export default function Clcompany({ role }) {
     const [companies, setCompanies] = useState([])
@@ -72,7 +73,7 @@ export default function Clcompany({ role }) {
             <Flex justifyContent="space-between" mb="20px">
                 <Heading size="lg">Kompaniyalar</Heading>
                 <Flex gap={4}>
-                    <CreateCompanyByExcell reload={GetCompany}/>
+                    <CreateCompanyByExcell reload={GetCompany} />
                     <CreateCompany refresh={() => GetCompany(page, search)} />
                 </Flex>
             </Flex>
@@ -130,6 +131,7 @@ export default function Clcompany({ role }) {
                                     <Th>Telefon</Th>
                                     <Th>Balans</Th>
                                     <Th>Yaratilgan</Th>
+                                    <Th>Amallar</Th>
                                 </Tr>
                             </Thead>
 
@@ -138,7 +140,7 @@ export default function Clcompany({ role }) {
                                     <Tr cursor={'pointer'} key={item.id} onClick={() => {
                                         if (role !== 'Admin') {
                                             navigate(`/call-operator/company/${item?.id}`)
-                                        }else{
+                                        } else {
                                             navigate(`/company-detail/${item?.id}`)
                                         }
                                     }}>
@@ -164,6 +166,13 @@ export default function Clcompany({ role }) {
                                         <Td>{item.phone}</Td>
                                         <Td fontWeight="semibold">{Number(item.balance).toLocaleString()} so'm</Td>
                                         <Td>{new Date(item.createdAt).toLocaleDateString()}</Td>
+                                        <Td>
+                                            <DeleteCompany
+                                                companyId={item.id}
+                                                companyName={item.name}
+                                                refresh={() => GetCompany(page, search)}
+                                            />
+                                        </Td>
                                     </Tr>
                                 ))}
                             </Tbody>
