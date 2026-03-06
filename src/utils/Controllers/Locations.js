@@ -30,7 +30,7 @@ class apiLocations {
         return response;
     }
     static CreateByExcell = async (file, locType) => {
-        const response = await $api.post(`${BASE_URL}/api/erp/locations/upload-building/${locType}`, file, { showSuccessToast: `${locType} successfully created` })
+        const response = await $api.post(`${BASE_URL}/api/locations/upload-building/${locType}`, file, { showSuccessToast: `${locType} successfully created` })
         return response;
     }
     static CreateLocalClientsByExcell = async (facId, file ) => {
