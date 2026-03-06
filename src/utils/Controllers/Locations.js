@@ -46,7 +46,7 @@ class apiLocations {
         return response;
     }
     static Delete = async (id, locType) => {
-        const response = await $api.delete(`${BASE_URL}/api/erp/locations/${id}`, { showSuccessToast: `${locType} successfully deleted` })
+        const response = await $api.delete(`${BASE_URL}/api/locations/${id}`, { showSuccessToast: `${locType} successfully deleted` })
         return response;
     }
     static SearchByName = async (name) => {
