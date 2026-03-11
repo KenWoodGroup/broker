@@ -266,7 +266,7 @@ const WarehousesPage = () => {
 
     const handleDeleteConfirm = async () => {
         try {
-            await apiLocations.Delete(currentWarehouse.id, "Ombor");
+            await apiLocations.DeleteERPLocation(currentWarehouse.id, "Ombor");
             await fetchWarehouses();
             onDeleteClose();
             setCurrentWarehouse(null);

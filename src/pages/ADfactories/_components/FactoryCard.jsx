@@ -26,7 +26,7 @@ const FactoryCard = React.memo(function FactoryCard({ factory, onEdit, onDelete 
     const deleteFactory = async () => {
         setDelLoading(true);
         try {
-            const res = await apiLocations.Delete(factory?.id, "Factory");
+            const res = await apiLocations.DeleteERPLocation(factory?.id, "Factory");
             delModal.onClose()
             if (onDelete) {
                 onDelete();
