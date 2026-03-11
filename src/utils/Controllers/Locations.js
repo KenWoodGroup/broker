@@ -49,6 +49,10 @@ class apiLocations {
         const response = await $api.delete(`${BASE_URL}/api/locations/${id}`, { showSuccessToast: `${locType} successfully deleted` })
         return response;
     }
+    static DeleteERPLocation = async (id, locType) => {
+        const response = await $api.delete(`${BASE_URL}/api/erp/locations/${id}`, { showSuccessToast: `${locType} successfully deleted` })
+        return response;
+    }
     static SearchByName = async (name) => {
         const response = await $api.get(`${BASE_URL}/api/erp/locations/by-name/factory/${name}`,)
         return response;

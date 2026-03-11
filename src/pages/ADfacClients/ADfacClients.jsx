@@ -168,7 +168,7 @@ const ClientsPage = () => {
         for (let i = 0; i < clientsToDelete.length; i++) {
             const clientId = clientsToDelete[i];
             try {
-                await apiLocations.Delete(clientId, "Mijoz");
+                await apiLocations.DeleteERPLocation(clientId, "Mijoz");
                 results.deleted.push(clientId);
             } catch (error) {
                 results.failed.push(clientId);
