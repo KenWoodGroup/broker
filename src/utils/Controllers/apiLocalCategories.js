@@ -17,10 +17,10 @@ class apiLocalCategories {
     //     const response = await $api.put(`${BASE_URL}/api/location-categories/${id}`, data, { showSuccessToast: "Category successfully updated" })
     //     return response;
     // }
-    // static Delete = async (id) => {
-    //     const response = await $api.delete(`${BASE_URL}/api/location-categories/${id}`, { showSuccessToast: "Category successfully deleted" })
-    //     return response;
-    // }
+    static Delete = async (id) => {
+        const response = await $api.delete(`${BASE_URL}/api/erp/local-categories/${id}`, { showSuccessToast: "Category successfully deleted" })
+        return response;
+    }
 }
 
 export { apiLocalCategories };

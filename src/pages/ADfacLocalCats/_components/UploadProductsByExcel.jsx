@@ -29,7 +29,7 @@ import { apiLocalProducts } from "../../../utils/Controllers/apiLocalProducts";
 
 const ITEMS_PER_BATCH = 20;
 
-export default function UploadProductsByExcel({ factoryId }) {
+export default function UploadProductsByExcel({ factoryId, onSuccess }) {
     const { isOpen, onOpen, onClose } = useDisclosure();
 
     const [file, setFile] = useState(null);
@@ -68,7 +68,9 @@ export default function UploadProductsByExcel({ factoryId }) {
             formData.append('file', file);
             const res = await apiLocalProducts.uploadProducts(factoryId, formData);
             setResponse(res.data);
-
+            if(onSuccess) {
+                onSuccess()
+            }
         } finally {
             setLoading(false);
         }

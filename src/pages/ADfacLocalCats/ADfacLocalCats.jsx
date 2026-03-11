@@ -105,7 +105,7 @@ export default function ADfacLocalCats({ reloadDependance }) {
             <Flex mb="24px" justifyContent="space-between">
                 <Heading fontSize={"22px"}>Products</Heading>
                 <Flex gap={3}>
-                    <UploadProductsByExcel factoryId={factoryId}/>
+                    <UploadProductsByExcel onSuccess={() => fetchCategories(page, debouncedSearch)} factoryId={factoryId}/>
                     <Tooltip label={"Table"} placement="bottom" >
                         <IconButton
                             onClick={() => {

@@ -9,6 +9,8 @@ import {
 import { Layers, Pencil, Trash2 } from "lucide-react";
 import React, { useState } from "react";
 import { apiCategories } from "../../../utils/Controllers/Categories";
+import { apiLocalCategories } from "../../../utils/Controllers/apiLocalCategories";
+import ConfirmDelModal from "../../../components/common/ConfirmDelModal";
 
 const CategoryCard = React.memo(function CategoryCard({
     category,
@@ -20,14 +22,15 @@ const CategoryCard = React.memo(function CategoryCard({
     const border = useColorModeValue("gray.200", "gray.700");
     const hoverBg = useColorModeValue("gray.50", "gray.700");
 
+    const delModal = useDisclosure()
 
     // states
     const [delLoading, setDelLoading] = useState(false);
     const deleteCategory = async () => {
         setDelLoading(true);
         try {
-            const res = await apiCategories.Delete(category?.id);
-            confirmDelModal.onClose()
+            const res = await apiLocalCategories.Delete(category?.id);
+            delModal.onClose()
             if (onDelete) {
                 onDelete();
             }
@@ -87,6 +90,7 @@ const CategoryCard = React.memo(function CategoryCard({
                         colorScheme="red"
                         icon={<Trash2 size={16} />}
                         aria-label="Delete"
+                        onClick={delModal.onOpen}
                     />
                 </Flex>
             </Box>
@@ -94,7 +98,7 @@ const CategoryCard = React.memo(function CategoryCard({
             <Text fontWeight="600" fontSize="lg" noOfLines={2}>
                 {category?.name || "-"}
             </Text>
-           
+           <ConfirmDelModal isOpen={delModal.isOpen} onClose={delModal.onClose} onConfirm={deleteCategory} itemName={category?.name} loading={delLoading} typeItem={"Local category"}/>
         </Box>
     );
 });
