@@ -5,10 +5,9 @@ import { useUIStore } from "../store/useUIStore";
 import { Home, Inbox, Building2, Map, Search } from "lucide-react";
 
 const links = [
-    { label: "Home", to: "/operator", icon: Home, end: true },
-    { label: "Offers", to: "/operator/offers", icon: Inbox, end: false },
-    { label: "Map", to: "https://api.usderp.uz/dshk/", icon: Map, end: true },
-    { label: "Search", to: "/operator/search", icon: Search },
+    { label: "Buyurtmalar", to: "/operator/offers", icon: Inbox, end: false },
+    { label: "Qurilish obektlari", to: "https://dshk.shaffofqurilish.uz", icon: Map, end: true },
+    { label: "Qidiruv", to: "/operator/search", icon: Search },
     // { label: "Products", to: "/products", icon: Boxes },
 ];
 

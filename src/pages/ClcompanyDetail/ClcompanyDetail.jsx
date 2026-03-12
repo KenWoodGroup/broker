@@ -20,7 +20,12 @@ import {
     Button,
     VStack,
     Icon,
-    HStack
+    HStack,
+    Tabs,
+    TabList,
+    TabPanels,
+    Tab,
+    TabPanel
 } from "@chakra-ui/react"
 
 import {
@@ -39,6 +44,7 @@ import {
 } from "lucide-react"
 import { NavLink } from "react-router-dom"
 import { apiOffers } from "../../utils/Controllers/Offers"
+import ConstructionSites from "./__components/ConstructionSites"
 
 export default function ClcompanyDetail({ role }) {
     const { id } = useParams()
@@ -176,46 +182,68 @@ export default function ClcompanyDetail({ role }) {
                 </CardBody>
             </Card>
 
-            {/* Buyurtmalar bo'limi sarlavhasi */}
-            <Flex justify="space-between" align="center" mb={6}>
-                <Flex align="center" gap={3}>
-                    <Package size={24} color="#3182CE" />
-                    <Heading size="lg">Buyurtmalar</Heading>
-                    {!offersLoading && offers?.records && (
-                        <Badge colorScheme="blue" borderRadius="full" px={3} py={1}>
-                            {offers.records.length}
-                        </Badge>
-                    )}
-                </Flex>
+            {/* Tablar bo'limi */}
+            <Tabs colorScheme="blue" variant="enclosed">
+                <TabList mb={4}>
+                    <Tab fontWeight="bold">
+                        <HStack spacing={2}>
+                            <Package size={18} />
+                            <Text>Buyurtmalar</Text>
+                            {!offersLoading && offers?.records && (
+                                <Badge colorScheme="blue" borderRadius="full">
+                                    {offers.records.length}
+                                </Badge>
+                            )}
+                        </HStack>
+                    </Tab>
+                    <Tab fontWeight="bold">
+                        <HStack spacing={2}>
+                            <MapPin size={18} />
+                            <Text>Obyektlar</Text>
+                        </HStack>
+                    </Tab>
+                </TabList>
 
-                <NavLink to={role !== 'Admin' ? `/call-operator/offer/create/${id}` : `/create-offer/${id}`}>
-                    <Button
-                        colorScheme="blue"
-                        leftIcon={<FileText size={18} />}
-                        size="md"
-                    >
-                        Buyurtma yaratish
-                    </Button>
-                </NavLink>
-            </Flex>
+                <TabPanels>
+                    <TabPanel p={0}>
+                        {/* Buyurtmalar bo'limi sarlavhasi (ichki layout) */}
+                        <Flex justify="space-between" align="center" mb={6}>
+                            <Heading size="md">Barcha buyurtmalar</Heading>
+                            <NavLink to={role !== 'Admin' ? `/call-operator/offer/create/${id}` : `/create-offer/${id}`}>
+                                <Button
+                                    colorScheme="blue"
+                                    leftIcon={<FileText size={18} />}
+                                    size="md"
+                                >
+                                    Buyurtma yaratish
+                                </Button>
+                            </NavLink>
+                        </Flex>
 
-            {/* Buyurtmalar ro'yxati */}
-            {offersLoading ? (
-                <Center py={10}>
-                    <VStack spacing={4}>
-                        <Spinner size="xl" thickness="4px" color="blue.500" />
-                        <Text color="gray.500">Buyurtmalar yuklanmoqda...</Text>
-                    </VStack>
-                </Center>
-            ) : offers?.records?.length > 0 ? (
-                <VStack spacing={4} align="stretch">
-                    {offers.records.map((offer) => (
-                        <OfferCard key={offer.id} offer={offer} />
-                    ))}
-                </VStack>
-            ) : (
-                <EmptyState />
-            )}
+                        {/* Buyurtmalar ro'yxati */}
+                        {offersLoading ? (
+                            <Center py={10}>
+                                <VStack spacing={4}>
+                                    <Spinner size="xl" thickness="4px" color="blue.500" />
+                                    <Text color="gray.500">Buyurtmalar yuklanmoqda...</Text>
+                                </VStack>
+                            </Center>
+                        ) : offers?.records?.length > 0 ? (
+                            <VStack spacing={4} align="stretch">
+                                {offers.records.map((offer) => (
+                                    <OfferCard key={offer.id} offer={offer} />
+                                ))}
+                            </VStack>
+                        ) : (
+                            <EmptyState />
+                        )}
+                    </TabPanel>
+
+                    <TabPanel p={0}>
+                        <ConstructionSites role={role} companyId={id} />
+                    </TabPanel>
+                </TabPanels>
+            </Tabs>
         </Box>
     )
 }

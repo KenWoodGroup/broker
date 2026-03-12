@@ -1,7 +1,7 @@
 import { Outlet } from "react-router";
 import Sidebar from "../components/common/Sidebar";
 import { useUIStore } from "../store/useUIStore";
-import { BoxIcon, Factory, Home, Settings, Settings2, User2 } from "lucide-react";
+import { BoxIcon, Factory, Headset, Home, Settings, Settings2, User2 } from "lucide-react";
 import { Box } from "@chakra-ui/react";
 
 const links = [
@@ -10,9 +10,9 @@ const links = [
     { label: "Companies", to: "/companies", icon: BoxIcon },
     { label: "Operatorlar", to: "/operators", icon: User2 },
     { label: "Opsiyalar", to: "/options", icon: Settings2 },
+    { label: "Operators", to: "/superadmin/operators", icon: Headset, end: true },
     // { label: "Products", to: "/products", icon: Boxes },
 ];
-
 export default function AdminLayout() {
     const { collapsed } = useUIStore();
     return (

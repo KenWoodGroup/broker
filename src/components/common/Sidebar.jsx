@@ -105,28 +105,7 @@ export default function Sidebar({ collapsed, links = [], end }) {
             <VStack align="stretch">
                 <VStack spacing={1} py={3} align="stretch">
                     {/* Language Switch */}
-                    <Menu>
-                        <MenuButton
-                            color={"text"}
-                            borderRadius={"md"}
-                            _hover={{ bg: "secondary", color: "white" }}
-                        >
-                            <Flex
-                                align="center"
-                                gap={collapsed ? 0 : 2}
-                                p={2}
-                                borderRadius="md"
-                            >
-                                <Globe size={20} />
-                                {!collapsed && <Text>Language</Text>}
-                            </Flex>
-                        </MenuButton>
-                        <MenuList bg="surface" borderColor="gray.700">
-                            <MenuItem color={i18n.language === "uz" ? "green" : "text"} onClick={() => selectLanguage("uz")}>Uzbek</MenuItem>
-                            <MenuItem onClick={() => selectLanguage("ru")}>Russian</MenuItem>
-                            <MenuItem onClick={() => selectLanguage("en")}>English</MenuItem>
-                        </MenuList>
-                    </Menu>
+
 
                     {/* Theme Switch */}
                     <Flex

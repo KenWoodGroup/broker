@@ -5,9 +5,8 @@ import { useUIStore } from "../store/useUIStore";
 import { Home, Inbox, Building2, BoxIcon } from "lucide-react";
 
 const links = [
-    { label: "Home", to: "/call-operator/dashboard", icon: Home },
-    { label: "Offers", to: "/call-operator/offers", icon: Inbox },
-    { label: "Qurilish obektlari", to: "/call-operator/company", icon: BoxIcon },
+    { label: "Buyurtmalar", to: "/call-operator/offers", icon: Inbox },
+    { label: "Qurilish kompaniyalari", to: "/call-operator/company", icon: BoxIcon },
     // { label: "Minicategories", to: "/minisubcategories", icon: Settings },
     // { label: "Products", to: "/products", icon: Boxes },
 ];
