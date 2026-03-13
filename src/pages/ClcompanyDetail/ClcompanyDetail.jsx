@@ -203,7 +203,6 @@ export default function ClcompanyDetail({ role }) {
                         </HStack>
                     </Tab>
                 </TabList>
-
                 <TabPanels>
                     <TabPanel p={0}>
                         {/* Buyurtmalar bo'limi sarlavhasi (ichki layout) */}

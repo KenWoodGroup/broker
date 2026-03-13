@@ -211,7 +211,7 @@ export default function Clcompany({ role }) {
                                         <Td>{new Date(item.createdAt).toLocaleDateString()}</Td>
                                         <Td>
                                             <Flex align="center">
-                                                {/* <LoginPermissionSwitch companyId={item.id} initialValue={item.is_login || false} /> */}
+                                                <LoginPermissionSwitch companyId={item.id} initialValue={item.is_login || false} />
                                                 <DeleteCompany
                                                     companyId={item.id}
                                                     companyName={item.name}
