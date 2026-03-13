@@ -58,7 +58,7 @@ const adminRoutes = [
     },
     {
         name: "sp operators",
-        path: "operators",
+        path: "brokers",
         element: <SPoperators />
     }
 
