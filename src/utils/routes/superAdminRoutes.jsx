@@ -1,6 +1,5 @@
 import SPhome from "../../pages/SPhome/SPhome";
 import SPmanagers from "../../pages/SPmanagers/SPmanagers";
-import SPoperators from "../../pages/SPoperators/SPoperators";
 import SPusers from "../../pages/SPusers/SPusers";
 
 const superAdminRoutes = [
@@ -19,11 +18,7 @@ const superAdminRoutes = [
         path:"users",
         element:<SPusers/>
     },
-    {
-        name:"sp operators",
-        path:"operators",
-        element:<SPoperators/>
-    }
+
 ];
 
 export default superAdminRoutes;

@@ -83,10 +83,10 @@ export default function Login() {
                     navigate("/superadmin");
                     toastService.success("Successfully, Welcome Boss !")
                 } else if (role === "broker") {
-                    navigate('/operator');
+                    navigate('/operator/offers');
                     toastService.success("Successfully")
                 } else if (role === "sales_rep") {
-                    navigate('/call-operator/dashboard');
+                    navigate('/call-operator/offers');
                     toastService.success("Successfully")
                 }
                 else {

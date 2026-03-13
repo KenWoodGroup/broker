@@ -57,6 +57,31 @@ class apiLocations {
         const response = await $api.get(`${BASE_URL}/api/erp/locations/by-name/factory/${name}`,)
         return response;
     }
+    static FilterByAddress = async (address, search, page) => {
+        const response = await $api.get(`${BASE_URL}/api/locations/address?address=${address}&searchName=${search}&page=${page}`,)
+        return response;
+    }
+
+    // Construction Site Methods
+    static CreateConstructionSite = async (data) => {
+        const response = await $api.post(`${BASE_URL}/api/locations/construction-site`, data, { showSuccessToast: "Obyekt muvaffaqiyatli yaratildi" })
+        return response;
+    }
+
+    static GetLocationsByParent = async (parentId) => {
+        const response = await $api.get(`${BASE_URL}/api/locations/all/${parentId}`)
+        return response;
+    }
+
+    static UpdateLocation = async (id, data) => {
+        const response = await $api.put(`${BASE_URL}/api/locations/${id}`, data, { showSuccessToast: "Obyekt muvaffaqiyatli yangilandi" })
+        return response;
+    }
+
+    static DeleteLocation = async (id) => {
+        const response = await $api.delete(`${BASE_URL}/api/locations/${id}`, { showSuccessToast: "Obyekt muvaffaqiyatli o'chirildi" })
+        return response;
+    }
 
 
 }

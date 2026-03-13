@@ -8,6 +8,7 @@ import Clcompany from "../../pages/CLcompany/Clcompany";
 import OptionsPage from "../../pages/ADoptions/ADoptions";
 import ClcompanyDetail from "../../pages/ClcompanyDetail/ClcompanyDetail";
 import CLOffersCreate from "../../pages/CLOffersCreate/CLOffersCreate";
+import SPoperators from "../../pages/SPoperators/SPoperators";
 
 const adminRoutes = [
     {
@@ -36,24 +37,29 @@ const adminRoutes = [
         element: <ADOperators />
     },
     {
-        path:'companies',
-        name:'companies',
-        element:<Clcompany role={'Admin'}/>
+        path: 'companies',
+        name: 'companies',
+        element: <Clcompany role={'Admin'} />
     },
     {
-        path:'/company-detail/:id',
-        name:'companies detail',
-        element:<ClcompanyDetail role={'Admin'}/>
+        path: '/company-detail/:id',
+        name: 'companies detail',
+        element: <ClcompanyDetail role={'Admin'} />
     },
     {
-        path:'/create-offer/:id',
-        name:'companies detail',
-        element:<CLOffersCreate role={'Admin'}/>
+        path: '/create-offer/:id',
+        name: 'companies detail',
+        element: <CLOffersCreate role={'Admin'} />
     },
     {
-        path:'options',
-        name:'options',
-        element:<OptionsPage/>
+        path: 'options',
+        name: 'options',
+        element: <OptionsPage />
+    },
+    {
+        name: "sp operators",
+        path: "operators",
+        element: <SPoperators />
     }
 
 ];

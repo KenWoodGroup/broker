@@ -7,7 +7,6 @@ import { Headset, Home, Shield, ShieldCheck, Users2 } from "lucide-react";
 const links = [
     { label: "Home", to: "/superadmin", icon: Home, end:true },
     { label: "Managers", to: "/superadmin/managers", icon: ShieldCheck, end:true },
-    { label: "Operators", to: "/superadmin/operators", icon: Headset, end:true },
     // { label: "Minicategories", to: "/minisubcategories", icon: Settings },
     // { label: "Products", to: "/products", icon: Boxes },
 ];

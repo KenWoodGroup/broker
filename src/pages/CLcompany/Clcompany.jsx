@@ -17,8 +17,7 @@ import {
     Input,
     InputGroup,
     InputLeftElement,
-    IconButton,
-    Tooltip
+    Select,
 } from "@chakra-ui/react"
 import { Search, Upload } from "lucide-react"
 import CreateCompany from "./__components/CreateCompany"
@@ -27,6 +26,24 @@ import { useEffect, useState, useRef } from "react"
 import { useNavigate } from "react-router"
 import CreateCompanyByExcell from "./__components/CreateCompanyByExcell"
 import DeleteCompany from "./__components/DeleteCompany"
+import LoginPermissionSwitch from "./__components/LoginPermissionSwitch"
+
+const REGIONS = [
+    { id: 2, name: "Andijon viloyati" },
+    { id: 3, name: "Buxoro viloyati" },
+    { id: 4, name: "Jizzax viloyati" },
+    { id: 5, name: "Qashqadaryo viloyati" },
+    { id: 6, name: "Navoiy viloyati" },
+    { id: 7, name: "Namangan viloyati" },
+    { id: 8, name: "Samarqand viloyati" },
+    { id: 10, name: "Sirdaryo viloyati" },
+    { id: 5723, name: "Surxondaryo viloyati" },
+    { id: 11, name: "Toshkent shahri" },
+    { id: 12, name: "Toshkent viloyati" },
+    { id: 13, name: "Farg'ona viloyati" },
+    { id: 14, name: "Xorazm viloyati" },
+    { id: 15, name: "Qoraqalpog'iston Respublikasi" },
+]
 
 export default function Clcompany({ role }) {
     const [companies, setCompanies] = useState([])
@@ -35,13 +52,19 @@ export default function Clcompany({ role }) {
     const [loading, setLoading] = useState(false)
     const [searchValue, setSearchValue] = useState("") // input value
     const [search, setSearch] = useState("all") // value для API
+    const [selectedRegion, setSelectedRegion] = useState("all")
     const debounceRef = useRef(null)
     const navigate = useNavigate()
 
-    const GetCompany = async (pageNumber = 1, searchTerm = "all") => {
+    const GetCompany = async (pageNumber = 1, searchTerm = "all", region = "all") => {
         try {
             setLoading(true)
-            const response = await apiLocations.GetBySearchForOperator(pageNumber, searchTerm)
+            let response;
+            if (region !== "all") {
+                response = await apiLocations.FilterByAddress(region, searchTerm, pageNumber)
+            } else {
+                response = await apiLocations.GetBySearchForOperator(pageNumber, searchTerm)
+            }
             setCompanies(response.data.data.records)
             setPagination(response.data.data.pagination)
         } catch (error) {
@@ -52,8 +75,8 @@ export default function Clcompany({ role }) {
     }
 
     useEffect(() => {
-        GetCompany(page, search)
-    }, [page, search])
+        GetCompany(page, search, selectedRegion)
+    }, [page, search, selectedRegion])
 
     // Обработчик изменения input search с debounce
     const handleSearchChange = (e) => {
@@ -73,24 +96,44 @@ export default function Clcompany({ role }) {
             <Flex justifyContent="space-between" mb="20px">
                 <Heading size="lg">Kompaniyalar</Heading>
                 <Flex gap={4}>
-                    <CreateCompanyByExcell reload={GetCompany} />
+                    {role === 'Admin' && (
+                        <CreateCompanyByExcell reload={GetCompany} />
+                    )}
                     <CreateCompany refresh={() => GetCompany(page, search)} />
                 </Flex>
             </Flex>
 
-            {/* Search */}
-            <Box mb="20px" maxW="400px">
-                <InputGroup>
-                    <InputLeftElement pointerEvents="none">
-                        <Search />
-                    </InputLeftElement>
-                    <Input
-                        placeholder="Search by name or type..."
-                        value={searchValue}
-                        onChange={handleSearchChange}
-                    />
-                </InputGroup>
-            </Box>
+            {/* Filters */}
+            <Flex mb="20px" gap={4} wrap="wrap">
+                <Box flex="1" maxW="400px">
+                    <InputGroup>
+                        <InputLeftElement pointerEvents="none">
+                            <Search size={18} color="gray" />
+                        </InputLeftElement>
+                        <Input
+                            placeholder="Qidiruv..."
+                            value={searchValue}
+                            onChange={handleSearchChange}
+                        />
+                    </InputGroup>
+                </Box>
+                <Box w="300px">
+                    <Select
+                        placeholder="Hududni tanlang (Hammasi)"
+                        value={selectedRegion}
+                        onChange={(e) => {
+                            setSelectedRegion(e.target.value)
+                            setPage(1)
+                        }}
+                    >
+                        {REGIONS.map((r) => (
+                            <option key={r.id || r.name} value={r.name}>
+                                {r.name}
+                            </option>
+                        ))}
+                    </Select>
+                </Box>
+            </Flex>
 
             {/* Loading */}
             {loading ? (
@@ -167,11 +210,14 @@ export default function Clcompany({ role }) {
                                         <Td fontWeight="semibold">{Number(item.balance).toLocaleString()} so'm</Td>
                                         <Td>{new Date(item.createdAt).toLocaleDateString()}</Td>
                                         <Td>
-                                            <DeleteCompany
-                                                companyId={item.id}
-                                                companyName={item.name}
-                                                refresh={() => GetCompany(page, search)}
-                                            />
+                                            <Flex align="center">
+                                                {/* <LoginPermissionSwitch companyId={item.id} initialValue={item.is_login || false} /> */}
+                                                <DeleteCompany
+                                                    companyId={item.id}
+                                                    companyName={item.name}
+                                                    refresh={() => GetCompany(page, search)}
+                                                />
+                                            </Flex>
                                         </Td>
                                     </Tr>
                                 ))}
