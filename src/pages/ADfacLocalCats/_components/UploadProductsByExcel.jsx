@@ -39,10 +39,10 @@ export default function UploadProductsByExcel({ factoryId, onSuccess }) {
 
     const createdScrollRef = useRef(null);
 
-    const visibleCreated = useMemo(() => {
-        if (!response) return [];
-        return response.created.slice(0, visibleCount);
-    }, [response, visibleCount]);
+    // const visibleCreated = useMemo(() => {
+    //     if (!response) return [];
+    //     return response.created.slice(0, visibleCount);
+    // }, [response, visibleCount]);
 
     useEffect(() => {
         const el = createdScrollRef.current;
@@ -148,8 +148,7 @@ export default function UploadProductsByExcel({ factoryId, onSuccess }) {
                                         <Text>
                                             Jami:{" "}
                                             <b>
-                                                {response.created.length +
-                                                    response.skipped.length}
+                                                {response?.summary?.total_rows}
                                             </b>
                                         </Text>
                                     </Flex>
@@ -157,12 +156,12 @@ export default function UploadProductsByExcel({ factoryId, onSuccess }) {
                                     <Flex gap={4}>
                                         <Flex gap={1} align="center">
                                             <CheckCircle size={16} />
-                                            <Text>{response.created.length}</Text>
+                                            <Text>{response?.summary?.created}</Text>
                                         </Flex>
 
                                         <Flex gap={1} align="center">
                                             <XCircle size={16} />
-                                            <Text>{response.skipped.length}</Text>
+                                            <Text>{response?.summary?.skipped}</Text>
                                         </Flex>
                                     </Flex>
                                 </Flex>
@@ -170,7 +169,7 @@ export default function UploadProductsByExcel({ factoryId, onSuccess }) {
                                 <Divider />
 
                                 {/* CREATED */}
-                                <Box>
+                                {/* <Box>
                                     <Text fontWeight="bold" mb={2}>
                                         Muvaffaqiyatli yuklanganlar
                                     </Text>
@@ -191,10 +190,10 @@ export default function UploadProductsByExcel({ factoryId, onSuccess }) {
                                             </Flex>
                                         ))}
                                     </Box>
-                                </Box>
+                                </Box> */}
 
                                 {/* SKIPPED */}
-                                {response.skipped.length > 0 && (
+                                {response?.skipped_details?.length > 0 && (
                                     <Box>
                                         <Text fontWeight="bold" mb={2}>
                                             Bekor qilinganlar
@@ -208,7 +207,7 @@ export default function UploadProductsByExcel({ factoryId, onSuccess }) {
                                             rounded="md"
                                             p={2}
                                         >
-                                            {response.skipped.map((item, idx) => (
+                                            {response?.skipped_details?.map((item, idx) => (
                                                 <Box key={idx} mb={2}>
                                                     <Flex gap={2} align="center">
                                                         <XCircle size={14} />
