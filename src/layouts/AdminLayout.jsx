@@ -1,7 +1,7 @@
 import { Outlet } from "react-router";
 import Sidebar from "../components/common/Sidebar";
 import { useUIStore } from "../store/useUIStore";
-import { BoxIcon, Factory, Headset, Home, Settings, Settings2, User, User2 } from "lucide-react";
+import { BoxIcon, Building2, Factory, Headset, Home, Settings, Settings2, User, User2 } from "lucide-react";
 import { Box } from "@chakra-ui/react";
 
 const links = [
@@ -9,7 +9,7 @@ const links = [
     { label: "Operatorlar", to: "/operators", icon: Headset },
     { label: "Brokerlar", to: "/brokers", icon: User, end: true },
     { label: "Factory", to: "/factories", icon: Factory },
-    { label: "Companies", to: "/companies", icon: BoxIcon },
+    { label: "Companies", to: "/companies", icon: Building2 },
     { label: "Opsiyalar", to: "/options", icon: Settings2 },
     // { label: "Products", to: "/products", icon: Boxes },
 ];
