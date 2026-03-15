@@ -89,16 +89,16 @@ const WarehouseStockPage = () => {
         setLoading(true);
         try {
             const response = await apiUsers.getFactoryUsers(factoryId);
-            const director = response.data?.find((item)=> item.role === 'factory');
+            const director = response.data?.find((item) => item.role === 'factory');
             setFactoryUser(director)
         } finally {
             setLoading(false);
         }
     };
-    
-    useEffect(()=> {
+
+    useEffect(() => {
         fetchUsers()
-    },[])
+    }, [])
 
     // Handle upload modal open
     const handleUploadClick = () => {
@@ -107,7 +107,7 @@ const WarehouseStockPage = () => {
         setSelectedFile(null);
         setInvoiceId(null);
         setUploadResult(null);
-        if(factoryUser?.id) {
+        if (factoryUser?.id) {
             onUploadOpen();
         } else {
             toastService.error("Zavod egasi topilmadi")
@@ -199,6 +199,7 @@ const WarehouseStockPage = () => {
             minute: '2-digit'
         });
     };
+
 
     return (
         <Box minH="100vh" bg="bg">
@@ -535,14 +536,14 @@ const WarehouseStockPage = () => {
                                 <Icon as={CheckCircleIcon} boxSize={20} color="green.500" />
                                 <VStack spacing={2}>
                                     <Text fontSize="lg" fontWeight="semibold" color="text">
-                                        {uploadResult.message}
+                                        {uploadResult?.message}
                                     </Text>
                                     <Card bg="bg" width="100%">
                                         <CardBody>
                                             <SimpleGrid columns={2} spacing={4}>
                                                 <VStack>
                                                     <Text fontSize="3xl" fontWeight="bold" color="green.600">
-                                                        {uploadResult.created}
+                                                        {uploadResult?.summary?.created}
                                                     </Text>
                                                     <Text fontSize="sm" color="gray.600">
                                                         Yaratildi
@@ -550,7 +551,7 @@ const WarehouseStockPage = () => {
                                                 </VStack>
                                                 <VStack>
                                                     <Text fontSize="3xl" fontWeight="bold" color="orange.500">
-                                                        {uploadResult.skipped}
+                                                        {uploadResult?.summary?.skipped}
                                                     </Text>
                                                     <Text fontSize="sm" color="gray.600">
                                                         Tashlab ketildi
@@ -559,6 +560,15 @@ const WarehouseStockPage = () => {
                                             </SimpleGrid>
                                         </CardBody>
                                     </Card>
+                                    {uploadResult?.summary?.skipped > 0 && (
+                                        <Box>
+                                            {Object.entries(uploadResult?.skipped_details || {}).map(([key, value]) => (
+                                                <Text key={key}>
+                                                    {key}: {value}
+                                                </Text>
+                                            ))}
+                                        </Box>
+                                    )}
                                 </VStack>
                             </VStack>
                         )}

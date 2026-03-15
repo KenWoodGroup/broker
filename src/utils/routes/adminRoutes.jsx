@@ -9,12 +9,13 @@ import OptionsPage from "../../pages/ADoptions/ADoptions";
 import ClcompanyDetail from "../../pages/ClcompanyDetail/ClcompanyDetail";
 import CLOffersCreate from "../../pages/CLOffersCreate/CLOffersCreate";
 import SPoperators from "../../pages/SPoperators/SPoperators";
+import ADhome from "../../pages/ADhome/ADhome";
 
 const adminRoutes = [
     {
         path: "",
         name: "ok",
-        element: <div><Center>Shakillantirish bosqichida</Center></div>
+        element: <ADhome/>
     },
     {
         path: 'factories',
