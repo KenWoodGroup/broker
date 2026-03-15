@@ -224,7 +224,6 @@ export default function Clcompany({ role }) {
                             </Tbody>
                         </Table>
                     </TableContainer>
-
                     {/* Pagination */}
                     {pagination && (
                         <Flex mt="20px" justifyContent="space-between" alignItems="center">

@@ -40,7 +40,8 @@ import {
     Truck,
     FileText,
     Clock,
-    AlertCircle
+    AlertCircle,
+    LocateIcon
 } from "lucide-react"
 import { NavLink } from "react-router-dom"
 import { apiOffers } from "../../utils/Controllers/Offers"
@@ -147,36 +148,16 @@ export default function ClcompanyDetail({ role }) {
                             label="Manzil"
                             value={data?.address}
                         />
-
                         <InfoItem
                             icon={<Phone size={20} />}
                             label="Telefon"
                             value={data?.phone}
                         />
-
+                        
                         <InfoItem
-                            icon={<Wallet size={20} />}
-                            label="Balans"
-                            value={`${data?.balance} UZS`}
-                            bold
-                        />
-
-                        <InfoItem
-                            icon={<Globe size={20} />}
-                            label="Koordinatalar"
-                            value={data?.lat && data?.lng ? `${data?.lat}, ${data?.lng}` : "—"}
-                        />
-
-                        <InfoItem
-                            icon={<Calendar size={20} />}
-                            label="Yaratilgan"
-                            value={data?.createdAt ? new Date(data.createdAt).toLocaleString('uz-UZ') : "—"}
-                        />
-
-                        <InfoItem
-                            icon={<RefreshCcw size={20} />}
-                            label="Yangilangan"
-                            value={data?.updatedAt ? new Date(data.updatedAt).toLocaleString('uz-UZ') : "—"}
+                            icon={<LocateIcon size={20} />}
+                            label="Yuridik manzili"
+                            value={data?.legalAddress}
                         />
                     </Grid>
                 </CardBody>
