@@ -1,4 +1,4 @@
-import { Box, Button, Code, Heading, Spinner, Table, Tbody, Td, Th, Thead, Tr, useDisclosure } from "@chakra-ui/react";
+import { Box, Button, Code, Heading, Spinner, Table, TableContainer, Tbody, Td, Th, Thead, Tr, useDisclosure } from "@chakra-ui/react";
 import { useEffect, useRef, useState } from "react";
 import TableSkeleton from "../../components/ui/TableSkeleton";
 import { apiManagers } from "../../utils/Controllers/Managers";
@@ -89,9 +89,9 @@ export default function SPoperators() {
     };
 
     return (
-        <Box p={6} maxW="1500px" mx="auto" bg={"bg"} color={"text"}>
+        <Box py="20px" pr="20px">
             <Box display="flex" justifyContent="space-between" mb={6}>
-                <Heading size="lg">Operators</Heading>
+                <Heading size="lg">Brokerlar</Heading>
 
                 <Button
                     variant={"solidPrimary"}
@@ -100,7 +100,7 @@ export default function SPoperators() {
                         formModal.onOpen();
                     }}
                 >
-                    + Create operator
+                    + Create broker
                 </Button>
             </Box>
             {/* TABLE */}
@@ -108,8 +108,6 @@ export default function SPoperators() {
                 bg="bg"
                 rounded="xl"
                 shadow="md"
-                overflow="hidden"
-                p={4}
             >
                 {tableLoading ? (
                     <Box textAlign="center">
@@ -131,58 +129,65 @@ export default function SPoperators() {
                         {/* <Spinner marginTop={"10px"} size="lg" /> */}
                     </Box>
                 ) : managers.length > 0 ? (
-                    <Table>
-                        <Thead>
-                            <Tr>
-                                <Th>#</Th>
-                                <Th>Full Name</Th>
-                                <Th>Username</Th>
-                                <Th>Created time</Th>
-                                <Th>Last updated</Th>
-                                <Th textAlign="right">Actions</Th>
-                            </Tr>
-                        </Thead>
-
-                        <Tbody>
-                            {managers.map((item, index) => (
-                                <Tr key={item.id}>
-                                    <Td>{index + 1}</Td>
-                                    <Td>{item.full_name}</Td>
-                                    <Td><CopyUsername username={item.username} /></Td>
-                                    <Td>{formatDateTime(item.createdAt, 'uz-UZ', {
-                                        month: 'numeric'
-                                    })}</Td>
-                                    <Td>{formatDateTime(item.updatedAt, 'uz-Uz', {
-                                        month: 'numeric'
-                                    })}</Td>
-                                    <Td textAlign="right">
-                                        <Button
-                                            size="sm"
-                                            mr={3}
-                                            colorScheme="blue"
-                                            variant="ghost"
-                                            onClick={() => {
-                                                handleClick(item)
-                                            }}
-                                        >
-                                            Edit
-                                        </Button>
-                                        <Button
-                                            size="sm"
-                                            colorScheme="red"
-                                            variant="ghost"
-                                            onClick={() => {
-                                                setDeletingManager(item);
-                                                confirmModal.onOpen();
-                                            }}
-                                        >
-                                            Delete
-                                        </Button>
-                                    </Td>
+                    <TableContainer
+                        borderWidth="1px"
+                        borderRadius="lg"
+                        boxShadow="md"
+                    >
+                        <Table variant="simple">
+                            <Thead>
+                                <Tr>
+                                    <Th>#</Th>
+                                    <Th>Full Name</Th>
+                                    <Th>Username</Th>
+                                    <Th>Created time</Th>
+                                    <Th>Last updated</Th>
+                                    <Th textAlign="right">Actions</Th>
                                 </Tr>
-                            ))}
-                        </Tbody>
-                    </Table>
+                            </Thead>
+
+                            <Tbody>
+                                {managers.map((item, index) => (
+                                    <Tr key={item.id}>
+                                        <Td>{index + 1}</Td>
+                                        <Td>{item.full_name}</Td>
+                                        <Td><CopyUsername username={item.username} /></Td>
+                                        <Td>{formatDateTime(item.createdAt, 'uz-UZ', {
+                                            month: 'numeric'
+                                        })}</Td>
+                                        <Td>{formatDateTime(item.updatedAt, 'uz-Uz', {
+                                            month: 'numeric'
+                                        })}</Td>
+                                        <Td textAlign="right">
+                                            <Button
+                                                size="sm"
+                                                mr={3}
+                                                colorScheme="blue"
+                                                variant="ghost"
+                                                onClick={() => {
+                                                    handleClick(item)
+                                                }}
+                                            >
+                                                Edit
+                                            </Button>
+                                            <Button
+                                                size="sm"
+                                                colorScheme="red"
+                                                variant="ghost"
+                                                onClick={() => {
+                                                    setDeletingManager(item);
+                                                    confirmModal.onOpen();
+                                                }}
+                                            >
+                                                Delete
+                                            </Button>
+                                        </Td>
+                                    </Tr>
+                                ))}
+                            </Tbody>
+                        </Table>
+                    </TableContainer>
+
                 ) : (
                     <Box textAlign="center" py={6} color="gray.500">
                         No managers found
@@ -196,7 +201,7 @@ export default function SPoperators() {
                 setPass={setPass} setConfirmPass={setConfirmPass}
                 validating={validating} setValidating={setValidating}
                 isOpen={resetPassModal.isOpen}
-                onClose={()=> {
+                onClose={() => {
                     resetPassModal.onClose()
                     setValidating(false)
                 }}

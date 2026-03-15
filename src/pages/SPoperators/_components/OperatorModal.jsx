@@ -106,7 +106,7 @@ export default function OperatorModal({ isOpen, onClose, initialData, reload }) 
             <ModalOverlay bg="blackAlpha.400" backdropFilter="blur(6px)" />
             <ModalContent>
                 <ModalHeader>
-                    {initialData ? "Edit operator" : "Add operator"}
+                    {initialData ? "Edit broker" : "Add broker"}
                 </ModalHeader>
 
                 <ModalBody>

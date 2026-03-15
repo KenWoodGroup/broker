@@ -285,7 +285,7 @@ const OptionsPage = () => {
                         </HStack>
 
                         {/* Stats */}
-                        <SimpleGrid columns={{ base: 2, md: 4 }} spacing={4}>
+                        {/* <SimpleGrid columns={{ base: 2, md: 4 }} spacing={4}>
                             <Card bg="blue.50" _dark={{ bg: 'blue.900' }}>
                                 <CardBody py={3}>
                                     <VStack spacing={0}>
@@ -337,10 +337,10 @@ const OptionsPage = () => {
                                     </VStack>
                                 </CardBody>
                             </Card>
-                        </SimpleGrid>
+                        </SimpleGrid> */}
 
                         {/* Search and Sort */}
-                        <HStack spacing={4}>
+                        {/* <HStack spacing={4}>
                             <InputGroup flex={1}>
                                 <InputLeftElement pointerEvents="none">
                                     <SearchIcon color="gray.400" />
@@ -375,7 +375,7 @@ const OptionsPage = () => {
                                 <option value="name">Nom bo'yicha</option>
                                 <option value="price">Narx bo'yicha</option>
                             </Select>
-                        </HStack>
+                        </HStack> */}
                     </VStack>
                 </Container>
             </Box>

@@ -6,11 +6,11 @@ import { Box } from "@chakra-ui/react";
 
 const links = [
     { label: "Home", to: "/", icon: Home },
+    { label: "Operatorlar", to: "/operators", icon: Headset },
+    { label: "Brokerlar", to: "/brokers", icon: User, end: true },
     { label: "Factory", to: "/factories", icon: Factory },
     { label: "Companies", to: "/companies", icon: BoxIcon },
     { label: "Opsiyalar", to: "/options", icon: Settings2 },
-    { label: "Operatorlar", to: "/operators", icon: Headset },
-    { label: "Brokerlar", to: "/brokers", icon: User, end: true },
     // { label: "Products", to: "/products", icon: Boxes },
 ];
 export default function AdminLayout() {
