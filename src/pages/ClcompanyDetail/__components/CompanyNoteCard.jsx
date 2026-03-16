@@ -95,7 +95,6 @@ export default function CompanyNoteCard({ locationId }) {
             })
 
             setNewComment("")
-
             await fetchComments(1, false)
 
         } catch (error) {
@@ -124,7 +123,9 @@ export default function CompanyNoteCard({ locationId }) {
             borderRadius="2xl"
             boxShadow="xl"
             overflow="hidden"
-            h="100%"
+            display="flex"
+            flexDirection="column"
+            minH="600px"
         >
 
             <CardHeader bg={headerBg} py={4}>
@@ -141,14 +142,13 @@ export default function CompanyNoteCard({ locationId }) {
             <CardBody
                 display="flex"
                 flexDirection="column"
-                h="600px"
+                flex="1"
             >
 
                 <VStack
                     spacing={4}
                     align="stretch"
                     flex="1"
-                    overflow="hidden"
                 >
 
                     {/* COMMENTS LIST */}
@@ -157,7 +157,6 @@ export default function CompanyNoteCard({ locationId }) {
                         flex="1"
                         overflowY="auto"
                         pr={2}
-                        id="comments-container"
                     >
 
                         {isLoading ? (
@@ -183,16 +182,12 @@ export default function CompanyNoteCard({ locationId }) {
 
                                         <VStack align="start" spacing={1}>
 
-                                            {/* DATE */}
-
                                             <Text
                                                 fontSize="xs"
                                                 color={useColorModeValue("gray.500", "gray.400")}
                                             >
                                                 {formatDate(comment.createdAt)}
                                             </Text>
-
-                                            {/* COMMENT TEXT */}
 
                                             <Text
                                                 whiteSpace="pre-wrap"
@@ -256,7 +251,7 @@ export default function CompanyNoteCard({ locationId }) {
 
                     {/* NEW COMMENT */}
 
-                    <Box pb={2}>
+                    <Box>
 
                         <Textarea
                             value={newComment}
@@ -267,10 +262,6 @@ export default function CompanyNoteCard({ locationId }) {
                             rows={3}
                             mb={2}
                             bg={useColorModeValue("white", "gray.900")}
-                            _focus={{
-                                borderColor: "blue.400",
-                                boxShadow: "0 0 0 1px blue.400"
-                            }}
                         />
 
                         <Flex justify="flex-end">
