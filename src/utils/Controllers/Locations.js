@@ -33,7 +33,7 @@ class apiLocations {
         const response = await $api.post(`${BASE_URL}/api/locations/upload-building/${locType}`, file, { showSuccessToast: `${locType} successfully created` })
         return response;
     }
-    static CreateLocalClientsByExcell = async (facId, file ) => {
+    static CreateLocalClientsByExcell = async (facId, file) => {
         const response = await $api.post(`${BASE_URL}/api/erp/locations/upload-client/${facId}`, file, { showSuccessToast: `Clients successfully created` })
         return response;
     }
@@ -43,6 +43,10 @@ class apiLocations {
     }
     static Update = async (data, id, locType) => {
         const response = await $api.put(`${BASE_URL}/api/erp/locations/${id}`, data, { showSuccessToast: `${locType} successfully updated` })
+        return response;
+    }
+    static UpdateNote = async (data, id) => {
+        const response = await $api.put(`${BASE_URL}/api/locations/note/${id}`, data, { showSuccessToast: `Note successfully updated` })
         return response;
     }
     static Delete = async (id, locType) => {
