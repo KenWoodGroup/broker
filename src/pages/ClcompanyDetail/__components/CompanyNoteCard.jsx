@@ -15,13 +15,14 @@ import {
     Button,
     Spinner,
     Center,
-    Divider,
-    Avatar
+    Divider
 } from "@chakra-ui/react"
+
 import { FileText, Send, ChevronDown } from "lucide-react"
 import { apiLocationsNote } from "../../../utils/Controllers/apiLocationNotes"
 
 export default function CompanyNoteCard({ locationId }) {
+
     const [comments, setComments] = useState([])
     const [newComment, setNewComment] = useState("")
     const [isLoading, setIsLoading] = useState(true)
@@ -34,14 +35,19 @@ export default function CompanyNoteCard({ locationId }) {
     const headerBg = useColorModeValue("gray.50", "gray.700")
 
     const fetchComments = useCallback(async (pageNum = 1, append = false) => {
+
         if (pageNum === 1) setIsLoading(true)
         else setIsLoadingMore(true)
 
         try {
-            const response = await apiLocationsNote.Get({ location_id: locationId, page: pageNum })
+
+            const response = await apiLocationsNote.Get({
+                location_id: locationId,
+                page: pageNum
+            })
+
             const responseData = response.data
-            
-            // User feedback structure: { data: [], total: 1, page: 1, totalPages: 1 }
+
             const newRecords = responseData?.data || []
             const currentTotalPages = responseData?.totalPages || 1
 
@@ -50,15 +56,17 @@ export default function CompanyNoteCard({ locationId }) {
             } else {
                 setComments(newRecords)
             }
-            
+
             setTotalPages(currentTotalPages)
             setPage(pageNum)
+
         } catch (error) {
             console.error("Error fetching comments:", error)
         } finally {
             setIsLoading(false)
             setIsLoadingMore(false)
         }
+
     }, [locationId])
 
     useEffect(() => {
@@ -74,54 +82,96 @@ export default function CompanyNoteCard({ locationId }) {
     }
 
     const handlePostComment = async () => {
+
         if (!newComment.trim()) return
 
         setIsPosting(true)
+
         try {
-            await apiLocationsNote.Post({ location_id: locationId, note: newComment })
+
+            await apiLocationsNote.Post({
+                location_id: locationId,
+                note: newComment
+            })
+
             setNewComment("")
-            // Reset to first page to see the new comment (assuming backend returns newest first)
+
             await fetchComments(1, false)
+
         } catch (error) {
             console.error("Error posting comment:", error)
         } finally {
             setIsPosting(false)
         }
+
     }
 
     const formatDate = (dateString) => {
-        if (!dateString) return '—'
-        return new Date(dateString).toLocaleString('uz-UZ', {
-            day: '2-digit',
-            month: '2-digit',
-            year: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit'
+        if (!dateString) return "—"
+
+        return new Date(dateString).toLocaleString("uz-UZ", {
+            day: "2-digit",
+            month: "2-digit",
+            year: "numeric",
+            hour: "2-digit",
+            minute: "2-digit"
         })
     }
 
     return (
-        <Card bg={bg} borderRadius="2xl" boxShadow="xl" overflow="hidden" h="100%">
+        <Card
+            bg={bg}
+            borderRadius="2xl"
+            boxShadow="xl"
+            overflow="hidden"
+            h="100%"
+        >
+
             <CardHeader bg={headerBg} py={4}>
                 <Flex justify="space-between" align="center">
+
                     <HStack spacing={2}>
                         <Icon as={FileText} color="blue.500" boxSize={5} />
                         <Heading size="md">Izohlar</Heading>
-                 </HStack>
+                    </HStack>
+
                 </Flex>
             </CardHeader>
-            <CardBody display="flex" flexDirection="column" h="600px">
-                <VStack spacing={4} align="stretch" flex="1" overflow="hidden">
-                    
-                    {/* 1. Izohlar ro'yxati (History - Tepada) */}
-                    <Box flex="1" overflowY="auto" pr={2} id="comments-container">
+
+            <CardBody
+                display="flex"
+                flexDirection="column"
+                h="600px"
+            >
+
+                <VStack
+                    spacing={4}
+                    align="stretch"
+                    flex="1"
+                    overflow="hidden"
+                >
+
+                    {/* COMMENTS LIST */}
+
+                    <Box
+                        flex="1"
+                        overflowY="auto"
+                        pr={2}
+                        id="comments-container"
+                    >
+
                         {isLoading ? (
+
                             <Center py={10}>
                                 <Spinner color="blue.500" />
                             </Center>
+
                         ) : comments.length > 0 ? (
+
                             <VStack spacing={4} align="stretch">
+
                                 {comments.map((comment, index) => (
+
                                     <Box
                                         key={comment.id || index}
                                         p={3}
@@ -130,16 +180,38 @@ export default function CompanyNoteCard({ locationId }) {
                                         borderWidth="1px"
                                         borderColor={useColorModeValue("gray.100", "gray.600")}
                                     >
-                           
-                                        <Text whiteSpace="pre-wrap" fontSize="sm" color={useColorModeValue("gray.700", "gray.200")}>
-                                            {comment.note}
-                                        </Text>
+
+                                        <VStack align="start" spacing={1}>
+
+                                            {/* DATE */}
+
+                                            <Text
+                                                fontSize="xs"
+                                                color={useColorModeValue("gray.500", "gray.400")}
+                                            >
+                                                {formatDate(comment.createdAt)}
+                                            </Text>
+
+                                            {/* COMMENT TEXT */}
+
+                                            <Text
+                                                whiteSpace="pre-wrap"
+                                                fontSize="sm"
+                                                color={useColorModeValue("gray.700", "gray.200")}
+                                            >
+                                                {comment.note}
+                                            </Text>
+
+                                        </VStack>
+
                                     </Box>
+
                                 ))}
 
-                                {/* Load More Pagination Button */}
                                 {page < totalPages && (
+
                                     <Center py={2}>
+
                                         <Button
                                             variant="ghost"
                                             size="sm"
@@ -150,25 +222,42 @@ export default function CompanyNoteCard({ locationId }) {
                                         >
                                             Yana yuklash
                                         </Button>
+
                                     </Center>
+
                                 )}
+
                             </VStack>
+
                         ) : (
+
                             <Center py={10}>
+
                                 <VStack spacing={2}>
-                                    <Icon as={FileText} size={30} color="gray.300" />
-                                    <Text color="gray.400" fontStyle="italic">
+
+                                    <Icon as={FileText} boxSize={8} color="gray.300" />
+
+                                    <Text
+                                        color="gray.400"
+                                        fontStyle="italic"
+                                    >
                                         Hali izohlar yo'q...
                                     </Text>
+
                                 </VStack>
+
                             </Center>
+
                         )}
+
                     </Box>
 
                     <Divider />
 
-                    {/* 2. Yangi izoh yozish qismi (Bottom - Pastda) */}
+                    {/* NEW COMMENT */}
+
                     <Box pb={2}>
+
                         <Textarea
                             value={newComment}
                             onChange={(e) => setNewComment(e.target.value)}
@@ -178,9 +267,14 @@ export default function CompanyNoteCard({ locationId }) {
                             rows={3}
                             mb={2}
                             bg={useColorModeValue("white", "gray.900")}
-                            _focus={{ borderColor: "blue.400", boxShadow: "0 0 0 1px blue.400" }}
+                            _focus={{
+                                borderColor: "blue.400",
+                                boxShadow: "0 0 0 1px blue.400"
+                            }}
                         />
+
                         <Flex justify="flex-end">
+
                             <Button
                                 colorScheme="blue"
                                 size="md"
@@ -193,11 +287,15 @@ export default function CompanyNoteCard({ locationId }) {
                             >
                                 Yuborish
                             </Button>
+
                         </Flex>
+
                     </Box>
 
                 </VStack>
+
             </CardBody>
+
         </Card>
     )
 }
