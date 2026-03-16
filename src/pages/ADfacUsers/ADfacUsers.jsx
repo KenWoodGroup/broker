@@ -39,7 +39,7 @@ import {
     Checkbox,
 } from '@chakra-ui/react';
 import { AddIcon, EditIcon, DeleteIcon } from '@chakra-ui/icons';
-import { FiUser, FiUserCheck, FiShoppingCart, FiPackage, FiAward,  } from 'react-icons/fi';
+import { FiUser, FiUserCheck, FiShoppingCart, FiPackage, FiAward, } from 'react-icons/fi';
 import { apiUsers } from '../../utils/Controllers/Users';
 import { toastService } from '../../utils/toast';
 
@@ -48,7 +48,9 @@ const UsersPage = () => {
 
     // State
     const [users, setUsers] = useState([]);
+    const [warehouses, setWarehouses] = useState([])
     const [loading, setLoading] = useState(true);
+    const [warehouseLoading, setWarehouseLoading] = useState(false)
     const [roleFilter, setRoleFilter] = useState('all');
 
     // Modal states
@@ -65,6 +67,7 @@ const UsersPage = () => {
         confirmPassword: '',
         changePassword: false,
     });
+    const [selectedWarehouse, setSelectedWarehouse] = useState('');
     const [currentUser, setCurrentUser] = useState(null);
     const [formLoading, setFormLoading] = useState(false);
 
@@ -76,26 +79,32 @@ const UsersPage = () => {
             color: 'purple',
             order: 1,
         },
-        storekeeper: {
-            label: 'Omborchi',
+        warehouse: {
+            label: 'Ombor rahbari',
             icon: FiPackage,
             color: 'blue',
             order: 2,
         },
+        storekeeper: {
+            label: 'Omborchi',
+            icon: FiPackage,
+            color: 'green',
+            order: 3,
+        },
+
         cashier: {
             label: 'Kassir',
             icon: FiUserCheck,
-            color: 'green',
-            order: 3,
+            color: 'yellow',
+            order: 4,
         },
         seller: {
             label: 'Sotuvchi',
             icon: FiShoppingCart,
             color: 'orange',
-            order: 4,
+            order: 5,
         },
     };
-    const {storekeeper, ...accessedRolesForPost} = roleConfig
 
     // Fetch users
     const fetchUsers = async () => {
@@ -116,6 +125,21 @@ const UsersPage = () => {
 
     useEffect(() => {
         fetchUsers();
+    }, [factoryId]);
+
+    // Fetch users
+    const fetchWarehouses = async () => {
+        setWarehouseLoading(true);
+        try {
+            const response = await (factoryId);
+            setWarehouses(response.data);
+        } finally {
+            setWarehouseLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchWarehouses();
     }, [factoryId]);
 
     // Filter users by role
@@ -275,7 +299,7 @@ const UsersPage = () => {
                         </HStack>
 
                         {/* Role stats */}
-                        <SimpleGrid columns={{ base: 2, md: 4 }} spacing={4}>
+                        <SimpleGrid columns={{ base: 2, md: 5 }} spacing={4}>
                             {roleStats.map(({ role, count, label, color }) => (
                                 <Card
                                     key={role}
@@ -464,7 +488,7 @@ const UsersPage = () => {
                     <ModalHeader color="text">Foydalanuvchi qo'shish</ModalHeader>
                     <ModalCloseButton />
                     <ModalBody>
-                        <VStack spacing={4}>
+                        <VStack spacing={4} alignItems={'start'}>
                             <FormControl isRequired>
                                 <FormLabel color="text">To'liq ism</FormLabel>
                                 <Input
@@ -487,7 +511,7 @@ const UsersPage = () => {
                                 />
                             </FormControl>
 
-                            <FormControl isRequired>
+                            <FormControl isRequired w={'65%'}>
                                 <FormLabel color="text">Lavozim</FormLabel>
                                 <Select
                                     value={formData.role}
@@ -496,11 +520,23 @@ const UsersPage = () => {
                                     bg="bg"
                                     color="text"
                                 >
-                                    {Object.entries(accessedRolesForPost).map(([value, { label }]) => (
+                                    {Object.entries(roleConfig).map(([value, { label }]) => (
                                         <option key={value} value={value}>
                                             {label}
                                         </option>
                                     ))}
+                                </Select>
+                            </FormControl>
+                            <FormControl isRequired w={'65%'} >
+                                <FormLabel color="text">Ombor</FormLabel>
+                                <Select
+                                    value={formData.role}
+                                    onChange={(e) => setFormData({ ...formData, role: e.target.value })}
+                                    placeholder="Lavozimni tanlang"
+                                    bg="bg"
+                                    color="text"
+                                >
+
                                 </Select>
                             </FormControl>
 
