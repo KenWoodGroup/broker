@@ -25,7 +25,9 @@ import {
     TabList,
     TabPanels,
     Tab,
-    TabPanel
+    TabPanel,
+    IconButton,
+    Textarea
 } from "@chakra-ui/react"
 
 import {
@@ -41,11 +43,15 @@ import {
     FileText,
     Clock,
     AlertCircle,
-    LocateIcon
+    LocateIcon,
+    Edit2,
+    Check,
+    X
 } from "lucide-react"
 import { NavLink } from "react-router-dom"
 import { apiOffers } from "../../utils/Controllers/Offers"
 import ConstructionSites from "./__components/ConstructionSites"
+import CompanyNoteCard from "./__components/CompanyNoteCard"
 
 export default function ClcompanyDetail({ role }) {
     const { id } = useParams()
@@ -183,6 +189,12 @@ export default function ClcompanyDetail({ role }) {
                             <Text>Obyektlar</Text>
                         </HStack>
                     </Tab>
+                    <Tab fontWeight="bold">
+                        <HStack spacing={2}>
+                            <FileText size={18} />
+                            <Text>Izoh</Text>
+                        </HStack>
+                    </Tab>
                 </TabList>
                 <TabPanels>
                     <TabPanel p={0}>
@@ -219,8 +231,12 @@ export default function ClcompanyDetail({ role }) {
                         )}
                     </TabPanel>
 
-                    <TabPanel p={0}>
+                    <TabPanel p={0} pt={4}>
                         <ConstructionSites role={role} companyId={id} />
+                    </TabPanel>
+
+                    <TabPanel p={0} pt={4}>
+                        <CompanyNoteCard locationId={id} />
                     </TabPanel>
                 </TabPanels>
             </Tabs>
