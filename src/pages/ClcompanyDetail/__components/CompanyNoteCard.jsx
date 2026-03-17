@@ -278,7 +278,6 @@ export default function CompanyNoteCard({ locationId }) {
                             >
                                 Yuborish
                             </Button>
-
                         </Flex>
 
                     </Box>

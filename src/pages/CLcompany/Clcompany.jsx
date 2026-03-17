@@ -26,7 +26,7 @@ import { useEffect, useState, useRef } from "react"
 import { useNavigate } from "react-router"
 import CreateCompanyByExcell from "./__components/CreateCompanyByExcell"
 import DeleteCompany from "./__components/DeleteCompany"
-import LoginPermissionSwitch from "./__components/LoginPermissionSwitch"
+import LoginPermissionSwitch from "../ClcompanyDetail/__components/LoginPermissionSwitch"
 
 const REGIONS = [
     { id: 2, name: "Andijon viloyati" },
@@ -211,7 +211,7 @@ export default function Clcompany({ role }) {
                                         <Td>{new Date(item.createdAt).toLocaleDateString()}</Td>
                                         <Td>
                                             <Flex align="center">
-                                                <LoginPermissionSwitch companyId={item.id} initialValue={item.is_login || false} />
+                                                {/* <LoginPermissionSwitch companyId={item.id} initialValue={item.is_login || false} /> */}
                                                 <DeleteCompany
                                                     companyId={item.id}
                                                     companyName={item.name}

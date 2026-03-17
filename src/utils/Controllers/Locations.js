@@ -45,6 +45,10 @@ class apiLocations {
         const response = await $api.put(`${BASE_URL}/api/erp/locations/${id}`, data, { showSuccessToast: `${locType} successfully updated` })
         return response;
     }
+    static UpdateLocationData = async (data, id, locType) => {
+        const response = await $api.put(`${BASE_URL}/api/locations/${id}`, data, { showSuccessToast: `${locType} successfully updated` })
+        return response;
+    }
     static UpdateNote = async (data, id) => {
         const response = await $api.put(`${BASE_URL}/api/locations/note/${id}`, data, { showSuccessToast: `Note successfully updated` })
         return response;
