@@ -133,9 +133,9 @@ export default function ADfacProducts({ reloadDependance, }) {
     };
 
     /* ---------------- effects ---------------- */
-    useEffect(() => {
-        fetchProducts(factoryPage, debouncedSearch);
-    }, [factoryPage, debouncedSearch, fetchProducts]);
+    // useEffect(() => {
+    //     fetchProducts(factoryPage, debouncedSearch);
+    // }, [factoryPage, debouncedSearch, fetchProducts]);
 
     useEffect(() => {
         fetchProducts(factoryPage, debouncedSearch);

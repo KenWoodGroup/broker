@@ -17,6 +17,10 @@ class apiUsers {
         const response = await $api.get(`${BASE_URL}/api/user/operator?page=${page}`);
         return response;
     }
+    static getSuppliers = async (page)=> {
+        const response = await $api.get(`${BASE_URL}/api/user/supplier?page=${page}`);
+        return response;
+    }
     static Add = async (data) => {
         const response = await $api.post(`${BASE_URL}/api/erp/user`, data, { showSuccessToast: "User successfully created" })
         return response;

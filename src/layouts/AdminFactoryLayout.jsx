@@ -14,9 +14,6 @@ export default function AdminFactoryLayout() {
                 factoryId={factoryId}
                 onBack={() => navigate(-1)}
             />
-
-
-            {/* Sub pages will be here later */}
             <Box mt="20px">
                 <Outlet />
             </Box>

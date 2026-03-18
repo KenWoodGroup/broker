@@ -67,9 +67,9 @@ export default function ADfacLocalCats({ reloadDependance }) {
         }
     }, []);
 
-    useEffect(() => {
-        fetchCategories(page, debouncedSearch);
-    }, [page, debouncedSearch, fetchCategories]);
+    // useEffect(() => {
+    //     fetchCategories(page, debouncedSearch);
+    // }, [page, debouncedSearch, fetchCategories]);
 
     useEffect(() => {
         fetchCategories(page, debouncedSearch);
