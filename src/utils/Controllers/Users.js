@@ -9,11 +9,11 @@ class apiUsers {
         const response = await $api.get(`${BASE_URL}/api/erp/user/factory-user/${facId}`)
         return response;
     }
-    static getBrokers = async ()=> {
+    static getBrokers = async () => {
         const response = await $api.get(`${BASE_URL}/api/user/broker`);
         return response;
     }
-    static getOperator = async (page)=> {
+    static getOperator = async (page) => {
         const response = await $api.get(`${BASE_URL}/api/user/operator?page=${page}`);
         return response;
     }
@@ -23,6 +23,10 @@ class apiUsers {
     }
     static Add = async (data) => {
         const response = await $api.post(`${BASE_URL}/api/erp/user`, data, { showSuccessToast: "User successfully created" })
+        return response;
+    }
+    static CreateOperator = async (data) => {
+        const response = await $api.post(`${BASE_URL}/api/user`, data, { showSuccessToast: "User successfully created" })
         return response;
     }
     static Update = async (data, id) => {

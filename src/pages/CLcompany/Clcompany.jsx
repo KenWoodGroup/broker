@@ -26,7 +26,6 @@ import { useEffect, useState, useRef } from "react"
 import { useNavigate } from "react-router"
 import CreateCompanyByExcell from "./__components/CreateCompanyByExcell"
 import DeleteCompany from "./__components/DeleteCompany"
-import LoginPermissionSwitch from "../ClcompanyDetail/__components/LoginPermissionSwitch"
 
 const REGIONS = [
     { id: 2, name: "Andijon viloyati" },
@@ -45,26 +44,33 @@ const REGIONS = [
     { id: 15, name: "Qoraqalpog'iston Respublikasi" },
 ]
 
+const ACTIVE_TYPES = [
+    { value: "pending", label: "Kutilmoqda", color: "yellow" },
+    { value: "active", label: "Aktiv", color: "green" },
+    { value: "delete", label: "O'chirilgan", color: "red" },
+]
+
 export default function Clcompany({ role }) {
     const [companies, setCompanies] = useState([])
     const [pagination, setPagination] = useState(null)
     const [page, setPage] = useState(1)
     const [loading, setLoading] = useState(false)
-    const [searchValue, setSearchValue] = useState("") // input value
-    const [search, setSearch] = useState("all") // value для API
+    const [searchValue, setSearchValue] = useState("")
+    const [search, setSearch] = useState("all")
     const [selectedRegion, setSelectedRegion] = useState("all")
+    const [selectedActiveType, setSelectedActiveType] = useState("all")
     const debounceRef = useRef(null)
     const navigate = useNavigate()
 
-    const GetCompany = async (pageNumber = 1, searchTerm = "all", region = "all") => {
+    const GetCompany = async (pageNumber = 1, searchTerm = "all", region = "all", activeType = "all") => {
         try {
             setLoading(true)
             let response;
-            if (region !== "all") {
-                response = await apiLocations.FilterByAddress(region, searchTerm, pageNumber)
-            } else {
-                response = await apiLocations.GetBySearchForOperator(pageNumber, searchTerm)
-            }
+            
+            // Для не-Admin всегда показываем только pending
+            const effectiveActiveType = role !== 'Admin' ? 'pending' : activeType;
+            
+            response = await apiLocations.FilterCompany(region, searchTerm, effectiveActiveType, pageNumber)
             setCompanies(response.data.data.records)
             setPagination(response.data.data.pagination)
         } catch (error) {
@@ -75,14 +81,14 @@ export default function Clcompany({ role }) {
     }
 
     useEffect(() => {
-        GetCompany(page, search, selectedRegion)
-    }, [page, search, selectedRegion])
+        GetCompany(page, search, selectedRegion, selectedActiveType)
+    }, [page, search, selectedRegion, selectedActiveType, role])
 
     // Обработчик изменения input search с debounce
     const handleSearchChange = (e) => {
         const value = e.target.value
         setSearchValue(value)
-        setPage(1) // сбрасываем страницу на 1 при поиске
+        setPage(1)
 
         if (debounceRef.current) clearTimeout(debounceRef.current)
         debounceRef.current = setTimeout(() => {
@@ -90,17 +96,44 @@ export default function Clcompany({ role }) {
         }, 500)
     }
 
+    // Функция для получения цвета бейджа статуса
+    const getStatusBadgeColor = (activeType) => {
+        switch (activeType) {
+            case 'pending':
+                return 'yellow'
+            case 'active':
+                return 'green'
+            case 'delete':
+                return 'red'
+            default:
+                return 'gray'
+        }
+    }
+
+    // Функция для получения текста статуса
+    const getStatusText = (activeType) => {
+        switch (activeType) {
+            case 'pending':
+                return 'Kutilmoqda'
+            case 'active':
+                return 'Aktiv'
+            case 'delete':
+                return "O'chirilgan"
+            default:
+                return activeType
+        }
+    }
+
     return (
         <Box py="20px" pr="20px">
-
             <Flex justifyContent="space-between" mb="20px">
                 <Heading size="lg">Kompaniyalar</Heading>
-                <Flex gap={4}>
-                    {role === 'Admin' && (
+                {role === 'Admin' && (
+                    <Flex gap={4}>
                         <CreateCompanyByExcell reload={GetCompany} />
-                    )}
-                    <CreateCompany refresh={() => GetCompany(page, search)} />
-                </Flex>
+                        <CreateCompany refresh={() => GetCompany(page, search, selectedRegion, selectedActiveType)} />
+                    </Flex>
+                )}
             </Flex>
 
             {/* Filters */}
@@ -117,6 +150,7 @@ export default function Clcompany({ role }) {
                         />
                     </InputGroup>
                 </Box>
+                
                 <Box w="300px">
                     <Select
                         placeholder="Hududni tanlang (Hammasi)"
@@ -133,6 +167,26 @@ export default function Clcompany({ role }) {
                         ))}
                     </Select>
                 </Box>
+
+                {/* Active Type Filter - только для Admin */}
+                {role === 'Admin' && (
+                    <Box w="250px">
+                        <Select
+                            placeholder="Status"
+                            value={selectedActiveType}
+                            onChange={(e) => {
+                                setSelectedActiveType(e.target.value)
+                                setPage(1)
+                            }}
+                        >
+                            {ACTIVE_TYPES.map((type) => (
+                                <option key={type.value} value={type.value}>
+                                    {type.label}
+                                </option>
+                            ))}
+                        </Select>
+                    </Box>
+                )}
             </Flex>
 
             {/* Loading */}
@@ -154,7 +208,10 @@ export default function Clcompany({ role }) {
                         Ma'lumot yo‘q
                     </Text>
                     <Text fontSize="sm" color="gray.400">
-                        Hozircha kompaniyalar mavjud emas
+                        {role !== 'Admin' 
+                            ? "Hozircha kutilayotgan kompaniyalar mavjud emas"
+                            : "Hozircha kompaniyalar mavjud emas"
+                        }
                     </Text>
                 </Flex>
             ) : (
@@ -174,19 +231,27 @@ export default function Clcompany({ role }) {
                                     <Th>Telefon</Th>
                                     <Th>Balans</Th>
                                     <Th>Yaratilgan</Th>
-                                    <Th>Amallar</Th>
+                                    {role === 'Admin' && (
+                                        <Th>Amallar</Th>
+                                    )}
                                 </Tr>
                             </Thead>
 
                             <Tbody>
                                 {companies.map((item, index) => (
-                                    <Tr cursor={'pointer'} key={item.id} onClick={() => {
-                                        if (role !== 'Admin') {
-                                            navigate(`/call-operator/company/${item?.id}`)
-                                        } else {
-                                            navigate(`/company-detail/${item?.id}`)
-                                        }
-                                    }}>
+                                    <Tr 
+                                        key={item.id}
+                                        onClick={() => {
+                                            if (role !== 'Admin') {
+                                                navigate(`/call-operator/company/${item?.id}`)
+                                            } else {
+                                                navigate(`/company-detail/${item?.id}`)
+                                            }
+                                        }}
+                                        sx={{
+                                            cursor: 'pointer',
+                                        }}
+                                    >
                                         <Td>{(page - 1) * 10 + index + 1}</Td>
                                         <Td fontWeight="medium">{item.name}</Td>
                                         <Td>
@@ -208,22 +273,25 @@ export default function Clcompany({ role }) {
                                         </Td>
                                         <Td>{item.phone}</Td>
                                         <Td fontWeight="semibold">{Number(item.balance).toLocaleString()} so'm</Td>
+                                       
                                         <Td>{new Date(item.createdAt).toLocaleDateString()}</Td>
-                                        <Td>
-                                            <Flex align="center">
-                                                {/* <LoginPermissionSwitch companyId={item.id} initialValue={item.is_login || false} /> */}
-                                                <DeleteCompany
-                                                    companyId={item.id}
-                                                    companyName={item.name}
-                                                    refresh={() => GetCompany(page, search)}
-                                                />
-                                            </Flex>
-                                        </Td>
+                                        {role === 'Admin' && (
+                                            <Td>
+                                                <Flex align="center">
+                                                    <DeleteCompany
+                                                        companyId={item.id}
+                                                        companyName={item.name}
+                                                        refresh={() => GetCompany(page, search, selectedRegion, selectedActiveType)}
+                                                    />
+                                                </Flex>
+                                            </Td>
+                                        )}
                                     </Tr>
                                 ))}
                             </Tbody>
                         </Table>
                     </TableContainer>
+                    
                     {/* Pagination */}
                     {pagination && (
                         <Flex mt="20px" justifyContent="space-between" alignItems="center">

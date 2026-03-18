@@ -11,16 +11,15 @@ import {
     Tooltip,
     useDisclosure
 } from "@chakra-ui/react"
+
 import {
     Building2,
     MapPin,
     Phone,
     User,
     Calendar,
-    FileText,
     Hash,
     Briefcase,
-    Globe,
     CreditCard,
     Clock,
     Edit2
@@ -28,115 +27,63 @@ import {
 
 import CompanyDetailEditModal from "./CompanyDetailEditModal"
 
-export default function CompanyInfo({ data, onSuccess }) {
+export default function CompanyInfo({ data, onSuccess, role }) {
     const detail = data?.company_detail || {}
     const editModal = useDisclosure()
-    
+    const isAdmin = role === "Admin"
+
+    // 🔥 конфиги полей
+    const mainInfo = [
+        { icon: MapPin, label: "Manzil", value: data?.address },
+        { icon: Phone, label: "Telefon", value: data?.phone },
+        { icon: User, label: "Direktor nomi", value: detail.director_name },
+        { icon: Calendar, label: "Tashkil etilgan yil", value: detail.founded_year },
+        { icon: Briefcase, label: "Faoliyat yo'nalishi", value: detail.direction },
+        { icon: Hash, label: "INN", value: detail.inn }
+    ]
+
+    const bankInfo = [
+        { icon: Building2, label: "Bank nomi", value: detail.bank_name },
+        { icon: MapPin, label: "Bank manzili", value: detail.bank_address },
+        { icon: CreditCard, label: "Hisob raqami", value: detail.account_number },
+        { icon: Hash, label: "MFO", value: detail.mfo },
+        { icon: Hash, label: "STIR", value: detail.stir },
+        { icon: Hash, label: "OKED", value: detail.oked }
+    ]
+
+    const extraInfo = [
+        { icon: MapPin, label: "Yuridik manzil", value: detail.legal_address },
+        { icon: Clock, label: "Yaratilgan vaqt", value: formatDate(detail.createdAt) }
+    ]
+
     return (
         <VStack spacing={8} align="stretch" py={4}>
-            <Box>
-                <Flex justify="space-between" align="center" mb={4}>
-                    <Heading size="md" color="blue.500">Asosiy ma'lumotlar</Heading>
-                    <Tooltip label="Batafsil ma'lumotlarni tahrirlash">
-                        <IconButton
-                            icon={<Edit2 size={16} />}
-                            size="sm"
-                            variant="ghost"
-                            colorScheme="blue"
-                            onClick={editModal.onOpen}
-                            aria-label="Tahrirlash"
-                        />
-                    </Tooltip>
-                </Flex>
-                <Grid templateColumns={{ base: "1fr", md: "1fr 1fr" }} gap={6}>
-                    <InfoItem 
-                        icon={<MapPin size={20} />} 
-                        label="Manzil" 
-                        value={data?.address} 
-                    />
-                    <InfoItem 
-                        icon={<Phone size={20} />} 
-                        label="Telefon" 
-                        value={data?.phone} 
-                    />
-                    <InfoItem 
-                        icon={<User size={20} />} 
-                        label="Direktor nomi" 
-                        value={detail.director_name} 
-                    />
-                    <InfoItem 
-                        icon={<Calendar size={20} />} 
-                        label="Tashkil etilgan yil" 
-                        value={detail.founded_year} 
-                    />
-                    <InfoItem 
-                        icon={<Briefcase size={20} />} 
-                        label="Faoliyat yo'nalishi" 
-                        value={detail.direction} 
-                    />
-                    <InfoItem 
-                        icon={<Hash size={20} />} 
-                        label="INN" 
-                        value={detail.inn} 
-                    />
-                </Grid>
-            </Box>
+            {/* 🔹 MAIN */}
+            <Section
+                title="Asosiy ma'lumotlar"
+                isAdmin={isAdmin}
+                onEdit={editModal.onOpen}
+                fields={mainInfo}
+            />
 
-            <Divider />
+            {/* 🔹 ADMIN BLOCK */}
+            {isAdmin && (
+                <>
+                    <Divider />
 
-            <Box>
-                <Heading size="md" mb={4} color="blue.500">Bank ma'lumotlari</Heading>
-                <Grid templateColumns={{ base: "1fr", md: "1fr 1fr" }} gap={6}>
-                    <InfoItem 
-                        icon={<Building2 size={20} />} 
-                        label="Bank nomi" 
-                        value={detail.bank_name} 
+                    <Section
+                        title="Bank ma'lumotlari"
+                        fields={bankInfo}
                     />
-                    <InfoItem 
-                        icon={<MapPin size={20} />} 
-                        label="Bank manzili" 
-                        value={detail.bank_address} 
-                    />
-                    <InfoItem 
-                        icon={<CreditCard size={20} />} 
-                        label="Hisob raqami" 
-                        value={detail.account_number} 
-                    />
-                    <InfoItem 
-                        icon={<Hash size={20} />} 
-                        label="MFO" 
-                        value={detail.mfo} 
-                    />
-                    <InfoItem 
-                        icon={<Hash size={20} />} 
-                        label="STIR" 
-                        value={detail.stir} 
-                    />
-                    <InfoItem 
-                        icon={<Hash size={20} />} 
-                        label="OKED" 
-                        value={detail.oked} 
-                    />
-                </Grid>
-            </Box>
 
-            <Divider />
+                    <Divider />
 
-            <Box>
-                <Heading size="md" mb={4} color="blue.500">Qo'shimcha ma'lumotlar</Heading>
-                <Grid templateColumns={{ base: "1fr", md: "1fr 1fr" }} gap={6}>
-                    <InfoItem 
-                        icon={<MapPin size={20} />} 
-                        label="Yuridik manzil" 
-                        value={detail.legal_address} 
+                    <Section
+                        title="Qo'shimcha ma'lumotlar"
+                        fields={extraInfo}
                     />
-                    <InfoItem 
-                        icon={<Clock size={20} />} 
-                        label="Yaratilgan vaqt" 
-                        value={formatDate(detail.createdAt)} 
-                    />
-                </Grid>
-            </Box>
+                </>
+            )}
 
             <CompanyDetailEditModal
                 isOpen={editModal.isOpen}
@@ -149,25 +96,52 @@ export default function CompanyInfo({ data, onSuccess }) {
     )
 }
 
-function InfoItem({ icon, label, value }) {
+// 🔥 универсальная секция
+function Section({ title, fields, isAdmin, onEdit }) {
+    return (
+        <Box>
+            <Flex justify="space-between" align="center" mb={4}>
+                <Heading size="md" color="blue.500">
+                    {title}
+                </Heading>
+
+                {isAdmin && onEdit && (
+                    <Tooltip label="Tahrirlash">
+                        <IconButton
+                            icon={<Edit2 size={16} />}
+                            size="sm"
+                            variant="ghost"
+                            colorScheme="blue"
+                            onClick={onEdit}
+                        />
+                    </Tooltip>
+                )}
+            </Flex>
+
+            <Grid templateColumns={{ base: "1fr", md: "1fr 1fr" }} gap={6}>
+                {fields.map((item, i) => (
+                    <InfoItem key={i} {...item} />
+                ))}
+            </Grid>
+        </Box>
+    )
+}
+
+function InfoItem({ icon: Icon, label, value }) {
     const iconBg = useColorModeValue("blue.50", "blue.900")
     const iconColor = useColorModeValue("blue.500", "blue.200")
 
     return (
         <Flex align="center" gap={4}>
-            <Box
-                p={3}
-                borderRadius="xl"
-                bg={iconBg}
-                color={iconColor}
-            >
-                {icon}
+            <Box p={3} borderRadius="xl" bg={iconBg} color={iconColor}>
+                <Icon size={20} />
             </Box>
+
             <Box>
-                <Text fontSize="xs" color="gray.500" textTransform="uppercase" letterSpacing="wider">
+                <Text fontSize="xs" color="gray.500" textTransform="uppercase">
                     {label}
                 </Text>
-                <Text fontWeight="bold" fontSize="md">
+                <Text fontWeight="bold">
                     {value || "—"}
                 </Text>
             </Box>
@@ -177,6 +151,7 @@ function InfoItem({ icon, label, value }) {
 
 function formatDate(dateString) {
     if (!dateString) return "—"
+
     return new Date(dateString).toLocaleString("uz-UZ", {
         day: "2-digit",
         month: "2-digit",
