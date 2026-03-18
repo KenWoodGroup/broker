@@ -56,7 +56,7 @@ function App() {
             })}
           </Route>
         </Route>
-        <Route element={<RequireAuth role={"sales_rep"} />}>
+        <Route element={<RequireAuth role={"operator"} />}>
           <Route path='/call-operator' element={<CallOperatorLayout />}>
             {CallOperRoutes.map((r) => {
               return (

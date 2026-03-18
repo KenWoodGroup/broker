@@ -69,6 +69,10 @@ class apiLocations {
         const response = await $api.get(`${BASE_URL}/api/locations/address?address=${address}&searchName=${search}&page=${page}`,)
         return response;
     }
+    static FilterCompany = async (address, search, activeType, page) => {
+        const response = await $api.get(`${BASE_URL}/api/locations/filter?address=${address}&searchName=${search}&activeType=${activeType}&page=${page}`,)
+        return response;
+    }
 
     // Construction Site Methods
     static CreateConstructionSite = async (data) => {

@@ -16,6 +16,7 @@ import {
     Button,
     useColorModeValue
 } from "@chakra-ui/react"
+
 import {
     FileText,
     Calendar,
@@ -24,9 +25,37 @@ import {
     AlertCircle,
     Package
 } from "lucide-react"
-import { NavLink } from "react-router-dom"
 
-export default function CompanyOrders({ offers, loading, id, role }) {
+import { NavLink } from "react-router-dom"
+import { useEffect, useState } from "react"
+import { apiOffers } from "../../../utils/Controllers/Offers"
+
+export default function CompanyOrders({ id, role }) {
+    const [offers, setOffers] = useState({ records: [] })
+    const [loading, setLoading] = useState(true)
+
+    const GetOffers = async () => {
+        setLoading(true)
+        try {
+            const params = {
+                page: 1,
+                location_id: id
+            }
+
+            const response = await apiOffers.getOffersByLocationId(params)
+            setOffers(response.data?.data || { records: [] })
+        } catch (error) {
+            console.log(error)
+        } finally {
+            setLoading(false)
+        }
+    }
+
+    // 🔥 вызывается ТОЛЬКО когда таб открыт (component mount)
+    useEffect(() => {
+        GetOffers()
+    }, [id])
+
     if (loading) {
         return (
             <Center py={10}>
@@ -42,7 +71,14 @@ export default function CompanyOrders({ offers, loading, id, role }) {
         <>
             <Flex justify="space-between" align="center" mb={6}>
                 <Heading size="md">Barcha buyurtmalar</Heading>
-                <NavLink to={role !== 'Admin' ? `/call-operator/offer/create/${id}` : `/create-offer/${id}`}>
+
+                <NavLink
+                    to={
+                        role !== 'Admin'
+                            ? `/call-operator/offer/create/${id}`
+                            : `/create-offer/${id}`
+                    }
+                >
                     <Button
                         colorScheme="blue"
                         leftIcon={<FileText size={18} />}
@@ -120,6 +156,7 @@ function OfferCard({ offer }) {
                                 Buyurtma #{offer.id.slice(0, 8)}
                             </Text>
                         </HStack>
+
                         <Badge
                             colorScheme={getStatusColor(offer.status)}
                             px={3}
@@ -137,8 +174,12 @@ function OfferCard({ offer }) {
                         <HStack spacing={2}>
                             <Icon as={Calendar} color="gray.500" boxSize={4} />
                             <Box>
-                                <Text fontSize="sm" color="gray.500">Yetkazib berish sanasi</Text>
-                                <Text fontWeight="medium">{formatDate(offer.date)}</Text>
+                                <Text fontSize="sm" color="gray.500">
+                                    Yetkazib berish sanasi
+                                </Text>
+                                <Text fontWeight="medium">
+                                    {formatDate(offer.date)}
+                                </Text>
                             </Box>
                         </HStack>
 
@@ -153,9 +194,12 @@ function OfferCard({ offer }) {
                         </HStack>
                     </Grid>
 
-                    {offer.offer_items && offer.offer_items.length > 0 && (
+                    {offer.offer_items?.length > 0 && (
                         <Box>
-                            <Text fontSize="sm" color="gray.500" mb={2}>Tovarlar:</Text>
+                            <Text fontSize="sm" color="gray.500" mb={2}>
+                                Tovarlar:
+                            </Text>
+
                             <VStack align="stretch" spacing={2}>
                                 {offer.offer_items.map((item) => (
                                     <Flex
@@ -166,9 +210,10 @@ function OfferCard({ offer }) {
                                         justify="space-between"
                                         align="center"
                                     >
-                                        <Text fontWeight="medium" fontSize="sm">
+                                        <Text fontSize="sm">
                                             {item.product_name}
                                         </Text>
+
                                         <Badge colorScheme="blue">
                                             {item.quantity} {item.unit || 'dona'}
                                         </Badge>
@@ -180,7 +225,7 @@ function OfferCard({ offer }) {
 
                     {offer.note && (
                         <HStack spacing={2} align="start">
-                            <Icon as={AlertCircle} color="gray.500" boxSize={4} />
+                            <Icon as={AlertCircle} boxSize={4} />
                             <Box>
                                 <Text fontSize="sm" color="gray.500">Izoh:</Text>
                                 <Text fontSize="sm">{offer.note}</Text>
@@ -190,18 +235,18 @@ function OfferCard({ offer }) {
 
                     {offer.contract_number && (
                         <HStack spacing={2}>
-                            <Icon as={FileText} color="gray.500" boxSize={4} />
+                            <Icon as={FileText} boxSize={4} />
                             <Box>
                                 <Text fontSize="sm" color="gray.500">Shartnoma:</Text>
-                                <Text fontWeight="medium">{offer.contract_number}</Text>
+                                <Text>{offer.contract_number}</Text>
                             </Box>
                         </HStack>
                     )}
 
-                    <HStack spacing={2} justify="flex-end">
-                        <Icon as={Clock} color="gray.400" boxSize={3} />
-                        <Text fontSize="xs" color="gray.400">
-                            Yaratilgan: {formatDate(offer.createdAt)}
+                    <HStack justify="flex-end">
+                        <Icon as={Clock} boxSize={3} />
+                        <Text fontSize="xs">
+                            {formatDate(offer.createdAt)}
                         </Text>
                     </HStack>
                 </VStack>
@@ -214,15 +259,14 @@ function EmptyState() {
     return (
         <Center py={10}>
             <VStack spacing={4}>
-                <Box
-                    p={4}
-                    bg="gray.100"
-                    borderRadius="full"
-                    _dark={{ bg: "gray.700" }}
-                >
-                    <Package size={40} color="#A0AEC0" />
+                <Box p={4} bg="gray.100" borderRadius="full">
+                    <Package size={40} />
                 </Box>
-                <Heading size="md" color="gray.500">Buyurtmalar mavjud emas</Heading>
+
+                <Heading size="md" color="gray.500">
+                    Buyurtmalar mavjud emas
+                </Heading>
+
                 <Text color="gray.400" textAlign="center">
                     Bu mijozda hali buyurtmalar yo'q.<br />
                     Yuqoridagi tugma orqali birinchi buyurtmani yarating

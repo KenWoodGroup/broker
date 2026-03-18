@@ -85,7 +85,7 @@ export default function Login() {
                 } else if (role === "broker") {
                     navigate('/operator/offers');
                     toastService.success("Successfully")
-                } else if (role === "sales_rep") {
+                } else if (role === "operator") {
                     navigate('/call-operator/offers');
                     toastService.success("Successfully")
                 }

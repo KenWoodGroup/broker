@@ -28,7 +28,7 @@ export default function CreateOperators({refresh}) {
         full_name: "",
         username: "",
         password: "",
-        role: "sales_rep"
+        role: "operator"
     })
 
     const handleChange = (e) => {
@@ -42,7 +42,7 @@ export default function CreateOperators({refresh}) {
     const handleSubmit = async () => {
         try {
             setLoading(true)
-            await apiUsers.Add(formData)
+            await apiUsers.CreateOperator(formData)
 
             toast({
                 title: "Muvaffaqiyatli!",
