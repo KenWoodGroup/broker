@@ -29,6 +29,10 @@ class apiUsers {
         const response = await $api.post(`${BASE_URL}/api/user`, data, { showSuccessToast: "User successfully created" })
         return response;
     }
+    // static CreateSupplier = async (data) => {
+    //     const response = await $api.post(`${BASE_URL}/api/user`, data, { showSuccessToast: "User successfully created" })
+    //     return response;
+    // }
     static Update = async (data, id) => {
         const response = await $api.put(`${BASE_URL}/api/erp/user/${id}`, data, { showSuccessToast: "User successfully updated" })
         return response;

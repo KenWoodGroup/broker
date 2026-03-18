@@ -1,4 +1,4 @@
-import { Box, Button, Code, Heading, Spinner, Table, TableContainer, Tbody, Td, Th, Thead, Tr, useDisclosure } from "@chakra-ui/react";
+import { Box, Button, Code, Heading, HStack, IconButton, Spinner, Table, TableContainer, Tbody, Td, Th, Thead, Tr, useDisclosure } from "@chakra-ui/react";
 import { useEffect, useRef, useState } from "react";
 import TableSkeleton from "../../components/ui/TableSkeleton";
 import { apiManagers } from "../../utils/Controllers/Managers";
@@ -8,8 +8,11 @@ import ConfirmDelModal from "../../components/common/ConfirmDelModal";
 import ResetPassModal from "../../components/common/ResetPassModal";
 import OperatorModal from "./_components/OperatorModal";
 import { apiUsers } from "../../utils/Controllers/Users";
+import { useNavigate } from "react-router";
+import { ArrowLeft } from "lucide-react";
 
 export default function SPoperators() {
+    const navigate = useNavigate()
     const formModal = useDisclosure();
     const confirmModal = useDisclosure();
     const resetPassModal = useDisclosure();
@@ -91,8 +94,17 @@ export default function SPoperators() {
     return (
         <Box py="20px" pr="20px">
             <Box display="flex" justifyContent="space-between" mb={6}>
-                <Heading size="lg">Brokerlar</Heading>
-
+                <HStack>
+                    <IconButton
+                        variant="ghost"
+                        aria-label="Back to factories"
+                        icon={<ArrowLeft size={18} />}
+                        onClick={() => {
+                            navigate(-1)
+                        }}
+                    />
+                    <Heading size="lg">Brokerlar</Heading>
+                </HStack>
                 <Button
                     variant={"solidPrimary"}
                     onClick={() => {

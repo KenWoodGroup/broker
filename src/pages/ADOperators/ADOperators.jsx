@@ -12,15 +12,19 @@ import {
     Button,
     Text,
     Spinner,
-    HStack
+    HStack,
+    IconButton
 } from "@chakra-ui/react"
 import CreateOperators from "./__components/CreateOperators"
 import { apiUsers } from "../../utils/Controllers/Users"
 import { useEffect, useState } from "react"
 import DeleteOperator from "./__components/DeleteOperator"
 import EditOperators from "./__components/EditOperators"
+import { ArrowLeft } from "lucide-react"
+import { useNavigate } from "react-router"
 
 export default function ADOperators() {
+    const navigate = useNavigate()
     const [operators, setOperators] = useState([])
     const [pagination, setPagination] = useState(null)
     const [page, setPage] = useState(1)
@@ -46,7 +50,17 @@ export default function ADOperators() {
     return (
         <Box py="20px" pr="20px">
             <Flex justifyContent="space-between" mb="20px">
-                <Heading size="lg">Operatorlar</Heading>
+                <HStack>
+                    <IconButton
+                        variant="ghost"
+                        aria-label="Back to factories"
+                        icon={<ArrowLeft size={18} />}
+                        onClick={() => {
+                            navigate(-1)
+                        }}
+                    />
+                    <Heading size="lg">Operatorlar</Heading>
+                </HStack>
                 <CreateOperators refresh={() => getAllOperators(page)} />
             </Flex>
 
