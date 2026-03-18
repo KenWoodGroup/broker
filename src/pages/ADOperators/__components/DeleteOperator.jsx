@@ -14,6 +14,7 @@ import {
 import { Trash } from "lucide-react"
 import { useState } from "react"
 import { apiUsers } from "../../../utils/Controllers/Users"
+import { apiLocationUsers } from "../../../utils/Controllers/apiLocationUsers"
 
 export default function DeleteOperator({ id, refresh }) {
     const { isOpen, onOpen, onClose } = useDisclosure()
@@ -23,7 +24,7 @@ export default function DeleteOperator({ id, refresh }) {
     const handleDelete = async () => {
         try {
             setLoading(true)
-            await apiUsers.Delete(id)
+            await apiLocationUsers.Delete(id)
 
             toast({
                 title: "O‘chirildi!",

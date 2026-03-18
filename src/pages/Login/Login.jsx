@@ -86,7 +86,7 @@ export default function Login() {
                     navigate('/operator/offers');
                     toastService.success("Successfully")
                 } else if (role === "operator") {
-                    navigate('/call-operator/offers');
+                    navigate('/call-operator/company');
                     toastService.success("Successfully")
                 }
                 else {
