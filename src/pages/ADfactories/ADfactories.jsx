@@ -124,9 +124,9 @@ export default function ADfactories({ reloadDependance }) {
     };
 
     /* ---------------- effects ---------------- */
-    useEffect(() => {
-        fetchFactories(factoryPage, debouncedSearch);
-    }, [factoryPage, debouncedSearch, fetchFactories]);
+    // useEffect(() => {
+    //     fetchFactories(factoryPage, debouncedSearch);
+    // }, [factoryPage, debouncedSearch, fetchFactories]);
 
     useEffect(() => {
         fetchFactories(factoryPage, debouncedSearch);

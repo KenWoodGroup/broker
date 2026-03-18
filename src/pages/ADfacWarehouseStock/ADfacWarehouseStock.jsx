@@ -36,6 +36,7 @@ import {
     SimpleGrid,
     Wrap,
     WrapItem,
+    IconButton,
 } from '@chakra-ui/react';
 import { ChevronLeftIcon, ChevronRightIcon, DownloadIcon, CheckCircleIcon } from '@chakra-ui/icons';
 import { FiUpload, FiFile, FiPackage } from 'react-icons/fi';
@@ -43,6 +44,8 @@ import { apiStock } from '../../utils/Controllers/apiStock';
 import { apiInvoices } from '../../utils/Controllers/apiInvoices';
 import { apiUsers } from '../../utils/Controllers/Users';
 import { toastService } from '../../utils/toast';
+import { EditIcon } from 'lucide-react';
+import SalePriceEditButton from './components/SalePriceEditButton';
 
 const WarehouseStockPage = () => {
     const { factoryId, warehouseId } = useParams();
@@ -297,9 +300,11 @@ const WarehouseStockPage = () => {
                                     borderColor="border"
                                     _hover={{ shadow: 'md' }}
                                     transition="all 0.2s"
+                                    position={'relative'}
+                                    role='group'
                                 >
                                     <CardBody>
-                                        <SimpleGrid columns={{ base: 1, md: 4 }} spacing={4}>
+                                        <SimpleGrid columns={{ base: 1, md: 3 }} spacing={4}>
                                             {/* Product Info */}
                                             <VStack align="start" spacing={1}>
                                                 <Text fontSize="xs" color="gray.500" fontWeight="medium">
@@ -314,7 +319,7 @@ const WarehouseStockPage = () => {
                                             </VStack>
 
                                             {/* Quantity & Batch */}
-                                            <VStack align="start" spacing={1}>
+                                            {/* <VStack align="start" spacing={1}>
                                                 <Text fontSize="xs" color="gray.500" fontWeight="medium">
                                                     MIQDOR / PARTIYA
                                                 </Text>
@@ -329,7 +334,7 @@ const WarehouseStockPage = () => {
                                                 <Text fontSize="xs" color="gray.500">
                                                     Partiya: {stock.batch}
                                                 </Text>
-                                            </VStack>
+                                            </VStack> */}
 
                                             {/* Prices */}
                                             <VStack align="start" spacing={1}>
@@ -337,7 +342,7 @@ const WarehouseStockPage = () => {
                                                     NARXLAR
                                                 </Text>
                                                 <VStack align="start" spacing={1} width="100%">
-                                                    <HStack justify="space-between" width="100%">
+                                                    <HStack width="100%">
                                                         <Text fontSize="sm" color="gray.600">Xarid:</Text>
                                                         <Text fontWeight="semibold" color="text">
                                                             {parseFloat(stock.purchase_price).toLocaleString()} so'm
@@ -345,7 +350,7 @@ const WarehouseStockPage = () => {
                                                     </HStack>
                                                     {stock.sale_price_type && stock.sale_price_type.length > 0 ? (
                                                         stock.sale_price_type.map((priceType) => (
-                                                            <HStack key={priceType.id} justify="space-between" width="100%">
+                                                            <HStack key={priceType.id} width="100%">
                                                                 <Text fontSize="sm" color="gray.600">
                                                                     {priceType.price_type?.name}:
                                                                 </Text>
@@ -375,6 +380,20 @@ const WarehouseStockPage = () => {
                                                         Barcode: {stock.barcode}
                                                     </Text>
                                                 )}
+                                            </VStack>
+
+                                            <VStack
+                                                spacing={1}
+                                                className="hover-actions"
+                                                opacity={0}
+                                                transition="opacity 0.2s"
+                                                _groupHover={{ opacity: 1 }}
+                                                position={'absolute'}
+                                                top={4}
+                                                right={4}
+                                            >
+                                               <SalePriceEditButton salePriceTypes={stock?.sale_price_type} onSave={()=>fetchStocks()}/>
+                                               
                                             </VStack>
                                         </SimpleGrid>
                                     </CardBody>

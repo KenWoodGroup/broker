@@ -63,9 +63,9 @@ export default function ADcategories({ reloadDependance }) {
         }
     }, []);
 
-    useEffect(() => {
-        fetchCategories(page, debouncedSearch);
-    }, [page, debouncedSearch, fetchCategories]);
+    // useEffect(() => {
+    //     fetchCategories(page, debouncedSearch);
+    // }, [page, debouncedSearch, fetchCategories]);
 
     useEffect(() => {
         fetchCategories(page, debouncedSearch);

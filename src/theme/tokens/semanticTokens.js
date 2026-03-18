@@ -16,6 +16,10 @@ const semanticTokens = {
             default: "neutral.800",
             _dark: "neutral.100",
         },
+        textSub:{
+            default:'neutral.500',
+            _dark:'neutral.200'
+        },
         link:{
             default:"brand.500",
             _dark:"brand.300"

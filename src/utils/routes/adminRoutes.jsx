@@ -10,6 +10,8 @@ import ClcompanyDetail from "../../pages/ClcompanyDetail/ClcompanyDetail";
 import CLOffersCreate from "../../pages/CLOffersCreate/CLOffersCreate";
 import SPoperators from "../../pages/SPoperators/SPoperators";
 import ADhome from "../../pages/ADhome/ADhome";
+import RolesPage from "../../pages/ADworkers/ADworkers";
+import ADsuppliers from "../../pages/ADsuplliers/ADsuppliers";
 
 const adminRoutes = [
     {
@@ -33,7 +35,7 @@ const adminRoutes = [
         element: <ADfactoriesBycategory />
     },
     {
-        path: "operators",
+        path: "roles/call-operators",
         name: "operators",
         element: <ADOperators />
     },
@@ -59,8 +61,18 @@ const adminRoutes = [
     },
     {
         name: "sp operators",
-        path: "brokers",
+        path: "roles/brokers",
         element: <SPoperators />
+    },
+    {
+        name:'ad suppliers',
+        path:'roles/suppliers',
+        element:<ADsuppliers/>
+    },
+    {
+        name:'roles',
+        path:'roles',
+        element:<RolesPage/>
     }
 
 ];

@@ -1,13 +1,14 @@
 import { Outlet } from "react-router";
 import Sidebar from "../components/common/Sidebar";
 import { useUIStore } from "../store/useUIStore";
-import { BoxIcon, Building2, Factory, Headset, Home, Settings, Settings2, User, User2 } from "lucide-react";
+import { Building2, Factory, Home, Settings2, Users2 } from "lucide-react";
 import { Box } from "@chakra-ui/react";
 
 const links = [
     { label: "Home", to: "/", icon: Home },
-    { label: "Operatorlar", to: "/operators", icon: Headset },
-    { label: "Brokerlar", to: "/brokers", icon: User, end: true },
+    // { label: "Operatorlar", to: "/operators", icon: Headset },
+    // { label: "Brokerlar", to: "/brokers", icon: User, end: true },
+    { label: "Hodimlar", to: "/roles", icon: Users2, end: false },
     { label: "Factory", to: "/factories", icon: Factory },
     { label: "Companies", to: "/companies", icon: Building2 },
     { label: "Opsiyalar", to: "/options", icon: Settings2 },
