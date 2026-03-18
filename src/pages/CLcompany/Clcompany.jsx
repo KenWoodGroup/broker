@@ -19,13 +19,14 @@ import {
     InputLeftElement,
     Select,
 } from "@chakra-ui/react"
-import { Search, Upload } from "lucide-react"
-import CreateCompany from "./__components/CreateCompany"
-import { apiLocations } from "../../utils/Controllers/Locations"
-import { useEffect, useState, useRef } from "react"
+import { Search } from "lucide-react"
+import { useEffect, useState, useRef, useCallback } from "react"
 import { useNavigate } from "react-router"
+import { apiLocations } from "../../utils/Controllers/Locations"
+import CreateCompany from "./__components/CreateCompany"
 import CreateCompanyByExcell from "./__components/CreateCompanyByExcell"
 import DeleteCompany from "./__components/DeleteCompany"
+import StatusEdit from "./__components/StatusEdit"
 
 const REGIONS = [
     { id: 2, name: "Andijon viloyati" },
@@ -50,44 +51,66 @@ const ACTIVE_TYPES = [
     { value: "delete", label: "O'chirilgan", color: "red" },
 ]
 
+const isAdmin = (role) => role === "Admin"
+
 export default function Clcompany({ role }) {
     const [companies, setCompanies] = useState([])
     const [pagination, setPagination] = useState(null)
     const [page, setPage] = useState(1)
     const [loading, setLoading] = useState(false)
-    const [searchValue, setSearchValue] = useState("")
+
+    // searchInput — только для отображения в поле ввода (не триггерит запрос)
+    const [searchInput, setSearchInput] = useState("")
+    // search — «зафиксированное» значение после debounce, триггерит запрос
     const [search, setSearch] = useState("all")
+
     const [selectedRegion, setSelectedRegion] = useState("all")
-    const [selectedActiveType, setSelectedActiveType] = useState("all")
+    // Не-Admin видит только pending; Admin начинает с "all"
+    const [selectedActiveType, setSelectedActiveType] = useState(
+        isAdmin(role) ? "all" : "pending"
+    )
+
     const debounceRef = useRef(null)
     const navigate = useNavigate()
 
-    const GetCompany = async (pageNumber = 1, searchTerm = "all", region = "all", activeType = "all") => {
-        try {
-            setLoading(true)
-            let response;
-            
-            // Для не-Admin всегда показываем только pending
-            const effectiveActiveType = role !== 'Admin' ? 'pending' : activeType;
-            
-            response = await apiLocations.FilterCompany(region, searchTerm, effectiveActiveType, pageNumber)
-            setCompanies(response.data.data.records)
-            setPagination(response.data.data.pagination)
-        } catch (error) {
-            console.log(error)
-        } finally {
-            setLoading(false)
-        }
-    }
+    // ─── Запрос данных ───────────────────────────────────────────────────────
+    const fetchCompanies = useCallback(
+        async (pageNumber, searchTerm, region, activeType) => {
+            try {
+                setLoading(true)
+                const response = await apiLocations.FilterCompany(
+                    region,
+                    searchTerm,
+                    activeType,
+                    pageNumber
+                )
+                setCompanies(response.data.data.records)
+                setPagination(response.data.data.pagination)
+            } catch (error) {
+                console.error("Kompaniyalarni yuklashda xatolik:", error)
+            } finally {
+                setLoading(false)
+            }
+        },
+        [] // зависимостей нет — функция стабильна
+    )
 
+    // При любом изменении фильтров / страницы — перезапрашиваем
     useEffect(() => {
-        GetCompany(page, search, selectedRegion, selectedActiveType)
-    }, [page, search, selectedRegion, selectedActiveType, role])
+        fetchCompanies(page, search, selectedRegion, selectedActiveType)
+    }, [page, search, selectedRegion, selectedActiveType, fetchCompanies])
 
-    // Обработчик изменения input search с debounce
+    // Cleanup debounce при анмаунте
+    useEffect(() => {
+        return () => {
+            if (debounceRef.current) clearTimeout(debounceRef.current)
+        }
+    }, [])
+
+    // ─── Обработчики ─────────────────────────────────────────────────────────
     const handleSearchChange = (e) => {
         const value = e.target.value
-        setSearchValue(value)
+        setSearchInput(value)
         setPage(1)
 
         if (debounceRef.current) clearTimeout(debounceRef.current)
@@ -96,88 +119,78 @@ export default function Clcompany({ role }) {
         }, 500)
     }
 
-    // Функция для получения цвета бейджа статуса
-    const getStatusBadgeColor = (activeType) => {
-        switch (activeType) {
-            case 'pending':
-                return 'yellow'
-            case 'active':
-                return 'green'
-            case 'delete':
-                return 'red'
-            default:
-                return 'gray'
-        }
+    const handleRegionChange = (e) => {
+        setSelectedRegion(e.target.value === "" ? "all" : e.target.value)
+        setPage(1)
     }
 
-    // Функция для получения текста статуса
-    const getStatusText = (activeType) => {
-        switch (activeType) {
-            case 'pending':
-                return 'Kutilmoqda'
-            case 'active':
-                return 'Aktiv'
-            case 'delete':
-                return "O'chirilgan"
-            default:
-                return activeType
-        }
+    const handleActiveTypeChange = (e) => {
+        setSelectedActiveType(e.target.value === "" ? "all" : e.target.value)
+        setPage(1)
     }
 
+    const handleRowClick = (item) => {
+        const path = isAdmin(role)
+            ? `/company-detail/${item.id}`
+            : `/call-operator/company/${item.id}`
+        navigate(path)
+    }
+
+    const refreshCurrent = () =>
+        fetchCompanies(page, search, selectedRegion, selectedActiveType)
+
+    // ─── Render ───────────────────────────────────────────────────────────────
     return (
         <Box py="20px" pr="20px">
+            {/* Заголовок */}
             <Flex justifyContent="space-between" mb="20px">
                 <Heading size="lg">Kompaniyalar</Heading>
-                {role === 'Admin' && (
+                {isAdmin(role) && (
                     <Flex gap={4}>
-                        <CreateCompanyByExcell reload={GetCompany} />
-                        <CreateCompany refresh={() => GetCompany(page, search, selectedRegion, selectedActiveType)} />
+                        <CreateCompanyByExcell reload={fetchCompanies} />
+                        <CreateCompany refresh={refreshCurrent} />
                     </Flex>
                 )}
             </Flex>
 
-            {/* Filters */}
+            {/* Фильтры */}
             <Flex mb="20px" gap={4} wrap="wrap">
-                <Box flex="1" maxW="400px">
+                {/* Поиск */}
+                <Box flex="1" minW="200px" maxW="400px">
                     <InputGroup>
                         <InputLeftElement pointerEvents="none">
                             <Search size={18} color="gray" />
                         </InputLeftElement>
                         <Input
                             placeholder="Qidiruv..."
-                            value={searchValue}
+                            value={searchInput}
                             onChange={handleSearchChange}
                         />
                     </InputGroup>
                 </Box>
-                
+
+                {/* Регион */}
                 <Box w="300px">
                     <Select
-                        placeholder="Hududni tanlang (Hammasi)"
-                        value={selectedRegion}
-                        onChange={(e) => {
-                            setSelectedRegion(e.target.value)
-                            setPage(1)
-                        }}
+                        placeholder="Hudud (Hammasi)"
+                        value={selectedRegion === "all" ? "" : selectedRegion}
+                        onChange={handleRegionChange}
                     >
                         {REGIONS.map((r) => (
-                            <option key={r.id || r.name} value={r.name}>
+                            <option key={r.id} value={r.name}>
                                 {r.name}
                             </option>
                         ))}
                     </Select>
                 </Box>
 
-                {/* Active Type Filter - только для Admin */}
-                {role === 'Admin' && (
-                    <Box w="250px">
+                {/* Статус — только Admin */}
+                {isAdmin(role) && (
+                    <Box w="220px">
                         <Select
-                            placeholder="Status"
-                            value={selectedActiveType}
-                            onChange={(e) => {
-                                setSelectedActiveType(e.target.value)
-                                setPage(1)
-                            }}
+                            placeholder="Status (Hammasi)"
+                            value={selectedActiveType === "all" ? "" : selectedActiveType}
+                            onChange={handleActiveTypeChange}
                         >
                             {ACTIVE_TYPES.map((type) => (
                                 <option key={type.value} value={type.value}>
@@ -189,13 +202,12 @@ export default function Clcompany({ role }) {
                 )}
             </Flex>
 
-            {/* Loading */}
+            {/* Состояние загрузки */}
             {loading ? (
                 <Flex justify="center" py="80px">
                     <Spinner size="xl" />
                 </Flex>
-            ) : companies?.length === 0 ? (
-                /* No Data */
+            ) : companies.length === 0 ? (
                 <Flex
                     justify="center"
                     align="center"
@@ -205,22 +217,17 @@ export default function Clcompany({ role }) {
                     borderRadius="lg"
                 >
                     <Text fontSize="lg" fontWeight="semibold" color="gray.500">
-                        Ma'lumot yo‘q
+                        Ma'lumot yo'q
                     </Text>
                     <Text fontSize="sm" color="gray.400">
-                        {role !== 'Admin' 
-                            ? "Hozircha kutilayotgan kompaniyalar mavjud emas"
-                            : "Hozircha kompaniyalar mavjud emas"
-                        }
+                        {isAdmin(role)
+                            ? "Hozircha kompaniyalar mavjud emas"
+                            : "Hozircha kutilayotgan kompaniyalar mavjud emas"}
                     </Text>
                 </Flex>
             ) : (
                 <>
-                    <TableContainer
-                        borderWidth="1px"
-                        borderRadius="lg"
-                        boxShadow="sm"
-                    >
+                    <TableContainer borderWidth="1px" borderRadius="lg" boxShadow="sm">
                         <Table variant="simple">
                             <Thead>
                                 <Tr>
@@ -228,39 +235,29 @@ export default function Clcompany({ role }) {
                                     <Th>Nomi</Th>
                                     <Th>Turi</Th>
                                     <Th>Manzil</Th>
+                                    <Th>Status</Th>
                                     <Th>Telefon</Th>
-                                    <Th>Balans</Th>
+                                    {isAdmin(role) && <Th>Balans</Th>}
                                     <Th>Yaratilgan</Th>
-                                    {role === 'Admin' && (
-                                        <Th>Amallar</Th>
-                                    )}
+                                    {isAdmin(role) && <Th>Amallar</Th>}
                                 </Tr>
                             </Thead>
-
                             <Tbody>
                                 {companies.map((item, index) => (
-                                    <Tr 
+                                    <Tr
                                         key={item.id}
-                                        onClick={() => {
-                                            if (role !== 'Admin') {
-                                                navigate(`/call-operator/company/${item?.id}`)
-                                            } else {
-                                                navigate(`/company-detail/${item?.id}`)
-                                            }
-                                        }}
-                                        sx={{
-                                            cursor: 'pointer',
-                                        }}
+                                        onClick={() => handleRowClick(item)}
+                                        cursor="pointer"
                                     >
                                         <Td>{(page - 1) * 10 + index + 1}</Td>
+
                                         <Td fontWeight="medium">{item.name}</Td>
+
                                         <Td>
                                             <Badge
                                                 colorScheme={
-                                                    item.type === "company"
-                                                        ? "blue"
-                                                        : item.type === "builder"
-                                                            ? "green"
+                                                    item.type === "company" ? "blue"
+                                                        : item.type === "builder" ? "green"
                                                             : "purple"
                                                 }
                                                 textTransform="capitalize"
@@ -268,22 +265,38 @@ export default function Clcompany({ role }) {
                                                 {item.type}
                                             </Badge>
                                         </Td>
+
                                         <Td maxW="250px">
                                             <Text noOfLines={1}>{item.address}</Text>
                                         </Td>
+
+                                        {/* Остановить всплытие клика, чтобы не срабатывал navigate */}
+                                        <Td onClick={(e) => e.stopPropagation()}>
+                                            <StatusEdit
+                                                data={item}
+                                                refresh={refreshCurrent}
+                                            />
+                                        </Td>
+
                                         <Td>{item.phone}</Td>
-                                        <Td fontWeight="semibold">{Number(item.balance).toLocaleString()} so'm</Td>
-                                       
-                                        <Td>{new Date(item.createdAt).toLocaleDateString()}</Td>
-                                        {role === 'Admin' && (
-                                            <Td>
-                                                <Flex align="center">
-                                                    <DeleteCompany
-                                                        companyId={item.id}
-                                                        companyName={item.name}
-                                                        refresh={() => GetCompany(page, search, selectedRegion, selectedActiveType)}
-                                                    />
-                                                </Flex>
+
+                                        {isAdmin(role) && (
+                                            <Td fontWeight="semibold">
+                                                {Number(item.balance).toLocaleString()} so'm
+                                            </Td>
+                                        )}
+
+                                        <Td>
+                                            {new Date(item.createdAt).toLocaleDateString("uz-UZ")}
+                                        </Td>
+
+                                        {isAdmin(role) && (
+                                            <Td onClick={(e) => e.stopPropagation()}>
+                                                <DeleteCompany
+                                                    companyId={item.id}
+                                                    companyName={item.name}
+                                                    refresh={refreshCurrent}
+                                                />
                                             </Td>
                                         )}
                                     </Tr>
@@ -291,28 +304,27 @@ export default function Clcompany({ role }) {
                             </Tbody>
                         </Table>
                     </TableContainer>
-                    
-                    {/* Pagination */}
+
+                    {/* Пагинация */}
                     {pagination && (
                         <Flex mt="20px" justifyContent="space-between" alignItems="center">
-                            <Text fontSize="sm">Jami: {pagination.total_count}</Text>
-
+                            <Text fontSize="sm" color="gray.600">
+                                Jami: {pagination.total_count}
+                            </Text>
                             <HStack>
                                 <Button
                                     size="sm"
-                                    onClick={() => setPage((prev) => prev - 1)}
+                                    onClick={() => setPage((p) => p - 1)}
                                     isDisabled={page === 1}
                                 >
                                     Oldingi
                                 </Button>
-
-                                <Text fontWeight="bold">
+                                <Text fontWeight="bold" fontSize="sm">
                                     {pagination.currentPage} / {pagination.total_pages}
                                 </Text>
-
                                 <Button
                                     size="sm"
-                                    onClick={() => setPage((prev) => prev + 1)}
+                                    onClick={() => setPage((p) => p + 1)}
                                     isDisabled={page === pagination.total_pages}
                                 >
                                     Keyingi

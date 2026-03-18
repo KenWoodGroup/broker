@@ -33,6 +33,10 @@ class apiUsers {
         const response = await $api.put(`${BASE_URL}/api/erp/user/${id}`, data, { showSuccessToast: "User successfully updated" })
         return response;
     }
+    static UpdateOperator = async (data, id) => {
+        const response = await $api.put(`${BASE_URL}/api/user/${id}`, data, { showSuccessToast: "User successfully updated" })
+        return response;
+    }
     static Delete = async (id) => {
         const response = await $api.delete(`${BASE_URL}/api/erp/user/${id}`, { showSuccessToast: "User successfully deleted" })
         return response;
