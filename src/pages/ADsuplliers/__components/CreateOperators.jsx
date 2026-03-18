@@ -42,7 +42,7 @@ export default function CreateOperators({refresh}) {
     const handleSubmit = async () => {
         try {
             setLoading(true)
-            await apiUsers.Add(formData)
+            await apiUsers.CreateOperator(formData)
 
             toast({
                 title: "Muvaffaqiyatli!",

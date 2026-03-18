@@ -17,6 +17,7 @@ import {
 import { PencilLine } from "lucide-react"
 import { useEffect, useState } from "react"
 import { apiUsers } from "../../../utils/Controllers/Users"
+import { apiLocationUsers } from "../../../utils/Controllers/apiLocationUsers"
 
 export default function EditOperators({ data, refresh }) {
     const { isOpen, onOpen, onClose } = useDisclosure()
@@ -52,27 +53,10 @@ export default function EditOperators({ data, refresh }) {
         try {
             setLoading(true)
 
-            await apiUsers.Update(formData, data.id)
-
-            toast({
-                title: "Yangilandi!",
-                description: "Operator ma’lumotlari yangilandi.",
-                status: "success",
-                duration: 3000,
-                isClosable: true
-            })
-
+            await apiLocationUsers.Update(formData, data.id)
             onClose()
             if (refresh) refresh()
 
-        } catch (error) {
-            toast({
-                title: "Xatolik!",
-                description: "Yangilashda xatolik yuz berdi.",
-                status: "error",
-                duration: 3000,
-                isClosable: true
-            })
         } finally {
             setLoading(false)
         }
