@@ -24,27 +24,11 @@ export default function DeleteOperator({ id, refresh }) {
     const handleDelete = async () => {
         try {
             setLoading(true)
-            await apiLocationUsers.Delete()
-            toast({
-                title: "O‘chirildi!",
-                description: "Operator muvaffaqiyatli o‘chirildi.",
-                status: "success",
-                duration: 3000,
-                isClosable: true
-            })
-
+            await apiLocationUsers.Delete(id);
             onClose()
             if (refresh) refresh()
 
-        } catch (error) {
-            toast({
-                title: "Xatolik!",
-                description: "Operatorni o‘chirishda xatolik yuz berdi.",
-                status: "error",
-                duration: 3000,
-                isClosable: true
-            })
-        } finally {
+        }finally {
             setLoading(false)
         }
     }

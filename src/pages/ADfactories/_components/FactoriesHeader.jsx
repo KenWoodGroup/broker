@@ -3,11 +3,17 @@ import { LayoutGrid, Plus } from "lucide-react";
 import { useNavigate } from "react-router";
 import CreateFactoryButton from "./CreateFactoryButton";
 
-export default function FactoriesHeader({onReload}) {
+export default function FactoriesHeader({onReload, role}) {
     const navigate = useNavigate()
     // local functions
     const handleCradVersion = () => {
-        navigate('/factories/categories')
+        switch(role) {
+            case 'admin':
+                navigate('/factories/categories');
+            case 'supplier':
+                navigate('/supplier/factories/categories')
+
+        }
     }
     return (
         <Flex justifyContent={"space-between"} py="20px">

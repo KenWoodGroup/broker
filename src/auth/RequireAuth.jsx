@@ -16,6 +16,8 @@ export default function RequireAuth({role}) {
                 return "Admin"
             case "operator" :
                 return "operator"
+            case "supplier" :
+                return "Supplier"
         }
     }
     if (!isAuth || role !== permissionKey(user?.role)) {
