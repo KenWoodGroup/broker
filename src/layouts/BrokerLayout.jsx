@@ -6,8 +6,9 @@ import { Home, Inbox, Building2, Map, Search } from "lucide-react";
 
 const links = [
     { label: "Buyurtmalar", to: "/operator/offers", icon: Inbox, end: false },
-    { label: "Qurilish obektlari", to: "https://dshk.shaffofqurilish.uz", icon: Map, end: true },
-    { label: "Qidiruv", to: "/operator/search", icon: Search },
+    { label: "Kompaniyalar", to: "/operator/companies", icon: Building2 },
+    // { label: "Qurilish obektlari", to: "https://dshk.shaffofqurilish.uz", icon: Map, end: true },
+    // { label: "Qidiruv", to: "/operator/search", icon: Search },
     // { label: "Products", to: "/products", icon: Boxes },
 ];
 

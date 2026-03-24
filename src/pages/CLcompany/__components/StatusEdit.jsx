@@ -17,9 +17,7 @@ export default function StatusEdit({ data, refresh }) {
 
         try {
             setLoading(true)
-
             await apiLocations.activeTypeEdit({ is_active: newStatus }, data.id)
-
             toast({
                 title: "Status yangilandi!",
                 description: "Kompaniya statusi o'zgartirildi.",
@@ -27,9 +25,7 @@ export default function StatusEdit({ data, refresh }) {
                 duration: 2000,
                 isClosable: true
             })
-
             if (refresh) refresh()
-
         } catch (error) {
             toast({
                 title: "Xatolik!",
@@ -66,7 +62,7 @@ export default function StatusEdit({ data, refresh }) {
         >
             <option value="pending">Kutilmoqda</option>
             <option value="active">Aktiv</option>
-            <option value="delete">O'chirilgan</option>
+            <option value="delete">Nofaol</option>
         </Select>
     )
 }

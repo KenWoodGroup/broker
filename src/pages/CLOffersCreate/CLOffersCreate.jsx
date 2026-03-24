@@ -379,7 +379,7 @@ export default function CLOffersCreate({role}) {
     const handleQuantityChange = (itemId, value) => {
         setItemQuantities(prev => ({
             ...prev,
-            [itemId]: parseInt(value) || 1
+            [itemId]: parseInt(value) || 0
         }));
     };
 
