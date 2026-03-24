@@ -22,11 +22,6 @@ import {
     ModalBody,
     ModalCloseButton,
     Divider,
-    NumberInput,
-    NumberInputField,
-    NumberInputStepper,
-    NumberIncrementStepper,
-    NumberDecrementStepper,
     FormControl,
     FormLabel,
     Input,
@@ -69,43 +64,24 @@ export default function CartModal({
     });
 
     const handleDeadlineChange = (e) => {
-        setOfferData(prev => ({
-            ...prev,
-            deadline: e.target.value
-        }));
+        setOfferData(prev => ({ ...prev, deadline: e.target.value }));
     };
 
     const handleLogisticsChange = (value) => {
-        setOfferData(prev => ({
-            ...prev,
-            needLogistics: value
-        }));
+        setOfferData(prev => ({ ...prev, needLogistics: value }));
     };
 
     const handleNoteChange = (e) => {
-        setOfferData(prev => ({
-            ...prev,
-            note: e.target.value
-        }));
+        setOfferData(prev => ({ ...prev, note: e.target.value }));
     };
 
     const handleAddressChange = (e) => {
-        setOfferData(prev => ({
-            ...prev,
-            address: e.target.value
-        }));
-    };
-
-    const handleLocationChange = (e) => {
-        setOfferData(prev => ({
-            ...prev,
-            location_id: e.target.value
-        }));
+        setOfferData(prev => ({ ...prev, address: e.target.value }));
     };
 
     const calculateTotal = () => {
         return selectedItemsData.reduce((sum, item) => {
-            const quantity = itemQuantities[item.id] || 1;
+            const quantity = Number(itemQuantities[item.id]) || 0;
             return sum + (item.purchase_price * quantity);
         }, 0);
     };
@@ -115,9 +91,32 @@ export default function CartModal({
         return today.toISOString().split('T')[0];
     };
 
+    // Quantity input handlers
+    const handleQtyChange = (itemId, val) => {
+        // Allow empty string (user is clearing) or valid digits only
+        if (val === "" || /^\d+$/.test(val)) {
+            onQuantityChange(itemId, val);
+        }
+    };
+
+    const handleQtyBlur = (itemId, val) => {
+        const num = parseInt(val);
+        if (isNaN(num) || num < 0) onQuantityChange(itemId, 0);
+        else if (num > 1000) onQuantityChange(itemId, 1000);
+        else onQuantityChange(itemId, num);
+    };
+
+    const handleQtyDecrement = (itemId) => {
+        const cur = Number(itemQuantities[itemId]) || 0;
+        if (cur > 0) onQuantityChange(itemId, cur - 1);
+    };
+
+    const handleQtyIncrement = (itemId) => {
+        const cur = Number(itemQuantities[itemId]) || 0;
+        if (cur < 1000) onQuantityChange(itemId, cur + 1);
+    };
 
     const handleCreateOffer = async () => {
-        // Validatsiya
         if (!offerData.deadline) {
             toast({
                 title: "Xatolik",
@@ -143,24 +142,18 @@ export default function CartModal({
         setIsLoading(true);
 
         try {
-            // Sanani xavfsiz formatlash
             let formattedDate;
             try {
                 const date = new Date(offerData.deadline);
-                if (isNaN(date.getTime())) {
-                    throw new Error("Noto'g'ri sana");
-                }
+                if (isNaN(date.getTime())) throw new Error("Noto'g'ri sana");
                 date.setHours(12, 0, 0, 0);
                 formattedDate = date.toISOString();
-            } catch (dateError) {
-                console.error("Sana formatlash xatosi:", dateError);
-                // Agar sana noto'g'ri bo'lsa, bugungi sanani ishlatamiz
+            } catch {
                 const today = new Date();
                 today.setHours(12, 0, 0, 0);
                 formattedDate = today.toISOString();
             }
 
-            // API so'rovi uchun ma'lumotlarni tayyorlash
             const requestData = {
                 location_id: selectedFactory?.id || id,
                 note: offerData.note.trim() || "Fast Delivery Co.",
@@ -169,18 +162,14 @@ export default function CartModal({
                     product_name: item.product?.name || "Maxsus buyurtma mahsulot",
                     product_price: item.purchase_price,
                     unit: "dona",
-                    quantity: itemQuantities[item.id] || 1
+                    quantity: Number(itemQuantities[item.id]) || 0
                 })),
                 date: formattedDate,
                 is_logist: offerData.needLogistics === "ha",
                 address: offerData.needLogistics === "ha" ? offerData.address : ""
             };
 
-            console.log("Yuborilayotgan ma'lumotlar:", requestData);
-
             const response = await apiOffers.CreateOffer(requestData);
-
-            console.log("Server javobi:", response);
 
             toast({
                 title: "Muvaffaqiyatli",
@@ -190,7 +179,6 @@ export default function CartModal({
                 isClosable: true,
             });
 
-            // Formani tozalash
             setOfferData({
                 deadline: "",
                 needLogistics: "ha",
@@ -199,19 +187,12 @@ export default function CartModal({
                 location_id: "",
             });
 
-            // Tanlangan tovarlarni tozalash
             onClearAll();
-
-            // Modalni yopish
             onClose();
 
         } catch (error) {
-            console.error("Taklif yaratish xatosi:", error);
-
             let errorMessage = "Taklif yaratishda xatolik yuz berdi";
-
             if (error.response) {
-                console.log("Server xatosi:", error.response.data);
                 errorMessage = error.response.data?.message || errorMessage;
             } else if (error.request) {
                 errorMessage = "Server bilan bog'lanib bo'lmadi";
@@ -291,7 +272,6 @@ export default function CartModal({
                                         </FormControl>
                                     </HStack>
 
-                                    {/* Logistika uchun manzil */}
                                     {offerData.needLogistics === "ha" && (
                                         <FormControl isRequired>
                                             <FormLabel fontWeight="medium">Yetkazib berish manzili</FormLabel>
@@ -324,7 +304,7 @@ export default function CartModal({
                                     </Thead>
                                     <Tbody>
                                         {selectedItemsData.map((item, index) => {
-                                            const quantity = itemQuantities[item.id] || 1;
+                                            const quantity = Number(itemQuantities[item.id]) || 0;
                                             const totalPrice = item.purchase_price * quantity;
 
                                             return (
@@ -347,20 +327,34 @@ export default function CartModal({
                                                         {formatPrice(item.purchase_price)}
                                                     </Td>
                                                     <Td isNumeric>
-                                                        <NumberInput
-                                                            size="sm"
-                                                            min={1}
-                                                            max={1000}
-                                                            value={quantity}
-                                                            onChange={(value) => onQuantityChange(item.id, value)}
-                                                            width="100px"
-                                                        >
-                                                            <NumberInputField />
-                                                            <NumberInputStepper>
-                                                                <NumberIncrementStepper />
-                                                                <NumberDecrementStepper />
-                                                            </NumberInputStepper>
-                                                        </NumberInput>
+                                                        {/* ✅ Исправленный инпут количества */}
+                                                        <HStack spacing={1} justify="flex-end">
+                                                            <IconButton
+                                                                aria-label="Kamaytirish"
+                                                                icon={<Text fontWeight="bold" fontSize="md" lineHeight={1}>−</Text>}
+                                                                size="xs"
+                                                                variant="outline"
+                                                                onClick={() => handleQtyDecrement(item.id)}
+                                                                isDisabled={quantity <= 0}
+                                                            />
+                                                            <Input
+                                                                value={itemQuantities[item.id] ?? 0}
+                                                                onChange={(e) => handleQtyChange(item.id, e.target.value)}
+                                                                onBlur={(e) => handleQtyBlur(item.id, e.target.value)}
+                                                                textAlign="center"
+                                                                size="sm"
+                                                                width="56px"
+                                                                px={1}
+                                                            />
+                                                            <IconButton
+                                                                aria-label="Ko'paytirish"
+                                                                icon={<Text fontWeight="bold" fontSize="md" lineHeight={1}>+</Text>}
+                                                                size="xs"
+                                                                variant="outline"
+                                                                onClick={() => handleQtyIncrement(item.id)}
+                                                                isDisabled={quantity >= 1000}
+                                                            />
+                                                        </HStack>
                                                     </Td>
                                                     <Td isNumeric fontWeight="bold" color="green.600">
                                                         {formatPrice(totalPrice)}
@@ -392,7 +386,7 @@ export default function CartModal({
                                     <Flex justify="space-between">
                                         <Text fontWeight="medium">Umumiy tovarlar soni:</Text>
                                         <Text fontWeight="bold">
-                                            {Object.values(itemQuantities).reduce((sum, qty) => sum + qty, 0)} dona
+                                            {Object.values(itemQuantities).reduce((sum, qty) => sum + (Number(qty) || 0), 0)} dona
                                         </Text>
                                     </Flex>
                                     <Divider />
@@ -424,7 +418,6 @@ export default function CartModal({
                                 </VStack>
                             </Card>
 
-                            {/* Tozalash tugmasi */}
                             {selectedItemsData.length > 0 && (
                                 <Flex justify="flex-end">
                                     <Button
