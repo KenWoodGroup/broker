@@ -14,7 +14,7 @@ class apiLocationUsers {
         return response;
     }
     static Delete = async (id) => {
-        const response = await $api.delete(`${BASE_URL}/api/user/${id}`, { showSuccessToast: "Opsiya successfully deleted" })
+        const response = await $api.delete(`${BASE_URL}/api/user/${id}`, { showSuccessToast: "User successfully deleted" })
         return response;
     }
 }

@@ -88,6 +88,9 @@ export default function Login() {
                 } else if (role === "operator") {
                     navigate('/call-operator/company');
                     toastService.success("Successfully")
+                }else if (role === "supplier") {
+                    navigate('/supplier');
+                    toastService.success("Successfully")
                 }
                 else {
                     toastService.error("Role mos kelmadi")

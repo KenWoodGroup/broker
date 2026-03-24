@@ -43,31 +43,15 @@ export default function CreateOperators({refresh}) {
         try {
             setLoading(true)
             await apiUsers.CreateOperator(formData)
-
-            toast({
-                title: "Muvaffaqiyatli!",
-                description: "Operator muvaffaqiyatli yaratildi.",
-                status: "success",
-                duration: 3000,
-                isClosable: true
-            })
             refresh()
             setFormData({
                 full_name: "",
                 username: "",
                 password: "",
-                role: "admin"
+                role: "supplier"
             })
 
             onClose()
-        } catch (error) {
-            toast({
-                title: "Xatolik!",
-                description: "Operator yaratishda xatolik yuz berdi.",
-                status: "error",
-                duration: 3000,
-                isClosable: true
-            })
         } finally {
             setLoading(false)
         }

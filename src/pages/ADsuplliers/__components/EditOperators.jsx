@@ -52,8 +52,8 @@ export default function EditOperators({ data, refresh }) {
     const handleUpdate = async () => {
         try {
             setLoading(true)
-
-            await apiLocationUsers.Update(formData, data.id)
+            const {email, ...prev} = formData
+            await apiLocationUsers.Update(prev, data.id)
             onClose()
             if (refresh) refresh()
 
@@ -101,7 +101,7 @@ export default function EditOperators({ data, refresh }) {
                                 />
                             </FormControl>
 
-                            <FormControl>
+                            {/* <FormControl>
                                 <FormLabel>Email</FormLabel>
                                 <Input
                                     type="email"
@@ -109,7 +109,7 @@ export default function EditOperators({ data, refresh }) {
                                     value={formData.email}
                                     onChange={handleChange}
                                 />
-                            </FormControl>
+                            </FormControl> */}
                         </VStack>
                     </ModalBody>
 

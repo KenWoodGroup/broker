@@ -20,7 +20,7 @@ const FACTORY_PAGE_KEY = "factories_page";
 const SEARCH_DEBOUNCE = 500;
 const HOLD_DELAY = 300;
 
-export default function ADfactories({ reloadDependance }) {
+export default function ADfactories({ reloadDependance, role='admin' }) {
     const [factories, setFactories] = useState([]);
     const [loading, setLoading] = useState(false);
     const [totalPage, setTotalPage] = useState(1);
@@ -135,7 +135,7 @@ export default function ADfactories({ reloadDependance }) {
     /* ---------------- render ---------------- */
     return (
         <Box pr={"20px"} pb={"20px"}>
-            <FactoriesHeader onReload={()=>fetchFactories(factoryPage, debouncedSearch)}/>
+            <FactoriesHeader onReload={()=>fetchFactories(factoryPage, debouncedSearch)} role={role}/>
             {/* Search */}
             <Box mb="20px" maxW="400px">
                 <InputGroup>

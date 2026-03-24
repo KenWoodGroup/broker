@@ -14,6 +14,8 @@ import AdminFactoryLayout from './layouts/AdminFactoryLayout'
 import adminFacRoutes from './utils/routes/adminFacRoutes'
 import CallOperRoutes from './utils/routes/call-operatorRoutes'
 import CallOperatorLayout from './layouts/CallOperatorLayout'
+import SupplierLayout from './layouts/SupplierLayout'
+import supplierRoutes from './utils/routes/supplierRoutes'
 
 
 function App() {
@@ -45,6 +47,22 @@ function App() {
                 )
               })}
             </Route>
+          </Route>
+        </Route>
+        <Route element={<RequireAuth role={"Supplier"} />}>
+          <Route path='/supplier' element={<SupplierLayout />}>
+            {supplierRoutes.map((r) => {
+              return (
+                <Route key={r.name} path={r.path} element={r.element} />
+              )
+            })}
+            {/* <Route path='/factories/:factoryId' element={<AdminFactoryLayout />}>
+              {adminFacRoutes.map((r) => {
+                return (
+                  <Route key={r.name} path={r.path} element={r.element} />
+                )
+              })}
+            </Route> */}
           </Route>
         </Route>
         <Route element={<RequireAuth role={"Broker"} />}>
