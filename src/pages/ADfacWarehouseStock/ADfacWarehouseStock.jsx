@@ -371,7 +371,7 @@ const WarehouseStockPage = () => {
                                                                 <Text fontSize="sm" color="gray.600">
                                                                     {priceType.price_type?.name}:
                                                                 </Text>
-                                                                <Text fontWeight="semibold" color={getDaysDiff(priceType?.updatedAt)}>
+                                                                <Text fontWeight="semibold" color={getPriceFreshness(priceType?.updatedAt, 'medium')}>
                                                                     {parseFloat(priceType.sale_price).toLocaleString()} so'm
                                                                 </Text>
                                                             </HStack>
