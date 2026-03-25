@@ -30,7 +30,7 @@ import { apiERPLocations } from "../../../utils/Controllers/apiERPLocations";
 
 const STORAGE_PREFIX = "factory_header";
 
-export default function FactoryHeader({ factoryId, onBack }) {
+export default function FactoryHeader({ factoryId, onBack, role }) {
   const border = useColorModeValue("border", "border");
   const textSub = useColorModeValue("neutral.500", "neutral.400");
   const [loading, setLoading] = useState(false);
@@ -162,7 +162,7 @@ export default function FactoryHeader({ factoryId, onBack }) {
             </HStack>
           </Collapse>
           {/* Factory navigation */}
-          <FactoryNav />
+          <FactoryNav role={role}/>
         </Box>}
     </Box>
   );

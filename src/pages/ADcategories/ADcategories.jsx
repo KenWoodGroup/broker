@@ -19,7 +19,7 @@ import { useNavigate } from "react-router";
 
 const CATEGORY_PAGE_KEY = "categories_page";
 
-export default function ADcategories({ reloadDependance }) {
+export default function ADcategories({ reloadDependance, role='admin' }) {
     const navigate = useNavigate();
 
     const [categories, setCategories] = useState([]);
@@ -99,7 +99,7 @@ export default function ADcategories({ reloadDependance }) {
     return (
         <Box pr={"20px"} pb={"20px"}>
             {/* Header */}
-            <CategoriesHeader onReload={()=>fetchCategories(page, debouncedSearch)}/>
+            <CategoriesHeader onReload={()=>fetchCategories(page, debouncedSearch)} role={role}/>
 
             {/* Search */}
             <Box mb="20px" maxW="360px">
@@ -138,8 +138,14 @@ export default function ADcategories({ reloadDependance }) {
                             onEdit={() => fetchCategories(page, debouncedSearch)}
                             onDelete={() =>fetchCategories(page, debouncedSearch)}
                             onOpen={() => {
-                                // 👉 bu yerda category factories sahifasiga o‘tasiz
-                                navigate(`/factories/categories/${cat.id}?name=${encodeURIComponent(cat?.name)}`)
+                                //category factories sahifasiga
+                                switch(role) {
+                                    case 'admin':
+                                        navigate(`/factories/categories/${cat.id}?name=${encodeURIComponent(cat?.name)}`)
+                                        break;
+                                    case 'supplier':
+                                        navigate(`/supplier/factories/categories/${cat.id}?name=${encodeURIComponent(cat?.name)}`)
+                                }
                             }}
                         />
                     ))}

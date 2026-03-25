@@ -5,6 +5,10 @@ class apiLocations {
         const response = await $api.get(`${BASE_URL}/api/erp/locations/type/${locType}/${searchText}/page?page=${page}`)
         return response;
     }
+    static pageAllFilteredFarctories = async (page, searchText, address) => {
+        const response = await $api.get(`${BASE_URL}/api/erp/address?address=${address}&searchName=${searchText}&page=${page}`)
+        return response;
+    }
     static pageFactoryWarehouses = async (page, factoryId) => {
         const response = await $api.get(`${BASE_URL}/api/erp/locations/warehouse/${factoryId}/page?page=${page}`)
         return response;
@@ -18,7 +22,7 @@ class apiLocations {
         return response
     }
     static getFactory = async (name, location_id) => {
-        const response = await $api.get(`${BASE_URL}/api/erp/locations/by-name/factory/${name}?location_id=${location_id}   `);
+        const response = await $api.get(`${BASE_URL}/api/erp/locations/by-name/factory/${name}?location_id=${location_id}`);
         return response
     }
     static getLocalClients = async (facId, search, page) => {

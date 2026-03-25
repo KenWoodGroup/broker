@@ -27,7 +27,9 @@ const FACTORY_PAGE_KEY = "fac_products_page_by_category";
 const SEARCH_DEBOUNCE = 500;
 const HOLD_DELAY = 300;
 
-export default function ADfacProductsByCategory({ reloadDependance, }) {
+export default function ADfacProductsByCategory({ reloadDependance, role='admin'}) {    
+    console.log(role);
+    
     const [searchParams] = useSearchParams();
     const categoryName = searchParams.get('name')
     const navigate = useNavigate()
@@ -147,7 +149,7 @@ export default function ADfacProductsByCategory({ reloadDependance, }) {
     /* ---------------- render ---------------- */
     return (
         <Box pb={"20px"}>
-            <Heading fontSize={"22px"} mb="24px"> <NavLink to={`/factories/${factoryId}`}>Products</NavLink> / {categoryName}</Heading>
+            <Heading fontSize={"22px"} mb="24px"> <NavLink to={role === 'admin' ? `/factories/${factoryId}` : `/supplier/factories/${factoryId}`}>Products</NavLink> / {categoryName}</Heading>
 
             {/* Search */}
 

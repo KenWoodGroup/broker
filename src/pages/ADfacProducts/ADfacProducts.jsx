@@ -27,7 +27,7 @@ const FACTORY_PAGE_KEY = "products_page";
 const SEARCH_DEBOUNCE = 500;
 const HOLD_DELAY = 300;
 
-export default function ADfacProducts({ reloadDependance, }) {
+export default function ADfacProducts({ reloadDependance, role='admin'}) {
     const navigate = useNavigate()
     const { factoryId } = useParams()
     const [factories, setFactories] = useState([]);
@@ -146,13 +146,20 @@ export default function ADfacProducts({ reloadDependance, }) {
         <Box pb={"20px"}>
             {/* Search */}
             <Flex mb="24px" justifyContent="space-between">
-                <Heading fontSize={"22px"}>Products</Heading>
+                <Heading fontSize={"22px"}>Products </Heading>
                 <Flex gap={3}>
-                    <UploadProductsByExcel/>
+                    <UploadProductsByExcel />
                     <Tooltip label={"Category"} placement="bottom">
                         <IconButton
                             onClick={() => {
-                                navigate(`/factories/${factoryId}`)
+                                switch (role) {
+                                    case 'admin':
+                                        navigate(`/factories/${factoryId}`)
+                                        break;
+                                    case "supplier":
+                                        navigate(`/supplier/factories/${factoryId}`)
+                                        break;
+                                }
                             }}
                             bg={"neutral.300"}
                             _hover={{ bg: "" }} color={"brand.800"}

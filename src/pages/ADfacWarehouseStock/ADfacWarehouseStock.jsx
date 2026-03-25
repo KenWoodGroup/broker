@@ -46,8 +46,11 @@ import { apiUsers } from '../../utils/Controllers/Users';
 import { toastService } from '../../utils/toast';
 import { EditIcon } from 'lucide-react';
 import SalePriceEditButton from './components/SalePriceEditButton';
+import { PRICE_UPDATE_RULES } from '../../constants/priceFreshness';
 
 const WarehouseStockPage = () => {
+    const temporarelyFreshness = PRICE_UPDATE_RULES.medium;
+
     const { factoryId, warehouseId } = useParams();
     const location = useLocation();
     const navigate = useNavigate();
@@ -203,6 +206,20 @@ const WarehouseStockPage = () => {
         });
     };
 
+    // time different
+    function getDaysDiff(dateString) {
+        const now = Date.now();
+        const updated = new Date(dateString).getTime();
+
+        return Math.floor((now - updated) / (1000 * 60 * 60 * 24));
+    };
+    function getPriceFreshness(dateString, type) {
+        const rule = PRICE_UPDATE_RULES[type];
+        const days = getDaysDiff(dateString);
+        if (days <= rule.green) return 'green';
+        if (days <= rule.yellow) return 'yellow';
+        return 'red';
+    }
 
     return (
         <Box minH="100vh" bg="bg">
@@ -354,7 +371,7 @@ const WarehouseStockPage = () => {
                                                                 <Text fontSize="sm" color="gray.600">
                                                                     {priceType.price_type?.name}:
                                                                 </Text>
-                                                                <Text fontWeight="semibold" color="green.600">
+                                                                <Text fontWeight="semibold" color={getDaysDiff(priceType?.updatedAt)}>
                                                                     {parseFloat(priceType.sale_price).toLocaleString()} so'm
                                                                 </Text>
                                                             </HStack>
@@ -392,8 +409,8 @@ const WarehouseStockPage = () => {
                                                 top={4}
                                                 right={4}
                                             >
-                                               <SalePriceEditButton salePriceTypes={stock?.sale_price_type} onSave={()=>fetchStocks()}/>
-                                               
+                                                <SalePriceEditButton salePriceTypes={stock?.sale_price_type} onSave={() => fetchStocks()} />
+
                                             </VStack>
                                         </SimpleGrid>
                                     </CardBody>

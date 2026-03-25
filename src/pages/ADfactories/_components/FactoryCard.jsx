@@ -15,7 +15,7 @@ import ConfirmDelModal from "../../../components/common/ConfirmDelModal";
 import { apiLocations } from "../../../utils/Controllers/Locations";
 import { useNavigate } from "react-router";
 
-const FactoryCard = React.memo(function FactoryCard({ factory, onEdit, onDelete }) {
+const FactoryCard = React.memo(function FactoryCard({ factory, onEdit, onDelete, role }) {
     const navigate = useNavigate()
     const delModal = useDisclosure()
     const bg = useColorModeValue("white", "gray.800");
@@ -78,7 +78,14 @@ const FactoryCard = React.memo(function FactoryCard({ factory, onEdit, onDelete 
             _hover={{ shadow: "md" }}
             role="group"
             onClick={() => {
-                navigate(`/factories/${factory?.id}`)
+                switch(role) {
+                    case 'admin':
+                        navigate(`/factories/${factory?.id}`);
+                        break;
+                    case "supplier":
+                        navigate(`/supplier/factories/${factory?.id}`);
+                        break
+                }
             }}
         >
             {/* Actions */}

@@ -54,12 +54,12 @@ import { apiLocations } from "../../utils/Controllers/Locations";
 import SelectedItemsModal from "./__components/CartModal";
 import { useParams } from "react-router";
 
-export default function CLOffersCreate({role}) {
+export default function CLOffersCreate({role='admin'}) {
     const [searchData, setSearchData] = useState({
         name: "",
         page: 1,
     });
-
+    
     const [searchResults, setSearchResults] = useState([]);
     const [locations, setLocations] = useState([]);
     const [factories, setFactories] = useState([]);
@@ -121,15 +121,6 @@ export default function CLOffersCreate({role}) {
                     isClosable: true,
                 });
             }
-        } catch (error) {
-            console.error("Factory qidiruv xatosi:", error);
-            toast({
-                title: "Xatolik",
-                description: "Factory qidirishda xatolik yuz berdi",
-                status: "error",
-                duration: 5000,
-                isClosable: true,
-            });
         } finally {
             setFactoryLoading(false);
         }
@@ -219,16 +210,6 @@ export default function CLOffersCreate({role}) {
                     isClosable: true,
                 });
             }
-        } catch (error) {
-            console.error("Qidiruv xatosi:", error);
-            setError("Qidiruv vaqtida xatolik yuz berdi");
-            toast({
-                title: "Xatolik",
-                description: "Qidiruvni amalga oshirib bo'lmadi",
-                status: "error",
-                duration: 5000,
-                isClosable: true,
-            });
         } finally {
             setLoading(false);
         }
@@ -396,7 +377,7 @@ export default function CLOffersCreate({role}) {
         <Container maxW="container.xl" py={8} pb={20}>
             <VStack spacing={6} align="stretch">
                 <Heading as="h1" size="xl">
-                    Taklif yaratish
+                   {role === 'supplier' ? 'Mahsulot qidiruv markazi' :'Taklif yaratish'} 
                 </Heading>
 
                 {/* Factory Selection Card */}

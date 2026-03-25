@@ -8,6 +8,8 @@ import {
     InputRightElement,
     IconButton,
     Tooltip,
+    HStack,
+    Select,
 } from "@chakra-ui/react";
 import React, { useEffect, useState, useCallback, useRef } from "react";
 import { ChevronLeft, ChevronRight, Search, X } from "lucide-react";
@@ -15,12 +17,15 @@ import FactoryCard from "./_components/FactoryCard";
 import FactoryCardSkeleton from "./_components/FactoryCardSkeleton";
 import { apiLocations } from "../../utils/Controllers/Locations";
 import FactoriesHeader from "./_components/FactoriesHeader";
+import regions from '../../constants/regions/regions.json'
+import districts from '../../constants/regions/districts.json'
 
 const FACTORY_PAGE_KEY = "factories_page";
 const SEARCH_DEBOUNCE = 500;
 const HOLD_DELAY = 300;
 
-export default function ADfactories({ reloadDependance, role='admin' }) {
+export default function ADfactories({ reloadDependance, role = 'admin' }) {
+    const searchRef = useRef(null)
     const [factories, setFactories] = useState([]);
     const [loading, setLoading] = useState(false);
     const [totalPage, setTotalPage] = useState(1);
@@ -35,6 +40,10 @@ export default function ADfactories({ reloadDependance, role='admin' }) {
     const [search, setSearch] = useState("");
     const [debouncedSearch, setDebouncedSearch] = useState("all");
     const isFirstRender = useRef(true);
+
+    /* ---------------- filter regions ---------------*/
+    const [selectedRegion, setSelectedRegion] = useState('');
+    const [selectedDistrict, setSelectedDistrict] = useState('');
 
     /* ---------------- holding pagination ---------------- */
     const [number, setNumber] = useState(factoryPage);
@@ -70,11 +79,11 @@ export default function ADfactories({ reloadDependance, role='admin' }) {
     }, [search]);
 
     /* ---------------- fetch factories ---------------- */
-    const fetchFactories = useCallback(async (page, searchText) => {
+    const fetchFactories = useCallback(async (page, searchText, address) => {
         try {
             setLoading(true);
 
-            const res = await apiLocations.pageAll(page, searchText, "factory");
+            const res = await apiLocations.pageAllFilteredFarctories(page, searchText, address);
 
             setFactories(res.data.data.records);
             setTotalPage(res.data.data.pagination.total_pages);
@@ -123,42 +132,126 @@ export default function ADfactories({ reloadDependance, role='admin' }) {
         setHolding(false);
     };
 
-    /* ---------------- effects ---------------- */
-    // useEffect(() => {
-    //     fetchFactories(factoryPage, debouncedSearch);
-    // }, [factoryPage, debouncedSearch, fetchFactories]);
+    /* ----------------  filters ---------------- */
+    const [filteredDistricts, setFilteredDistricts] = useState(districts)
+    useEffect(() => {
+        const regionName = regions.find((item) => item.id == selectedRegion)?.name_uz ?? '';
+        const districtName = districts.find((item) => item.id == selectedDistrict)?.name_uz ?? ''
+        const address = (regionName + districtName) ? (regionName + ', ' + districtName) : ''
+        console.log(address);
+
+        fetchFactories(factoryPage, debouncedSearch, address);
+    }, [reloadDependance, fetchFactories, factoryPage, debouncedSearch, selectedRegion, selectedDistrict]);
+
+    /* ---------------- hotkeys ---------------- */
 
     useEffect(() => {
-        fetchFactories(factoryPage, debouncedSearch);
-    }, [reloadDependance, fetchFactories, factoryPage, debouncedSearch]);
+        searchRef.current?.focus();
+    }, []);
+    useEffect(() => {
+        const handleFocus = () => {
+            searchRef.current?.focus();
+        };
+
+        window.addEventListener("focusSearch", handleFocus);
+
+        return () => {
+            window.removeEventListener("focusSearch", handleFocus);
+        };
+    }, []);
 
     /* ---------------- render ---------------- */
+
+
     return (
-        <Box pr={"20px"} pb={"20px"}>
-            <FactoriesHeader onReload={()=>fetchFactories(factoryPage, debouncedSearch)} role={role}/>
+        <Box
+            pr={"20px"} pb={"20px"}
+        >
+            <FactoriesHeader onReload={() => fetchFactories(factoryPage, debouncedSearch)} role={role} />
             {/* Search */}
-            <Box mb="20px" maxW="400px">
-                <InputGroup>
-                    <Input
-                        placeholder="Search factories..."
-                        value={search}
-                        onChange={(e) => setSearch(e.target.value)}
-                    />
-                    <InputRightElement>
-                        {search ? (
-                            <IconButton
-                                size="sm"
-                                variant="ghost"
-                                icon={<X size={16} />}
-                                aria-label="Clear"
-                                onClick={() => setSearch("")}
-                            />
-                        ) : (
-                            <Search size={16} />
-                        )}
-                    </InputRightElement>
-                </InputGroup>
-            </Box>
+            <Flex mb="20px" alignItems={'center'} gap={4}>
+                <Box w={'100%'} maxW="400px">
+                    <InputGroup>
+                        <Input
+                            ref={searchRef}
+                            placeholder="Search factories..."
+                            value={search}
+                            onChange={(e) => setSearch(e.target.value)}
+                        />
+                        <InputRightElement>
+                            {search ? (
+                                <IconButton
+                                    size="sm"
+                                    variant="ghost"
+                                    icon={<X size={16} />}
+                                    aria-label="Clear"
+                                    onClick={() => setSearch("")}
+                                />
+                            ) : (
+                                <Search size={16} />
+                            )}
+                        </InputRightElement>
+                    </InputGroup>
+                </Box>
+                <Select
+                    value={selectedRegion}
+                    onChange={(e) => {
+                        const regionId = e.target.value;
+                        if (regionId) {
+                            const regionalDistricts = districts.filter((item) => item.region_id === +regionId)
+                            setFilteredDistricts(regionalDistricts);
+                            setSelectedDistrict('')
+                        } else {
+                            setFilteredDistricts(districts);
+                            setSelectedDistrict('');
+                            setSelectedRegion('')
+                        }
+                        setSelectedRegion(e.target.value);
+                    }}
+                    maxW={'240px'}>
+                    <option value={''}>Barcha viloyatlar</option>
+                    {regions.map((item) => {
+                        return (
+                            <option key={item.id} value={item.id}>{item.name_uz}</option>
+                        )
+                    })}
+                </Select>
+                {/* <Select
+                    value={selectedDistrict}
+                    onChange={(e) => setSelectedDistrict(e.target.value)}
+                    maxW={'240px'}>
+                    <option>Barcha tumanlar</option>
+                    {filteredDistricts.map((item) => {
+                        return (
+                            <option key={item.id} value={item.id}>
+                                {item.name_uz}
+                            </option>
+                        )
+                    })}
+                </Select> */}
+                <Select
+                    value={selectedDistrict}
+                    onChange={(e) => {
+                        const districtId = e.target.value;
+                        setSelectedDistrict(districtId);
+
+                        const found = districts.find(d => d.id === +districtId);
+                        if (found && !selectedRegion) {
+                            setSelectedRegion(found.region_id);
+                        }
+                    }}
+                    maxW={'240px'}
+                >
+                    <option value={''}>Barcha tumanlar</option>
+                    {filteredDistricts.map((item) => {
+                        return (
+                            <option key={item.id} value={item.id}>
+                                {item.name_uz}
+                            </option>
+                        )
+                    })}
+                </Select>
+            </Flex>
 
             {/* Cards */}
             <SimpleGrid columns={{ base: 1, md: 2, xl: 3 }} spacing="20px">
@@ -168,10 +261,11 @@ export default function ADfactories({ reloadDependance, role='admin' }) {
                     ))
                     : factories.map((factory) => (
                         <FactoryCard
+                            role={role}
                             key={factory.id}
                             factory={factory}
                             onEdit={() => fetchFactories(factoryPage, debouncedSearch)}
-                            onDelete={() =>fetchFactories(factoryPage, debouncedSearch)}
+                            onDelete={() => fetchFactories(factoryPage, debouncedSearch)}
                         />
                     ))
                 }
