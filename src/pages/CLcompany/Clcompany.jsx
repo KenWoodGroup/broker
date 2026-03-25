@@ -51,6 +51,12 @@ const ACTIVE_TYPES = [
     { value: "delete", label: "O'chirilgan", color: "red" },
 ]
 
+// Status types for all users
+const STATUS_TYPES = [
+    { value: "pending", label: "Kutilmoqda" },
+    { value: "active", label: "Aktiv" },
+]
+
 const isAdmin = (role) => role === "Admin"
 
 // Ключи для sessionStorage
@@ -87,9 +93,9 @@ export default function Clcompany({ role }) {
         return saved || "all"
     })
 
-    // Не-Admin видит только pending; Admin начинает с сохраненного или "all"
+    // Admin can see all statuses, non-admin can only see pending and active
     const [selectedActiveType, setSelectedActiveType] = useState(() => {
-        if (!isAdmin(role)) return "pending"
+        if (!isAdmin(role)) return "all"
         const saved = sessionStorage.getItem(STORAGE_KEYS.ACTIVE_TYPE)
         return saved || "all"
     })
@@ -231,22 +237,30 @@ export default function Clcompany({ role }) {
                     </Select>
                 </Box>
 
-                {/* Статус — только Admin */}
-                {isAdmin(role) && (
-                    <Box w="220px">
-                        <Select
-                            placeholder="Status (Hammasi)"
-                            value={selectedActiveType === "all" ? "" : selectedActiveType}
-                            onChange={handleActiveTypeChange}
-                        >
-                            {ACTIVE_TYPES.map((type) => (
+                {/* Статус фильтр - всем доступен, но с разными опциями */}
+                <Box w="220px">
+                    <Select
+                        placeholder="Status (Hammasi)"
+                        value={selectedActiveType === "all" ? "" : selectedActiveType}
+                        onChange={handleActiveTypeChange}
+                    >
+                        {isAdmin(role) ? (
+                            // Admin sees all statuses including delete
+                            ACTIVE_TYPES.map((type) => (
                                 <option key={type.value} value={type.value}>
                                     {type.label}
                                 </option>
-                            ))}
-                        </Select>
-                    </Box>
-                )}
+                            ))
+                        ) : (
+                            // Non-admin sees only pending and active
+                            STATUS_TYPES.map((type) => (
+                                <option key={type.value} value={type.value}>
+                                    {type.label}
+                                </option>
+                            ))
+                        )}
+                    </Select>
+                </Box>
             </Flex>
 
             {/* Состояние загрузки */}
@@ -317,7 +331,7 @@ export default function Clcompany({ role }) {
                                             <Text noOfLines={1}>{item.address}</Text>
                                         </Td>
 
-                                        {/* Остановить всплытие клика, чтобы не срабатывал navigate */}
+                                        {/* Status column - edit available for everyone */}
                                         <Td onClick={(e) => e.stopPropagation()}>
                                             <StatusEdit
                                                 data={item}

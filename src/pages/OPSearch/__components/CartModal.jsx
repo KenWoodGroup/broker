@@ -167,7 +167,7 @@ export default function CartModal({
                 items: selectedItemsData.map(item => ({
                     product_id: item.product?.id || item.id,
                     product_name: item.product?.name || "Maxsus buyurtma mahsulot",
-                    product_price: item.purchase_price,
+                    cost_price: item.purchase_price,
                     unit: "dona",
                     quantity: itemQuantities[item.id] || 1
                 })),

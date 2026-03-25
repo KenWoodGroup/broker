@@ -2,11 +2,10 @@ import { Outlet } from "react-router";
 import Sidebar from "../components/common/Sidebar";
 import { Box } from "@chakra-ui/react";
 import { useUIStore } from "../store/useUIStore";
-import { Home, Inbox, Building2, Map, Search } from "lucide-react";
+import { Home, Inbox, Building2, Map, Search, ListOrdered } from "lucide-react";
 
 const links = [
-    { label: "Buyurtmalar", to: "/operator/offers", icon: Inbox, end: false },
-    { label: "Kompaniyalar", to: "/operator/companies", icon: Building2 },
+    { label: "Buyurtmalar", to: "/operator/offers", icon: ListOrdered, end: false },
     // { label: "Qurilish obektlari", to: "https://dshk.shaffofqurilish.uz", icon: Map, end: true },
     // { label: "Qidiruv", to: "/operator/search", icon: Search },
     // { label: "Products", to: "/products", icon: Boxes },
