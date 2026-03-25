@@ -61,9 +61,7 @@ export default function ClcompanyDetail({ role }) {
         try {
             const response = await apiLocations.getLocation(id)
             setData(response.data)
-        } catch (error) {
-            console.log(error)
-        } finally {
+        }  finally {
             setLoading(false)
         }
     }

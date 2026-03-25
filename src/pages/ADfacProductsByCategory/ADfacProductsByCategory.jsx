@@ -27,9 +27,7 @@ const FACTORY_PAGE_KEY = "fac_products_page_by_category";
 const SEARCH_DEBOUNCE = 500;
 const HOLD_DELAY = 300;
 
-export default function ADfacProductsByCategory({ reloadDependance, role='admin'}) {    
-    console.log(role);
-    
+export default function ADfacProductsByCategory({ reloadDependance, role='admin'}) {        
     const [searchParams] = useSearchParams();
     const categoryName = searchParams.get('name')
     const navigate = useNavigate()

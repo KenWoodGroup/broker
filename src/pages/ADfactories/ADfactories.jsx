@@ -138,8 +138,6 @@ export default function ADfactories({ reloadDependance, role = 'admin' }) {
         const regionName = regions.find((item) => item.id == selectedRegion)?.name_uz ?? '';
         const districtName = districts.find((item) => item.id == selectedDistrict)?.name_uz ?? ''
         const address = (regionName + districtName) ? (regionName + ', ' + districtName) : ''
-        console.log(address);
-
         fetchFactories(factoryPage, debouncedSearch, address);
     }, [reloadDependance, fetchFactories, factoryPage, debouncedSearch, selectedRegion, selectedDistrict]);
 

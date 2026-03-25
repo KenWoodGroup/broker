@@ -38,8 +38,6 @@ export default function ADsuppliers() {
 
             setOperators(response.data.data?.records)
             setPagination(response.data.data?.pagination)
-        } catch (error) {
-            console.log(error)
         } finally {
             setLoading(false)
         }

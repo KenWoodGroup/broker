@@ -8,21 +8,21 @@ const semanticTokens = {
             default: "white",
             _dark: "neutral.800",
         },
-        surfBlur:{
-            default:'rgba(255, 255, 255, 0.7)',
-            _dark:"rgba(26, 32, 44, 0.7)"
+        surfBlur: {
+            default: 'rgba(255, 255, 255, 0.7)',
+            _dark: "rgba(26, 32, 44, 0.7)"
         },
         text: {
             default: "neutral.800",
             _dark: "neutral.100",
         },
-        textSub:{
-            default:'neutral.500',
-            _dark:'neutral.200'
+        textSub: {
+            default: 'neutral.500',
+            _dark: 'neutral.200'
         },
-        link:{
-            default:"brand.500",
-            _dark:"brand.300"
+        link: {
+            default: "brand.500",
+            _dark: "brand.300"
         },
         primary: {
             default: "brand.600",
@@ -36,6 +36,10 @@ const semanticTokens = {
             default: "neutral.200",
             _dark: "neutral.700",
         },
+        warning: {
+            default: "orange.600",
+            _dark: "orange.300",
+        }
     },
 };
 

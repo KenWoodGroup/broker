@@ -72,7 +72,7 @@ export default function SPoperators() {
         timer.current = setTimeout(() => {
             if (clickCount.current === 1) {
                 // single click logic
-                console.log("SINGLE CLICK");
+                // console.log("SINGLE CLICK");
                 setEditingManager(item);
                 formModal.onOpen();
             }
