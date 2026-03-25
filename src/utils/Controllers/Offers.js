@@ -5,6 +5,10 @@ class apiOffers {
         const response = await $api.get(`${BASE_URL}/api/offers/page?status=${status}&page=${page}`)
         return response;
     }
+    static GetByStatus = async (page, limit, status) => {
+        const response = await $api.get(`${BASE_URL}/api/offers/page?status=${status}&page=${page}&limit=${limit}`)
+        return response;
+    }
     static getOffer = async (id) => {
         const response = await $api.get(`${BASE_URL}/api/offers/${id}`);
         return response

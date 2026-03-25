@@ -27,12 +27,10 @@ import {
 
 import CompanyDetailEditModal from "./CompanyDetailEditModal"
 
-export default function CompanyInfo({ data, onSuccess, role }) {
+export default function CompanyInfo({ data, onSuccess }) {
     const detail = data?.company_detail || {}
     const editModal = useDisclosure()
-    const isAdmin = role === "Admin"
 
-    // 🔥 конфиги полей
     const mainInfo = [
         { icon: MapPin, label: "Manzil", value: data?.address },
         { icon: Phone, label: "Telefon", value: data?.phone },
@@ -58,32 +56,30 @@ export default function CompanyInfo({ data, onSuccess, role }) {
 
     return (
         <VStack spacing={8} align="stretch" py={4}>
-            {/* 🔹 MAIN */}
+            {/* Asosiy */}
             <Section
                 title="Asosiy ma'lumotlar"
-                isAdmin={isAdmin}
                 onEdit={editModal.onOpen}
                 fields={mainInfo}
             />
 
-            {/* 🔹 ADMIN BLOCK */}
-            {isAdmin && (
-                <>
-                    <Divider />
+            <Divider />
 
-                    <Section
-                        title="Bank ma'lumotlari"
-                        fields={bankInfo}
-                    />
+            {/* Bank */}
+            <Section
+                title="Bank ma'lumotlari"
+                onEdit={editModal.onOpen}
+                fields={bankInfo}
+            />
 
-                    <Divider />
+            <Divider />
 
-                    <Section
-                        title="Qo'shimcha ma'lumotlar"
-                        fields={extraInfo}
-                    />
-                </>
-            )}
+            {/* Qo‘shimcha */}
+            <Section
+                title="Qo'shimcha ma'lumotlar"
+                onEdit={editModal.onOpen}
+                fields={extraInfo}
+            />
 
             <CompanyDetailEditModal
                 isOpen={editModal.isOpen}
@@ -95,9 +91,8 @@ export default function CompanyInfo({ data, onSuccess, role }) {
         </VStack>
     )
 }
-
-// 🔥 универсальная секция
-function Section({ title, fields, isAdmin, onEdit }) {
+// 🔥 Универсальная секция
+function Section({ title, fields, onEdit }) {
     return (
         <Box>
             <Flex justify="space-between" align="center" mb={4}>
@@ -105,7 +100,7 @@ function Section({ title, fields, isAdmin, onEdit }) {
                     {title}
                 </Heading>
 
-                {isAdmin && onEdit && (
+                {onEdit && (
                     <Tooltip label="Tahrirlash">
                         <IconButton
                             icon={<Edit2 size={16} />}
@@ -127,6 +122,7 @@ function Section({ title, fields, isAdmin, onEdit }) {
     )
 }
 
+// 🔹 Элемент информации
 function InfoItem({ icon: Icon, label, value }) {
     const iconBg = useColorModeValue("blue.50", "blue.900")
     const iconColor = useColorModeValue("blue.500", "blue.200")
@@ -149,6 +145,7 @@ function InfoItem({ icon: Icon, label, value }) {
     )
 }
 
+// 📅 Формат даты
 function formatDate(dateString) {
     if (!dateString) return "—"
 

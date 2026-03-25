@@ -2,11 +2,11 @@ import { Outlet } from "react-router";
 import Sidebar from "../components/common/Sidebar";
 import { Box } from "@chakra-ui/react";
 import { useUIStore } from "../store/useUIStore";
-import { Home, Inbox, Building2, BoxIcon } from "lucide-react";
+import { Home, Inbox, Building2, BoxIcon, Settings, ListOrdered } from "lucide-react";
 
 const links = [
     { label: "Qurilish kompaniyalari", to: "/call-operator/company", icon: BoxIcon },
-    // { label: "Minicategories", to: "/minisubcategories", icon: Settings },
+    { label: "Buyurtmalar", to: "/call-operator/orders", icon: ListOrdered },
     // { label: "Products", to: "/products", icon: Boxes },
 ];
 

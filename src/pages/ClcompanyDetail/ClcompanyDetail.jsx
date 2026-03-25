@@ -80,24 +80,24 @@ export default function ClcompanyDetail({ role }) {
         ...(isAdmin
             ? [
                 {
-                    label: "Buyurtmalar",
-                    icon: <Package size={18} />,
-                    component: <CompanyOrders id={id} role={role} />
-                },
-                {
-                    label: "Obyektlar",
-                    icon: <MapPin size={18} />,
-                    component: (
-                        <ConstructionSites role={role} companyId={id} />
-                    )
-                },
-                {
                     label: "Foydalanuvchilar",
                     icon: <Users size={18} />,
                     component: <CompanyUsers locationId={id} />
                 }
             ]
             : []),
+        {
+            label: "Buyurtmalar",
+            icon: <Package size={18} />,
+            component: <CompanyOrders id={id} role={role} />
+        },
+        {
+            label: "Obyektlar",
+            icon: <MapPin size={18} />,
+            component: (
+                <ConstructionSites role={role} companyId={id} />
+            )
+        },
         {
             label: "Izoh",
             icon: <FileText size={18} />,

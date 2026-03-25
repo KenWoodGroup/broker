@@ -1,10 +1,7 @@
 import BRhome from "../../pages/BRhome/BRhome";
-import BRMap from "../../pages/BRMap/BRMap";
-import OfferDetailPage from "../../pages/BROfferDetail/OfferDetailPage";
-import BRoffers from "../../pages/BRoffers/BRoffers";
-import Clcompany from "../../pages/CLcompany/Clcompany";
-import ClcompanyDetail from "../../pages/ClcompanyDetail/ClcompanyDetail";
-import OPSearch from "../../pages/OPSearch/OPSearch";
+import Offers from "../../pages/Offers/Offers";
+import OffersDetail from "../../pages/OffersDetail/OffersDetail";
+
 
 const brokerRoutes = [
     {
@@ -15,32 +12,13 @@ const brokerRoutes = [
     {
         name: "br offers",
         path: "offers",
-        element: <BRoffers />
+        element: <Offers link="/operator/offers/" status={`price_review`} />
     },
     {
         name: "br offer detail",
         path: "offers/:id",
-        element: <OfferDetailPage />
+        element: <OffersDetail status={'pending_confirmation'} />
     },
-    {
-        name: "br  Search",
-        path: "/operator/search",
-        element: <OPSearch />
-    },
-    {
-        name: "br  Map",
-        path: "map",
-        element: <BRMap />
-    },
-    {
-        path: 'companies',
-        name: 'companies',
-        element: <Clcompany role={'Broker'} />
-    },
-    {
-        path: 'company-detail/:id',
-        name: 'companies detail',
-        element: <ClcompanyDetail role={'Admin'} />
-    },
+
 ];
 export default brokerRoutes
