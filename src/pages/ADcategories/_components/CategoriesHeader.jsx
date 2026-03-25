@@ -3,10 +3,16 @@ import CreateCategoryButton from "./CreateCategoryButton";
 import { useNavigate } from "react-router";
 import { LayoutGrid } from "lucide-react";
 
-export default function CategoriesHeader({onReload}) {
+export default function CategoriesHeader({onReload, role}) {
     const navigate = useNavigate()
     const handleCradVersion = () => {
-        navigate('/factories')
+        switch(role) {
+            case 'admin':
+                navigate('/factories');
+                break;
+            case 'supplier':
+                navigate('/supplier/factories')
+        }
     }
     return (
         <Flex justifyContent={"space-between"} py="20px">

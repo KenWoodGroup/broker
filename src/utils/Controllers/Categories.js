@@ -5,14 +5,22 @@ class apiCategories {
         const response = await $api.get(`${BASE_URL}/api/erp/location-categories/name?name=${searchText}&page=${page}`)
         return response;
     }
-    static getFactoriesByCategory = async (id, page, searchText) => {
-        const response = await $api.get(`${BASE_URL}/api/erp/location-location-categories/category/page?category_id=${id}&name=${searchText}&page=${page}`)
+    // static getFactoriesByCategory = async (id, page, searchText) => {
+    //     const response = await $api.get(`${BASE_URL}/api/erp/location-location-categories/category/page?category_id=${id}&name=${searchText}&page=${page}`)
+    //     return response;
+    // }
+    static getFactoriesByCategoryWithAddress = async (id, page, searchText, address) => {
+        const response = await $api.get(`${BASE_URL}/api/erp/location-location-categories/category/page?category_id=${id}&address=${address}&name=${searchText}&page=${page}`)
         return response;
     }
-    static getNotFactoriesByCategory = async (id, page, searchText) => {
-        const response = await $api.get(`${BASE_URL}/api/erp/locations/category/page?category_id=${id}&name=${searchText}&page=${page}`)
+    static getNotFactoriesByCategoryWithAddress = async (id, page, searchText, address) => {
+        const response = await $api.get(`${BASE_URL}/api/erp/locations/category/page?category_id=${id}&address=${address}&name=${searchText}&page=${page}`)
         return response;
     }
+    // static getNotFactoriesByCategory = async (id, page, searchText) => {
+    //     const response = await $api.get(`${BASE_URL}/api/erp/locations/category/page?category_id=${id}&name=${searchText}&page=${page}`)
+    //     return response;
+    // }
     static Add = async (data) => {
         const response = await $api.post(`${BASE_URL}/api/erp/location-categories`, data, { showSuccessToast: "Category successfully created" })
         return response;

@@ -16,10 +16,13 @@ import CallOperRoutes from './utils/routes/call-operatorRoutes'
 import CallOperatorLayout from './layouts/CallOperatorLayout'
 import SupplierLayout from './layouts/SupplierLayout'
 import supplierRoutes from './utils/routes/supplierRoutes'
+import useGlobalHotkeys from './hooks/useGlobalHotkeys'
+import SupplierFactoryLayout from './layouts/SupplierFactoryLayout'
+import supplierFacRoutes from './utils/routes/supplierFacRoutes'
 
 
 function App() {
-
+  useGlobalHotkeys();
   return (
     <>
       <Routes>
@@ -56,13 +59,13 @@ function App() {
                 <Route key={r.name} path={r.path} element={r.element} />
               )
             })}
-            {/* <Route path='/factories/:factoryId' element={<AdminFactoryLayout />}>
-              {adminFacRoutes.map((r) => {
+            <Route path='/supplier/factories/:factoryId' element={<SupplierFactoryLayout />}>
+              {supplierFacRoutes.map((r) => {
                 return (
                   <Route key={r.name} path={r.path} element={r.element} />
                 )
               })}
-            </Route> */}
+            </Route>
           </Route>
         </Route>
         <Route element={<RequireAuth role={"Broker"} />}>

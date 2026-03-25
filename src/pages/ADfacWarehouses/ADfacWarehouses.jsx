@@ -52,7 +52,7 @@ import regions from '../../constants/regions/regions.json'
 import districts from '../../constants/regions/districts.json'
 import { toastService } from '../../utils/toast';
 
-const WarehousesPage = () => {
+const WarehousesPage = ({role}) => {
     const { factoryId } = useParams();
     const navigate = useNavigate();
 
@@ -277,7 +277,7 @@ const WarehousesPage = () => {
 
     // Navigate to warehouse stock
     const handleNavigateToStock = (warehouse) => {
-        navigate(`/factories/${factoryId}/warehouses/${warehouse.id}`, {
+        navigate(`${role === 'admin' ? "" :'/supplier'}/factories/${factoryId}/warehouses/${warehouse.id}`, {
             state: { warehouseName: warehouse.name }
         });
     };

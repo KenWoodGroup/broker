@@ -23,6 +23,7 @@ const FactoryCard = React.memo(function FactoryCard({
     checked = false,
     onToggleSelect,
     onDeleted,
+    role,
 }) {
     const bg = useColorModeValue("white", "gray.800");
     const border = useColorModeValue("gray.200", "gray.700");
@@ -88,7 +89,13 @@ const FactoryCard = React.memo(function FactoryCard({
             _hover={{ shadow: "md" }}
             onClick={() => {
                 if (!joinMode) {
-                    navigate(`/factories/${factory?.id}`)
+                    switch(role) {
+                        case 'admin':
+                            navigate(`/factories/${factory?.id}`)
+                            break;
+                        case 'supplier':
+                            navigate(`/supplier/factories/${factory?.id}`)
+                    }
                 }
             }}
         >
@@ -132,7 +139,7 @@ const FactoryCard = React.memo(function FactoryCard({
 
                 <HStack spacing="8px" color={textSub}>
                     <MapPin size={16} />
-                    <Text 
+                    <Text
                         onClick={(e) => openMapWithCurrentLocation(e)}
                         _hover={{ color: (factory?.lat && factory?.lng) ? 'link' : textSub, cursor: (factory?.lat && factory?.lng) ? 'pointer' : 'default' }}
                         fontSize="sm" noOfLines={1}
@@ -145,6 +152,46 @@ const FactoryCard = React.memo(function FactoryCard({
                     <Phone size={16} />
                     <Text fontSize="sm">{factory?.phone || "-"}</Text>
                 </HStack>
+                {factory?.children?.length > 0 && (
+                    <Box w="100%" pt="8px">
+                        <Text fontSize="xs" color={textSub} mb="4px">
+                            Ombor manzillari:
+                        </Text>
+
+                        <VStack align="start" spacing="2px">
+                            {factory.children.map((child) => (
+                                <HStack key={child.id} spacing="6px">
+                                    <MapPin size={12} />
+                                    <Text
+                                        fontSize="xs"
+                                        noOfLines={1}
+                                        color={textSub}
+                                        _hover={{
+                                            color:
+                                                child?.lat && child?.lng ? "link" : textSub,
+                                            cursor:
+                                                child?.lat && child?.lng
+                                                    ? "pointer"
+                                                    : "default",
+                                        }}
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            // if (child?.lat && child?.lng) {
+                                            //     openMapWithCurrentLocation({
+                                            //         ...e,
+                                            //         lat: child.lat,
+                                            //         lng: child.lng,
+                                            //     });
+                                            // }
+                                        }}
+                                    >
+                                        {child.address || "-"}
+                                    </Text>
+                                </HStack>
+                            ))}
+                        </VStack>
+                    </Box>
+                )}
             </VStack>
             {/* Confirm Remove Modal */}
             <ConfirmDelModal isOpen={confirmModal.isOpen} onClose={confirmModal.onClose} onConfirm={deleteFactoryFromCategory} itemName={factory?.name} loading={loading} typeItem={`location from category(${categoryName})`} />
