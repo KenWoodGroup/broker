@@ -37,8 +37,6 @@ export default function ADOperators() {
 
             setOperators(response.data.data?.records)
             setPagination(response.data.data?.pagination)
-        } catch (error) {
-            console.log(error)
         } finally {
             setLoading(false)
         }

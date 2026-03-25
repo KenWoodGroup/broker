@@ -18,7 +18,7 @@ export default function FactoriesHeader({onReload, role}) {
     }
     return (
         <Flex justifyContent={"space-between"} py="20px">
-            <Heading size={"lg"}>Factories ok1</Heading>
+            <Heading size={"lg"}>Factories</Heading>
             <Flex gap={"24px"}>
                 <CreateFactoryButton onReload={onReload}/>
                 <Tooltip label={"Category"} placement="bottom">

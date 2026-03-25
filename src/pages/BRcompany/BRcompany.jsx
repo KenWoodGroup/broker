@@ -59,7 +59,6 @@ export default function BRcompany() {
                 throw new Error(`Ошибка: ${response.status}`);
             }
         } catch (err) {
-            console.log(err);
             setError("Не удалось загрузить данные. Пожалуйста, попробуйте позже.");
         } finally {
             setLoading(false);

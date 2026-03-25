@@ -8,7 +8,7 @@
             try{
                 const response = await apiLocations.Add(data)
             }catch(error){
-                console.log(error)
+                // console.log(error)
             }
         }
 

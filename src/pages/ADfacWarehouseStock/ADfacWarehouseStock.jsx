@@ -215,9 +215,9 @@ const WarehouseStockPage = () => {
     };
     function getPriceFreshness(dateString, type) {
         const rule = PRICE_UPDATE_RULES[type];
-        const days = getDaysDiff(dateString);
+        const days = getDaysDiff(dateString);        
         if (days <= rule.green) return 'green';
-        if (days <= rule.yellow) return 'yellow';
+        if (days <= rule.yellow) return 'warning';
         return 'red';
     }
 
@@ -372,8 +372,8 @@ const WarehouseStockPage = () => {
                                                                     {priceType.price_type?.name}:
                                                                 </Text>
                                                                 <Text fontWeight="semibold" color={getPriceFreshness(priceType?.updatedAt, 'medium')}>
-                                                                    {parseFloat(priceType.sale_price).toLocaleString()} so'm
-                                                                </Text>
+                                                                    {parseFloat(priceType.sale_price).toLocaleString()} ({getDaysDiff(priceType?.updatedAt)} kun oldin)
+                                                                </Text> 
                                                             </HStack>
                                                         ))
                                                     ) : (
