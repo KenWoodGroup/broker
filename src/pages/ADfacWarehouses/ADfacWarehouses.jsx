@@ -52,7 +52,7 @@ import regions from '../../constants/regions/regions.json'
 import districts from '../../constants/regions/districts.json'
 import { toastService } from '../../utils/toast';
 
-const WarehousesPage = ({role}) => {
+const WarehousesPage = ({ role='admin' }) => {
     const { factoryId } = useParams();
     const navigate = useNavigate();
 
@@ -277,9 +277,19 @@ const WarehousesPage = ({role}) => {
 
     // Navigate to warehouse stock
     const handleNavigateToStock = (warehouse) => {
-        navigate(`${role === 'admin' ? "" :'/supplier'}/factories/${factoryId}/warehouses/${warehouse.id}`, {
-            state: { warehouseName: warehouse.name }
-        });
+        switch (role) {
+            case 'admin':
+                navigate(`/factories/${factoryId}/warehouses/${warehouse.id}`, {
+                    state: { warehouseName: warehouse.name }
+                });
+                break;
+            case 'supplier':
+                navigate(`/supplier/factories/${factoryId}/warehouses/${warehouse.id}`, {
+                    state: { warehouseName: warehouse.name }
+                });
+                break;
+        }
+
     };
 
     // Format phone
@@ -444,7 +454,7 @@ const WarehousesPage = ({role}) => {
                                                             //         opacity: 1
                                                             //     }
                                                             // }}
-                                                            _groupHover={{opacity:1}}
+                                                            _groupHover={{ opacity: 1 }}
                                                         >
                                                             <IconButton
                                                                 icon={<EditIcon />}
