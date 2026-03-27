@@ -17,7 +17,7 @@ const supplierFacRoutes = [
     {
         name: "ad fac categories",
         path: "",
-        element: <ADfacLocalCats />
+        element: <ADfacLocalCats role={'supplier'}/>
     },
     {
         name: "ad fac products by category",
@@ -52,7 +52,7 @@ const supplierFacRoutes = [
     {
         name:'ad factory users',
         path:'users',
-        element:<UsersPage/>
+        element:<UsersPage role={'supplier'}/>
     }
 ];
 export default supplierFacRoutes

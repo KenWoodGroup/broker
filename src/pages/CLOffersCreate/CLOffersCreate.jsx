@@ -54,12 +54,12 @@ import { apiLocations } from "../../utils/Controllers/Locations";
 import SelectedItemsModal from "./__components/CartModal";
 import { useParams } from "react-router";
 
-export default function CLOffersCreate({role='admin'}) {
+export default function CLOffersCreate({ role = 'admin' }) {
     const [searchData, setSearchData] = useState({
         name: "",
         page: 1,
     });
-    
+
     const [searchResults, setSearchResults] = useState([]);
     const [locations, setLocations] = useState([]);
     const [factories, setFactories] = useState([]);
@@ -377,7 +377,7 @@ export default function CLOffersCreate({role='admin'}) {
         <Container maxW="container.xl" py={8} pb={20}>
             <VStack spacing={6} align="stretch">
                 <Heading as="h1" size="xl">
-                   {role === 'supplier' ? 'Mahsulot qidiruv markazi' :'Taklif yaratish'} 
+                    {role === 'supplier' ? 'Mahsulot qidiruv markazi' : 'Taklif yaratish'}
                 </Heading>
 
                 {/* Factory Selection Card */}
@@ -575,14 +575,16 @@ export default function CLOffersCreate({role='admin'}) {
                             <Table variant="simple">
                                 <Thead bg="gray.100" _dark={{ bg: "gray.700" }}>
                                     <Tr>
-                                        <Th width="50px">
-                                            <Checkbox
-                                                isChecked={selectedItems.length === searchResults.length && searchResults.length > 0}
-                                                isIndeterminate={selectedItems.length > 0 && selectedItems.length < searchResults.length}
-                                                onChange={handleSelectAll}
-                                                colorScheme="blue"
-                                            />
-                                        </Th>
+                                        {role !== 'supplier' &&
+                                            <Th width="50px">
+                                                <Checkbox
+                                                    isChecked={selectedItems.length === searchResults.length && searchResults.length > 0}
+                                                    isIndeterminate={selectedItems.length > 0 && selectedItems.length < searchResults.length}
+                                                    onChange={handleSelectAll}
+                                                    colorScheme="blue"
+                                                />
+                                            </Th>
+                                        }
                                         <Th>№</Th>
                                         <Th>Nomi</Th>
                                         <Th>Kategoriya</Th>
@@ -594,7 +596,10 @@ export default function CLOffersCreate({role='admin'}) {
                                     {searchResults.map((item, index) => (
                                         <Tr
                                             key={item.id}
-                                            onClick={() => handleSelectRow(item.id)}
+                                            onClick={() => {
+                                                if (role === 'supplier') return
+                                                handleSelectRow(item.id)
+                                            }}
                                             cursor="pointer"
                                             bg={selectedItems.includes(item.id) ? "blue.50" : undefined}
                                             _dark={{
@@ -606,14 +611,16 @@ export default function CLOffersCreate({role='admin'}) {
                                             }}
                                             transition="background 0.2s"
                                         >
-                                            <Td onClick={(e) => e.stopPropagation()}>
-                                                <Checkbox
-                                                    isChecked={selectedItems.includes(item.id)}
-                                                    onChange={() => handleSelectRow(item.id)}
-                                                    colorScheme="blue"
-                                                    size="md"
-                                                />
-                                            </Td>
+                                            {role !== 'supplier' &&
+                                                <Td onClick={(e) => e.stopPropagation()}>
+                                                    <Checkbox
+                                                        isChecked={selectedItems.includes(item.id)}
+                                                        onChange={() => handleSelectRow(item.id)}
+                                                        colorScheme="blue"
+                                                        size="md"
+                                                    />
+                                                </Td>
+                                            }
                                             <Td>{(pagination.currentPage - 1) * pagination.limit + index + 1}</Td>
                                             <Td maxW="250px" whiteSpace="normal" fontWeight="medium" title={item.product?.name}>
                                                 {item.product?.name || "—"}

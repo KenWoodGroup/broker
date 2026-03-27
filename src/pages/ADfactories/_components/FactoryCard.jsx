@@ -15,7 +15,7 @@ import ConfirmDelModal from "../../../components/common/ConfirmDelModal";
 import { apiLocations } from "../../../utils/Controllers/Locations";
 import { useNavigate } from "react-router";
 
-const FactoryCard = React.memo(function FactoryCard({ factory, onEdit, onDelete, role }) {
+const FactoryCard = React.memo(function FactoryCard({ factory, onEdit, onDelete, role='admin' }) {
     const navigate = useNavigate()
     const delModal = useDisclosure()
     const bg = useColorModeValue("white", "gray.800");
@@ -78,7 +78,7 @@ const FactoryCard = React.memo(function FactoryCard({ factory, onEdit, onDelete,
             _hover={{ shadow: "md" }}
             role="group"
             onClick={() => {
-                switch(role) {
+                switch (role) {
                     case 'admin':
                         navigate(`/factories/${factory?.id}`);
                         break;
@@ -122,25 +122,20 @@ const FactoryCard = React.memo(function FactoryCard({ factory, onEdit, onDelete,
                     }}
                     zIndex={2}
                 >
-                    {/* <IconButton
-                        size="sm"
-                        variant="ghost"
-                        icon={<Pencil size={16} />}
-                        onClick={() => onEdit(factory)}
-                        aria-label="Edit"
-                    /> */}
                     <EditFactoryButton factoryId={factory?.id} initialData={factory} onReload={onEdit} />
-                    <IconButton
-                        size="sm"
-                        variant="ghost"
-                        colorScheme="red"
-                        icon={<Trash2 size={16} />}
-                        onClick={(e) => {
-                            e.stopPropagation()
-                            delModal.onOpen()
-                        }}
-                        aria-label="Delete"
-                    />
+                    {role === 'admin' &&
+                        <IconButton
+                            size="sm"
+                            variant="ghost"
+                            colorScheme="red"
+                            icon={<Trash2 size={16} />}
+                            onClick={(e) => {
+                                e.stopPropagation()
+                                delModal.onOpen()
+                            }}
+                            aria-label="Delete"
+                        />
+                    }
                 </Flex>
             </Box>
 
@@ -167,6 +162,46 @@ const FactoryCard = React.memo(function FactoryCard({ factory, onEdit, onDelete,
                         {factory?.phone || "-"}
                     </Text>
                 </HStack>
+                {factory?.children?.length > 0 && (
+                    <Box w="100%" pt="8px">
+                        <Text fontSize="xs" color={textSub} mb="4px">
+                            Ombor manzillari:
+                        </Text>
+
+                        <VStack align="start" spacing="2px">
+                            {factory.children.map((child) => (
+                                <HStack key={child.id} spacing="6px">
+                                    <MapPin size={12} />
+                                    <Text
+                                        fontSize="xs"
+                                        noOfLines={1}
+                                        color={textSub}
+                                        _hover={{
+                                            color:
+                                                child?.lat && child?.lng ? "link" : textSub,
+                                            cursor:
+                                                child?.lat && child?.lng
+                                                    ? "pointer"
+                                                    : "default",
+                                        }}
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            // if (child?.lat && child?.lng) {
+                                            //     openMapWithCurrentLocation({
+                                            //         ...e,
+                                            //         lat: child.lat,
+                                            //         lng: child.lng,
+                                            //     });
+                                            // }
+                                        }}
+                                    >
+                                        {child.address || "-"}
+                                    </Text>
+                                </HStack>
+                            ))}
+                        </VStack>
+                    </Box>
+                )}
             </VStack>
 
             <ConfirmDelModal

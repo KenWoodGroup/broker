@@ -16,7 +16,8 @@ const CategoryCard = React.memo(function CategoryCard({
     category,
     onEdit,
     onDelete,
-    onOpen
+    onOpen,
+    role='admin'
 }) {
     const bg = useColorModeValue("white", "gray.800");
     const border = useColorModeValue("gray.200", "gray.700");
@@ -65,40 +66,41 @@ const CategoryCard = React.memo(function CategoryCard({
                         pointerEvents: "none",
                     }}
                 />
-
-                <Flex
-                    position="absolute"
-                    top="0"
-                    right="0"
-                    bg={bg}
-                    border="1px solid"
-                    borderColor={border}
-                    borderRadius="8px"
-                    opacity={0}
-                    pointerEvents="none"
-                    transition="all .2s"
-                    _groupHover={{
-                        opacity: 1,
-                        pointerEvents: "auto",
-                    }}
-                    zIndex={2}
-                    onClick={(e) => e.stopPropagation()}
-                >
-                    <IconButton
-                        size="sm"
-                        variant="ghost"
-                        colorScheme="red"
-                        icon={<Trash2 size={16} />}
-                        aria-label="Delete"
-                        onClick={delModal.onOpen}
-                    />
-                </Flex>
+                {role === 'admin' &&
+                    <Flex
+                        position="absolute"
+                        top="0"
+                        right="0"
+                        bg={bg}
+                        border="1px solid"
+                        borderColor={border}
+                        borderRadius="8px"
+                        opacity={0}
+                        pointerEvents="none"
+                        transition="all .2s"
+                        _groupHover={{
+                            opacity: 1,
+                            pointerEvents: "auto",
+                        }}
+                        zIndex={2}
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        <IconButton
+                            size="sm"
+                            variant="ghost"
+                            colorScheme="red"
+                            icon={<Trash2 size={16} />}
+                            aria-label="Delete"
+                            onClick={delModal.onOpen}
+                        />
+                    </Flex>
+                }
             </Box>
 
             <Text fontWeight="600" fontSize="lg" noOfLines={2}>
                 {category?.name || "-"}
             </Text>
-           <ConfirmDelModal isOpen={delModal.isOpen} onClose={delModal.onClose} onConfirm={deleteCategory} itemName={category?.name} loading={delLoading} typeItem={"Local category"}/>
+            <ConfirmDelModal isOpen={delModal.isOpen} onClose={delModal.onClose} onConfirm={deleteCategory} itemName={category?.name} loading={delLoading} typeItem={"Local category"} />
         </Box>
     );
 });

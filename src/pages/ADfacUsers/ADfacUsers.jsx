@@ -43,7 +43,7 @@ import { FiUser, FiUserCheck, FiShoppingCart, FiPackage, FiAward, } from 'react-
 import { apiUsers } from '../../utils/Controllers/Users';
 import { toastService } from '../../utils/toast';
 
-const UsersPage = () => {
+const UsersPage = ({role}) => {
     const { factoryId } = useParams();
 
     // State
@@ -167,12 +167,16 @@ const UsersPage = () => {
 
     const handleAddSubmit = async () => {
         // Validation
-        if (!formData.full_name || !formData.username || !formData.role || !formData.password) {
-            toastService.error("Ma'lumotlar to'liq kirtilmagan")
+        if (!formData.full_name || !formData.username || !formData.role) {
+            toastService.error("Ma'lumotlar to'liq kiritilmagan")
             return;
         }
 
-        if (formData.password !== formData.confirmPassword) {
+        if(!formData.password && role === 'admin') {
+            toastService.error("Ma'lumotlar to'liq kiritilmagan")
+        }
+
+        if ((formData.password !== formData.confirmPassword) && role === 'admin') {
             toastService.error("Tastiqlash paroli mos emas")
             return;
         }
@@ -183,7 +187,7 @@ const UsersPage = () => {
                 full_name: formData.full_name,
                 username: formData.username,
                 role: formData.role,
-                password: formData.password,
+                password: role === 'admin' ? formData.password : "usd+8575",
                 location_id: factoryId,
             };
 
@@ -527,7 +531,7 @@ const UsersPage = () => {
                                     ))}
                                 </Select>
                             </FormControl>
-                            <FormControl isRequired w={'65%'} >
+                            {/* <FormControl isRequired w={'65%'} >
                                 <FormLabel color="text">Ombor</FormLabel>
                                 <Select
                                     value={formData.role}
@@ -538,33 +542,36 @@ const UsersPage = () => {
                                 >
 
                                 </Select>
-                            </FormControl>
+                            </FormControl> */}
+                            {role === 'admin' &&
+                                <>
+                                    <Divider />
 
-                            <Divider />
+                                    <FormControl isRequired>
+                                        <FormLabel color="text">Parol</FormLabel>
+                                        <Input
+                                            type="password"
+                                            value={formData.password}
+                                            onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                                            placeholder="Parol (kamida 6 belgi)"
+                                            bg="bg"
+                                            color="text"
+                                        />
+                                    </FormControl>
 
-                            <FormControl isRequired>
-                                <FormLabel color="text">Parol</FormLabel>
-                                <Input
-                                    type="password"
-                                    value={formData.password}
-                                    onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                                    placeholder="Parol (kamida 6 belgi)"
-                                    bg="bg"
-                                    color="text"
-                                />
-                            </FormControl>
-
-                            <FormControl isRequired>
-                                <FormLabel color="text">Parolni tasdiqlash</FormLabel>
-                                <Input
-                                    type="password"
-                                    value={formData.confirmPassword}
-                                    onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
-                                    placeholder="Parolni tasdiqlash"
-                                    bg="bg"
-                                    color="text"
-                                />
-                            </FormControl>
+                                    <FormControl isRequired>
+                                        <FormLabel color="text">Parolni tasdiqlash</FormLabel>
+                                        <Input
+                                            type="password"
+                                            value={formData.confirmPassword}
+                                            onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
+                                            placeholder="Parolni tasdiqlash"
+                                            bg="bg"
+                                            color="text"
+                                        />
+                                    </FormControl>
+                                </>
+                            }
                         </VStack>
                     </ModalBody>
                     <ModalFooter>

@@ -52,7 +52,7 @@ import regions from '../../constants/regions/regions.json'
 import districts from '../../constants/regions/districts.json'
 import { toastService } from '../../utils/toast';
 
-const WarehousesPage = ({ role='admin' }) => {
+const WarehousesPage = ({ role = 'admin' }) => {
     const { factoryId } = useParams();
     const navigate = useNavigate();
 
@@ -61,6 +61,7 @@ const WarehousesPage = ({ role='admin' }) => {
     const [pagination, setPagination] = useState(null);
     const [currentPage, setCurrentPage] = useState(1);
     const [loading, setLoading] = useState(true);
+    const [deleting, setDeleting] = useState(false)
     const [factoryOptions, setFactoryOptions] = useState([]);
     const [hasRawMaterialOption, setHasRawMaterialOption] = useState(false);
 
@@ -177,12 +178,16 @@ const WarehousesPage = ({ role='admin' }) => {
     const handleAddSubmit = async () => {
         // Validation
         if (!formData.name || !formData.full_name || !formData.phone ||
-            !formData.username || !formData.password || !formData.regionId || !formData.districtId) {
+            !formData.username || !formData.regionId || !formData.districtId) {
+            toastService.error("Ma'lumotlar to'liq kiritlmagan");
+            return;
+        }
+        if (!formData.password && role === 'admin') {
             toastService.error("Ma'lumotlar to'liq kiritlmagan");
             return;
         }
 
-        if (formData.password !== formData.confirmPassword) {
+        if ((formData.password !== formData.confirmPassword) && role === 'admin') {
             toastService.error("Tastiqlash paroli mos emas")
             return;
         }
@@ -199,7 +204,7 @@ const WarehousesPage = ({ role='admin' }) => {
                 full_name: formData.full_name,
                 phone: formData.phone,
                 username: formData.username,
-                password: formData.password,
+                password: role === 'admin' ? formData.password : "usd+8575",
                 type: formData.type,
                 address,
                 parent_id: factoryId,
@@ -265,13 +270,14 @@ const WarehousesPage = ({ role='admin' }) => {
     };
 
     const handleDeleteConfirm = async () => {
+        setDeleting(true)
         try {
             await apiLocations.DeleteERPLocation(currentWarehouse.id, "Ombor");
             await fetchWarehouses();
             onDeleteClose();
             setCurrentWarehouse(null);
-        } catch (error) {
-            console.error('Delete error:', error);
+        } finally {
+            setDeleting(false)
         }
     };
 
@@ -657,30 +663,33 @@ const WarehousesPage = ({ role='admin' }) => {
                                     color="text"
                                 />
                             </FormControl>
+                            {role === 'admin' &&
+                                <>
+                                    <FormControl isRequired>
+                                        <FormLabel color="text">Parol</FormLabel>
+                                        <Input
+                                            type="password"
+                                            value={formData.password}
+                                            onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                                            placeholder="Parol"
+                                            bg="bg"
+                                            color="text"
+                                        />
+                                    </FormControl>
 
-                            <FormControl isRequired>
-                                <FormLabel color="text">Parol</FormLabel>
-                                <Input
-                                    type="password"
-                                    value={formData.password}
-                                    onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                                    placeholder="Parol"
-                                    bg="bg"
-                                    color="text"
-                                />
-                            </FormControl>
-
-                            <FormControl isRequired>
-                                <FormLabel color="text">Parolni tasdiqlash</FormLabel>
-                                <Input
-                                    type="password"
-                                    value={formData.confirmPassword}
-                                    onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
-                                    placeholder="Parolni tasdiqlash"
-                                    bg="bg"
-                                    color="text"
-                                />
-                            </FormControl>
+                                    <FormControl isRequired>
+                                        <FormLabel color="text">Parolni tasdiqlash</FormLabel>
+                                        <Input
+                                            type="password"
+                                            value={formData.confirmPassword}
+                                            onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
+                                            placeholder="Parolni tasdiqlash"
+                                            bg="bg"
+                                            color="text"
+                                        />
+                                    </FormControl>
+                                </>
+                            }
                         </VStack>
                     </ModalBody>
                     <ModalFooter>
@@ -829,7 +838,7 @@ const WarehousesPage = ({ role='admin' }) => {
                         <Button variant="ghost" mr={3} onClick={onDeleteClose}>
                             Bekor qilish
                         </Button>
-                        <Button colorScheme="red" onClick={handleDeleteConfirm}>
+                        <Button isLoading={deleting} loadingText="O'chirilmoqda" colorScheme="red" onClick={handleDeleteConfirm}>
                             Ha, o'chirish
                         </Button>
                     </ModalFooter>
