@@ -20,7 +20,7 @@ export default function FactoriesHeader({onReload, role}) {
         <Flex justifyContent={"space-between"} py="20px">
             <Heading size={"lg"}>Factories</Heading>
             <Flex gap={"24px"}>
-                <CreateFactoryButton onReload={onReload}/>
+                <CreateFactoryButton onReload={onReload} role={role}/>
                 <Tooltip label={"Category"} placement="bottom">
                     <IconButton
                         onClick={() => handleCradVersion()}

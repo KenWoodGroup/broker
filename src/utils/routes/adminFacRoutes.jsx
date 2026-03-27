@@ -17,7 +17,7 @@ const adminFacRoutes = [
     {
         name: "ad fac categories",
         path: "",
-        element: <ADfacLocalCats />
+        element: <ADfacLocalCats role={'admin'}/>
     },
     {
         name: "ad fac products by category",
@@ -52,7 +52,7 @@ const adminFacRoutes = [
     {
         name:'ad factory users',
         path:'users',
-        element:<UsersPage/>
+        element:<UsersPage role={'admin'}/>
     }
 ];
 export default adminFacRoutes

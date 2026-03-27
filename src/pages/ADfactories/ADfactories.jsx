@@ -165,7 +165,7 @@ export default function ADfactories({ reloadDependance, role = 'admin' }) {
         <Box
             pr={"20px"} pb={"20px"}
         >
-            <FactoriesHeader onReload={() => fetchFactories(factoryPage, debouncedSearch)} role={role} />
+            <FactoriesHeader onReload={() => fetchFactories(factoryPage, debouncedSearch, 'all')} role={role} />
             {/* Search */}
             <Flex mb="20px" alignItems={'center'} gap={4}>
                 <Box w={'100%'} maxW="400px">
@@ -262,8 +262,8 @@ export default function ADfactories({ reloadDependance, role = 'admin' }) {
                             role={role}
                             key={factory.id}
                             factory={factory}
-                            onEdit={() => fetchFactories(factoryPage, debouncedSearch)}
-                            onDelete={() => fetchFactories(factoryPage, debouncedSearch)}
+                            onEdit={() => fetchFactories(factoryPage, debouncedSearch, 'all')}
+                            onDelete={() => fetchFactories(factoryPage, debouncedSearch, 'all')}
                         />
                     ))
                 }

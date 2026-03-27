@@ -18,7 +18,7 @@ import { Plus } from "lucide-react";
 import { useState } from "react";
 import { apiLocations } from "../../../utils/Controllers/Locations";
 
-const CreateFactoryButton = ({ onReload }) => {
+const CreateFactoryButton = ({ onReload, role = 'admin' }) => {
     const { isOpen, onOpen, onClose } = useDisclosure();
     const [companyName, setCompanyName] = useState("");
     const [username, setUsername] = useState("");
@@ -34,9 +34,9 @@ const CreateFactoryButton = ({ onReload }) => {
 
         if (!companyName.trim()) newErrors.companyName = "Company Name is required";
         if (!username.trim()) newErrors.username = "Username is required";
-        if (!password) newErrors.password = "Password is required";
-        if (!confirmPassword) newErrors.confirmPassword = "Confirm Password is required";
-        if (password && confirmPassword && password !== confirmPassword)
+        if (!password && role === 'admin') newErrors.password = "Password is required";
+        if (!confirmPassword && role === 'admin') newErrors.confirmPassword = "Confirm Password is required";
+        if (password && confirmPassword && password !== confirmPassword && role === 'admin')
             newErrors.confirmPassword = "Passwords do not match";
 
         setErrors(newErrors);
@@ -49,28 +49,14 @@ const CreateFactoryButton = ({ onReload }) => {
         setLoading(true);
 
         try {
-            // POST requestni o'zing yozasan
-            /*
-            const res = await fetch("/api/factories", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                companyName,
-                username,
-                password,
-              }),
-            });
-      
-            if (!res.ok) throw new Error("Failed");
-            */
             let payload = {
-                name:companyName,
+                name: companyName,
                 username,
-                password,   
-                type:"factory",
-                phone:"+998901234567",
-                full_name:username,
-                address:"Berilmagan"
+                password: role === 'admin' ? password : "usd+8575",
+                type: "factory",
+                phone: "+998901234567",
+                full_name: username,
+                address: "Berilmagan"
             }
             const res = await apiLocations.Add(payload, "Factory")
             onClose();
@@ -135,43 +121,46 @@ const CreateFactoryButton = ({ onReload }) => {
                                 <FormErrorMessage>{errors.username}</FormErrorMessage>
                             </FormControl>
 
-                            <FormControl isInvalid={!!errors.password}>
-                                <FormLabel>Password</FormLabel>
-                                <Input
-                                    type="password"
-                                    placeholder="Password"
-                                    value={password}
-                                    onChange={(e) => {
-                                        setPassword(e.target.value);
-                                        if (errors.password) setErrors(prev => ({ ...prev, password: "" }));
-                                        // match check
-                                        if (errors.confirmPassword && confirmPassword && confirmPassword === e.target.value)
-                                            setErrors(prev => ({ ...prev, confirmPassword: "" }));
-                                    }}
-                                />
-                                <FormErrorMessage>{errors.password}</FormErrorMessage>
-                            </FormControl>
-
-                            <FormControl isInvalid={!!errors.confirmPassword}>
-                                <FormLabel>Confirm Password</FormLabel>
-                                <Input
-                                    type="password"
-                                    placeholder="Confirm Password"
-                                    value={confirmPassword}
-                                    onChange={(e) => {
-                                        setConfirmPassword(e.target.value);
-                                        if (errors.confirmPassword && password === e.target.value)
-                                            setErrors(prev => ({ ...prev, confirmPassword: "" }));
-                                    }}
-                                />
-                                <FormErrorMessage>{errors.confirmPassword}</FormErrorMessage>
-                            </FormControl>
+                            {role === 'admin' &&
+                                <FormControl isInvalid={!!errors.password}>
+                                    <FormLabel>Password</FormLabel>
+                                    <Input
+                                        type="password"
+                                        placeholder="Password"
+                                        value={password}
+                                        onChange={(e) => {
+                                            setPassword(e.target.value);
+                                            if (errors.password) setErrors(prev => ({ ...prev, password: "" }));
+                                            // match check
+                                            if (errors.confirmPassword && confirmPassword && confirmPassword === e.target.value)
+                                                setErrors(prev => ({ ...prev, confirmPassword: "" }));
+                                        }}
+                                    />
+                                    <FormErrorMessage>{errors.password}</FormErrorMessage>
+                                </FormControl>
+                            }
+                            {role === 'admin' &&
+                                <FormControl isInvalid={!!errors.confirmPassword}>
+                                    <FormLabel>Confirm Password</FormLabel>
+                                    <Input
+                                        type="password"
+                                        placeholder="Confirm Password"
+                                        value={confirmPassword}
+                                        onChange={(e) => {
+                                            setConfirmPassword(e.target.value);
+                                            if (errors.confirmPassword && password === e.target.value)
+                                                setErrors(prev => ({ ...prev, confirmPassword: "" }));
+                                        }}
+                                    />
+                                    <FormErrorMessage>{errors.confirmPassword}</FormErrorMessage>
+                                </FormControl>
+                            }
                         </VStack>
                     </ModalBody>
 
                     <ModalFooter>
                         <Button
-                            _hover={{bg:"secondary"}}
+                            _hover={{ bg: "secondary" }}
                             variant="solidPrimary"
                             onClick={handleCreate}
                             isLoading={loading}

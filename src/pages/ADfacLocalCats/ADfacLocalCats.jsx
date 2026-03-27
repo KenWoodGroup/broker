@@ -22,7 +22,7 @@ import UploadProductsByExcel from "./_components/UploadProductsByExcel";
 
 const CATEGORY_PAGE_KEY = "local_categories_page";
 
-export default function ADfacLocalCats({ reloadDependance }) {
+export default function ADfacLocalCats({ reloadDependance, role }) {
 
     const navigate = useNavigate();
     const { factoryId } = useParams()
@@ -149,6 +149,7 @@ export default function ADfacLocalCats({ reloadDependance }) {
                     ))
                     : categories.map((cat) => (
                         <CategoryCard
+                        role={role}
                             key={cat.id}
                             category={cat}
                             onEdit={() => fetchCategories(page, debouncedSearch)}
