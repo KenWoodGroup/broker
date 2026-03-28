@@ -168,7 +168,6 @@ export default function CompanyNoteCard({ locationId }) {
                         pr={2}
                         minH={0}
                     >
-
                         {isLoading ? (
 
                             <Center py={10}>

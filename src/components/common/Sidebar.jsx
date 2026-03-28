@@ -146,12 +146,12 @@ export default function Sidebar({ collapsed, links = [], end }) {
                                     />
 
                                     {!collapsed && (
-                                        <Flex width={"100%"} alignItems={"center"} justifyContent={"space-between"}>
+                                        <Flex width={"100%"} alignItems={"start"} justifyContent={"space-between"}>
                                             <Box>
-                                                <Text fontSize="sm" fontWeight="bold" lineHeight={1} >
+                                                <Text fontSize="12px" textAlign={'start'} fontWeight="bold" lineHeight={1} >
                                                     {user?.full_name}
                                                 </Text>
-                                                <Text fontSize="xs" color="gray.400">
+                                                <Text fontSize="10px" textAlign={'start'} color="gray.400">
                                                     {user?.role}
                                                 </Text>
                                             </Box>

@@ -238,53 +238,28 @@ export default function BROffersDetail() {
                         </Flex>
                     </Box>
 
-                    {/* Status Timeline - Custom styled buttons */}
+                    {/* Status Display */}
                     <Box px={6} py={4} borderBottom="1px solid" borderColor="gray.200">
-                        <Text fontWeight="bold" mb={3} fontSize="sm" color="gray.600">
-                            Buyurtma holati
-                        </Text>
-                        <Wrap spacing={3}>
-                            {statusConfig.map((status) => {
-                                const isCurrent = status.id === offer.status;
-                                const StatusIconComponent = status.icon;
-
-                                return (
-                                    <WrapItem key={status.id}>
-                                        <Tooltip label={status.label} hasArrow placement="top">
-                                            <Button
-                                                size="md"
-                                                onClick={() => updateStatus(status.id)}
-                                                isLoading={updatingStatus && isCurrent}
-                                                loadingText=""
-                                                isDisabled={updatingStatus}
-                                                leftIcon={
-                                                    <Icon
-                                                        as={StatusIconComponent}
-                                                        size={18}
-                                                        color={isCurrent ? status.textColor : status.textColor}
-                                                    />
-                                                }
-                                                _hover={{
-                                                    transform: "translateY(-2px)",
-                                                    boxShadow: "md",
-                                                }}
-                                                transition="all 0.2s"
-                                                bg={isCurrent ? status.bg : "white"}
-                                                border="1px solid"
-                                                borderColor={isCurrent ? status.borderColor : "gray.200"}
-                                                color={isCurrent ? status.textColor : "gray.600"}
-                                                fontWeight={isCurrent ? "semibold" : "normal"}
-                                            >
-                                                {isCurrent && status.label}
-                                            </Button>
-                                        </Tooltip>
-                                    </WrapItem>
-                                );
-                            })}
-                        </Wrap>
-                        <Text fontSize="xs" mt={3}>
-                            * Holatni o'zgartirish uchun status tugmasiga bosing
-                        </Text>
+                        <HStack spacing={3}>
+                            <Text fontWeight="bold" fontSize="sm" color="gray.600">
+                                Buyurtma holati:
+                            </Text>
+                            <Badge
+                                size="lg"
+                                p={2}
+                                borderRadius="md"
+                                bg={currentStatus?.bg}
+                                color={currentStatus?.textColor}
+                                border="1px solid"
+                                borderColor={currentStatus?.borderColor}
+                                leftIcon={<Icon as={currentStatus?.icon} mr={1} />}
+                                display="flex"
+                                alignItems="center"
+                            >
+                                <Icon as={currentStatus?.icon} mr={2} />
+                                {currentStatus?.label}
+                            </Badge>
+                        </HStack>
                     </Box>
 
                     <CardBody p={6}>
