@@ -19,6 +19,12 @@ import {
     SimpleGrid,
     Button,
     IconButton,
+    Menu,
+    MenuButton,
+    MenuList,
+    MenuItem,
+    Portal,
+    useDisclosure,
 } from "@chakra-ui/react";
 import { useNavigate } from "react-router-dom";
 import { apiOffers } from "../../utils/Controllers/Offers";
@@ -80,8 +86,17 @@ const formatCurrency = (amount) => {
 };
 
 // Offer Card Component
-const OfferCard = ({ offer, onClick }) => {
+const OfferCard = ({ offer, onClick, onStatusChange, isUpdating }) => {
     const statusConfigData = statusConfig.find(s => s.id === offer.status);
+    const currentIndex = statusConfig.findIndex(s => s.id === offer.status);
+
+    const prevStatus = currentIndex > 0 ? statusConfig[currentIndex - 1] : null;
+    const nextStatus = currentIndex < statusConfig.length - 1 ? statusConfig[currentIndex + 1] : null;
+
+    const handleStatusUpdate = (e, newStatusId) => {
+        e.stopPropagation();
+        onStatusChange(offer.id, newStatusId);
+    };
 
     return (
         <Box
@@ -89,7 +104,7 @@ const OfferCard = ({ offer, onClick }) => {
             borderRadius="lg"
             border="1px solid"
             borderColor="gray.200"
-
+            position="relative"
             cursor="pointer"
             transition="all 0.3s"
             _hover={{
@@ -99,6 +114,23 @@ const OfferCard = ({ offer, onClick }) => {
             }}
             onClick={() => onClick(offer.id)}
         >
+            {isUpdating && (
+                <Box
+                    position="absolute"
+                    top={0}
+                    left={0}
+                    right={0}
+                    bottom={0}
+                    bg="whiteAlpha.700"
+                    zIndex={2}
+                    display="flex"
+                    alignItems="center"
+                    justifyContent="center"
+                    borderRadius="lg"
+                >
+                    <Spinner size="md" color="blue.500" />
+                </Box>
+            )}
             <VStack align="stretch" spacing={3}>
                 {/* Header */}
                 <HStack justify="space-between">
@@ -108,10 +140,9 @@ const OfferCard = ({ offer, onClick }) => {
                             {offer.offer_number}
                         </Text>
                     </HStack>
-                    <Badge variant="subtle" colorScheme="gray">
-                        {statusConfigData?.label}
-                    </Badge>
+
                 </HStack>
+
 
                 {/* Location Info */}
                 <VStack align="stretch" spacing={1}>
@@ -122,8 +153,8 @@ const OfferCard = ({ offer, onClick }) => {
                         </Text>
                     </HStack>
                     <HStack spacing={2}>
-                        <Icon as={MapPin} size={14} />
-                        <Text fontSize="xs" noOfLines={1}>
+                        <Icon as={MapPin} size={14} color="red.500" />
+                        <Text fontSize="xs" noOfLines={1} color="red.500" fontWeight="medium">
                             {offer.address || "Manzil yo'q"}
                         </Text>
                     </HStack>
@@ -133,13 +164,13 @@ const OfferCard = ({ offer, onClick }) => {
                 <HStack justify="space-between">
                     <VStack align="start" spacing={0}>
                         <Text fontSize="xs" >Umumiy summa</Text>
-                        <Text fontSize="sm" fontWeight="bold" >
+                        <Text fontSize="sm" fontWeight="bold" color="red.500">
                             {formatCurrency(offer.total_sum)}
                         </Text>
                     </VStack>
                     <VStack align="end" spacing={0}>
                         <Text fontSize="xs" >To'langan</Text>
-                        <Text fontSize="sm" fontWeight="medium" >
+                        <Text fontSize="sm" fontWeight="medium" color="green.500">
                             {formatCurrency(offer.paid_sum)}
                         </Text>
                     </VStack>
@@ -162,6 +193,60 @@ const OfferCard = ({ offer, onClick }) => {
                         </HStack>
                     )}
                 </HStack>
+                <Menu isLazy>
+                    <MenuButton
+                        as={Button}
+                        size="sm"
+                        variant="solid"
+                        colorScheme="blue"
+                        onClick={(e) => e.stopPropagation()}
+                        rightIcon={<Settings size={14} />}
+                        borderRadius="full"
+                        px={4}
+                        boxShadow="sm"
+                        width="80%"
+                        _hover={{
+                            transform: "scale(1.05)",
+                            boxShadow: "md",
+                        }}
+                    >
+                        {statusConfigData?.label}
+                    </MenuButton>
+                    <Portal>
+                        <MenuList zIndex={10} onClick={(e) => e.stopPropagation()}>
+                            <Text px={3} py={1} fontSize="xs" color="gray.500" fontWeight="bold">
+                                Holatni o'zgartirish
+                            </Text>
+                            {prevStatus && (
+                                <MenuItem
+                                    icon={<ChevronLeft size={14} />}
+                                    onClick={(e) => handleStatusUpdate(e, prevStatus.id)}
+                                    fontSize="sm"
+                                >
+                                    Orqaga: {prevStatus.label}
+                                </MenuItem>
+                            )}
+                            <MenuItem
+                                icon={<Check size={14} />}
+                                isDisabled
+                                fontSize="sm"
+                                bg="blue.50"
+                                color="blue.600"
+                            >
+                                Hozirgi: {statusConfigData?.label}
+                            </MenuItem>
+                            {nextStatus && (
+                                <MenuItem
+                                    icon={<ChevronRight size={14} />}
+                                    onClick={(e) => handleStatusUpdate(e, nextStatus.id)}
+                                    fontSize="sm"
+                                >
+                                    Oldinga: {nextStatus.label}
+                                </MenuItem>
+                            )}
+                        </MenuList>
+                    </Portal>
+                </Menu>
             </VStack>
         </Box>
     );
@@ -274,12 +359,13 @@ export default function AllOffers() {
     const [loading, setLoading] = useState(true);
     const [offersData, setOffersData] = useState({});
     const [activeTabIndex, setActiveTabIndex] = useState(0);
+    const [updatingOfferId, setUpdatingOfferId] = useState(null);
     const toast = useToast();
     const navigate = useNavigate();
 
-    const GetAllOffers = async () => {
+    const GetAllOffers = async (showLoading = true) => {
         try {
-            setLoading(true);
+            if (showLoading) setLoading(true);
             const response = await apiOffers?.GelAllOffers(1);
 
             if (response?.data?.data) {
@@ -296,6 +382,35 @@ export default function AllOffers() {
             });
         } finally {
             setLoading(false);
+        }
+    };
+
+    const handleStatusChange = async (offerId, newStatus) => {
+        try {
+            setUpdatingOfferId(offerId);
+            const data = { status: newStatus };
+            await apiOffers?.UpdateStatus(offerId, data);
+
+            toast({
+                title: "Muvaffaqiyatli",
+                description: "Buyurtma holati o'zgartirildi",
+                status: "success",
+                duration: 2000,
+                isClosable: true,
+            });
+
+            await GetAllOffers(false);
+        } catch (error) {
+            console.error("Error updating status:", error);
+            toast({
+                title: "Xatolik",
+                description: "Holatni o'zgartirishda xatolik yuz berdi",
+                status: "error",
+                duration: 3000,
+                isClosable: true,
+            });
+        } finally {
+            setUpdatingOfferId(null);
         }
     };
 
@@ -369,6 +484,8 @@ export default function AllOffers() {
                                         key={offer.id}
                                         offer={offer}
                                         onClick={handleCardClick}
+                                        onStatusChange={handleStatusChange}
+                                        isUpdating={updatingOfferId === offer.id}
                                     />
                                 ))}
                             </SimpleGrid>
