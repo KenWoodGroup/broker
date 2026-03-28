@@ -89,7 +89,7 @@ export default function SiteFormModal({ isOpen, onClose, companyId, site, onSucc
                                     name="director_name"
                                     value={formData.director_name}
                                     onChange={handleChange}
-                                    placeholder="Obyekt nomi"
+                                    placeholder="Direktor ismi"
                                     borderRadius="lg"
                                 />
                             </FormControl>

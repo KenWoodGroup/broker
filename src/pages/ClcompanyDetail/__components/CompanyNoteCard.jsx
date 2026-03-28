@@ -15,7 +15,8 @@ import {
     Button,
     Spinner,
     Center,
-    Divider
+    Divider,
+    Badge
 } from "@chakra-ui/react"
 
 import { FileText, Send, ChevronDown } from "lucide-react"
@@ -24,6 +25,7 @@ import { apiLocationsNote } from "../../../utils/Controllers/apiLocationNotes"
 export default function CompanyNoteCard({ locationId }) {
 
     const [comments, setComments] = useState([])
+    const [totalComments, setTotalComments] = useState(0)
     const [newComment, setNewComment] = useState("")
     const [isLoading, setIsLoading] = useState(true)
     const [isPosting, setIsPosting] = useState(false)
@@ -50,6 +52,7 @@ export default function CompanyNoteCard({ locationId }) {
 
             const newRecords = responseData?.data || []
             const currentTotalPages = responseData?.totalPages || 1
+            setTotalComments(responseData?.total)
 
             if (append) {
                 setComments(prev => [...prev, ...newRecords])
@@ -134,6 +137,9 @@ export default function CompanyNoteCard({ locationId }) {
                     <HStack spacing={2}>
                         <Icon as={FileText} color="blue.500" boxSize={5} />
                         <Heading size="md">Izohlar</Heading>
+                        <Badge colorScheme="blue" borderRadius="full" px={3} py={1}>
+                            {totalComments}
+                        </Badge>
                     </HStack>
 
                 </Flex>
@@ -254,7 +260,6 @@ export default function CompanyNoteCard({ locationId }) {
                     {/* FIXED DIVIDER AND TEXTAREA SECTION */}
                     <Box flexShrink={0}>
                         <Divider mb={4} />
-
                         <Textarea
                             value={newComment}
                             onChange={(e) => setNewComment(e.target.value)}
