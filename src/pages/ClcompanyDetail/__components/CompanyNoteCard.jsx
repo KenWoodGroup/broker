@@ -125,10 +125,10 @@ export default function CompanyNoteCard({ locationId }) {
             overflow="hidden"
             display="flex"
             flexDirection="column"
-            minH="600px"
+            h="600px"
         >
 
-            <CardHeader bg={headerBg} py={4}>
+            <CardHeader bg={headerBg} py={4} flexShrink={0}>
                 <Flex justify="space-between" align="center">
 
                     <HStack spacing={2}>
@@ -143,20 +143,24 @@ export default function CompanyNoteCard({ locationId }) {
                 display="flex"
                 flexDirection="column"
                 flex="1"
+                overflow="hidden"
+                p={4}
             >
 
                 <VStack
                     spacing={4}
                     align="stretch"
                     flex="1"
+                    h="100%"
+                    overflow="hidden"
                 >
 
-                    {/* COMMENTS LIST */}
-
+                    {/* COMMENTS LIST - SCROLLABLE AREA */}
                     <Box
                         flex="1"
                         overflowY="auto"
                         pr={2}
+                        minH={0}
                     >
 
                         {isLoading ? (
@@ -247,11 +251,9 @@ export default function CompanyNoteCard({ locationId }) {
 
                     </Box>
 
-                    <Divider />
-
-                    {/* NEW COMMENT */}
-
-                    <Box>
+                    {/* FIXED DIVIDER AND TEXTAREA SECTION */}
+                    <Box flexShrink={0}>
+                        <Divider mb={4} />
 
                         <Textarea
                             value={newComment}
@@ -262,6 +264,7 @@ export default function CompanyNoteCard({ locationId }) {
                             rows={3}
                             mb={2}
                             bg={useColorModeValue("white", "gray.900")}
+                            resize="vertical"
                         />
 
                         <Flex justify="flex-end">
@@ -279,7 +282,6 @@ export default function CompanyNoteCard({ locationId }) {
                                 Yuborish
                             </Button>
                         </Flex>
-
                     </Box>
 
                 </VStack>

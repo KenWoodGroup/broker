@@ -238,7 +238,7 @@ export default function CartModal({
 
                                     <HStack spacing={6} align="flex-start">
                                         <FormControl isRequired flex={1}>
-                                            <FormLabel fontWeight="medium">Amal qilish muddati</FormLabel>
+                                            <FormLabel fontWeight="medium">Yetkazib berish sanasi</FormLabel>
                                             <Input
                                                 type="date"
                                                 value={offerData.deadline}
@@ -261,12 +261,11 @@ export default function CartModal({
                                         </FormControl>
 
                                         <FormControl flex={1}>
-                                            <FormLabel fontWeight="medium">Eslatma (Note)</FormLabel>
+                                            <FormLabel fontWeight="medium">Yetkazib berish manzili</FormLabel>
                                             <Input
                                                 type="text"
-                                                value={offerData.note}
-                                                onChange={handleNoteChange}
-                                                placeholder="Fast Delivery Co."
+                                                value={offerData.address}
+                                                onChange={handleAddressChange}
                                                 size="md"
                                             />
                                         </FormControl>
@@ -274,11 +273,10 @@ export default function CartModal({
 
                                     {offerData.needLogistics === "ha" && (
                                         <FormControl isRequired>
-                                            <FormLabel fontWeight="medium">Yetkazib berish manzili</FormLabel>
+                                            <FormLabel fontWeight="medium">Eslatma</FormLabel>
                                             <Textarea
-                                                value={offerData.address}
-                                                onChange={handleAddressChange}
-                                                placeholder="To'liq manzilni kiriting..."
+                                                value={offerData.note}
+                                                onChange={handleNoteChange}
                                                 size="md"
                                                 rows={3}
                                             />
