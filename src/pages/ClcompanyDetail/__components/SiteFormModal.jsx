@@ -21,6 +21,7 @@ export default function SiteFormModal({ isOpen, onClose, companyId, site, onSucc
     const [formData, setFormData] = useState({
         name: "",
         address: "",
+        director_name: "",
         phone: '+998',
         type: "construction_site",
         parent_id: companyId
@@ -34,17 +35,10 @@ export default function SiteFormModal({ isOpen, onClose, companyId, site, onSucc
                 address: site.address || "",
                 phone: site.phone || "+998",
                 type: "construction_site",
+                director_name: "",
                 parent_id: companyId
             })
-        } else {
-            setFormData({
-                name: "",
-                address: "",
-                phone: "+998",
-                type: "construction_site",
-                parent_id: companyId
-            })
-        }
+        } 
     }, [site, companyId, isOpen])
 
     const handleChange = (e) => {
@@ -84,6 +78,16 @@ export default function SiteFormModal({ isOpen, onClose, companyId, site, onSucc
                                 <Input
                                     name="name"
                                     value={formData.name}
+                                    onChange={handleChange}
+                                    placeholder="Obyekt nomi"
+                                    borderRadius="lg"
+                                />
+                            </FormControl>
+                            <FormControl isRequired>
+                                <FormLabel>Ismi</FormLabel>
+                                <Input
+                                    name="director_name"
+                                    value={formData.director_name}
                                     onChange={handleChange}
                                     placeholder="Obyekt nomi"
                                     borderRadius="lg"

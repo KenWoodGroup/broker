@@ -70,8 +70,13 @@ export default function CompanyOrders({ id, role }) {
     return (
         <>
             <Flex justify="space-between" align="center" mb={6}>
-                <Heading size="md">Barcha buyurtmalar</Heading>
-
+                <Flex gap={'10px'}>
+                    <Heading size="md">Barcha buyurtmalar </Heading>
+                    <Badge colorScheme="blue" borderRadius="full" px={3} py={1}>
+                        {offers?.pagination?.total_count}
+                    </Badge>
+                </Flex>
+                {console.log(offers?.pagination?.total_count)}
                 <NavLink
                     to={
                         role !== 'Admin'

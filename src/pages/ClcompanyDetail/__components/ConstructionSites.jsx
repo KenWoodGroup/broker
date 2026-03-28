@@ -101,18 +101,20 @@ export default function ConstructionSites({ companyId, role }) {
                                 <Th>Nomi</Th>
                                 <Th>Telefon</Th>
                                 <Th>Manzil</Th>
-                                <Th textAlign="right">Amallar</Th>
+                                {role === "Admin" && (
+                                    <Th textAlign="right">Amallar</Th>
+                                )}
                             </Tr>
                         </Thead>
                         <Tbody>
                             {sites.map((site) => (
-                                <Tr key={site.id} _hover={{ bg: "gray.50" }} _dark={{ _hover: { bg: "gray.750" } }} transition="background 0.2s">
+                                <Tr key={site.id} _hover={{ bg: "gray.50" }} _dark={{ _hover: { bg: "gray" } }} transition="background 0.2s">
                                     <Td fontWeight="medium">{site.name}</Td>
                                     <Td>{site.phone || "—"}</Td>
                                     <Td>{site.address || "—"}</Td>
 
-                                    <Td textAlign="right">
-                                        {role === "Admin" && (
+                                    {role === "Admin" && (
+                                        <Td textAlign="right">
                                             <HStack justify="flex-end" spacing={2}>
                                                 <IconButton
                                                     icon={<Edit size={16} />}
@@ -131,8 +133,8 @@ export default function ConstructionSites({ companyId, role }) {
                                                     onClick={() => handleDeleteClick(site)}
                                                 />
                                             </HStack>
-                                        )}
-                                    </Td>
+                                        </Td>
+                                    )}
                                 </Tr>
                             ))}
                         </Tbody>

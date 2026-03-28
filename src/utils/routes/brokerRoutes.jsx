@@ -1,4 +1,6 @@
+import AllOffers from "../../pages/AllOffers";
 import BRhome from "../../pages/BRhome/BRhome";
+import BROffersDetail from "../../pages/BROffersDetail";
 import Offers from "../../pages/Offers/Offers";
 import OffersDetail from "../../pages/OffersDetail/OffersDetail";
 
@@ -12,12 +14,13 @@ const brokerRoutes = [
     {
         name: "br offers",
         path: "offers",
-        element: <Offers link="/operator/offers/" status={`price_review`} />
+        element: <AllOffers />
+        // element: <Offers link="/operator/offers/" status={`price_review`} />
     },
     {
         name: "br offer detail",
         path: "offers/:id",
-        element: <OffersDetail status={'pending_confirmation'} />
+        element: <BROffersDetail />
     },
 
 ];
