@@ -101,6 +101,7 @@ const OfferCard = ({ offer, onClick, onStatusChange, isUpdating }) => {
     return (
         <Box
             p={4}
+            width={'100%'}
             borderRadius="lg"
             border="1px solid"
             borderColor="gray.200"
@@ -267,7 +268,7 @@ const TabSwiper = ({ tabs, activeIndex, onTabChange, counts }) => {
         <Box position="relative" w="100%">
             {/* Left Navigation Button */}
             <IconButton
-                icon={<Icon as={ChevronLeft} size={20} />}
+                icon={<Icon as={ChevronLeft} size={20} />}  
                 position="absolute"
                 left={-2}
                 top="50%"
@@ -443,7 +444,7 @@ export default function AllOffers() {
         <Box minH="100vh" >
             {/* Header */}
             <Box borderBottom="1px solid" borderColor="gray.200" position="sticky" top={0} zIndex={10}>
-                <Box maxW="1400px" mx="auto" px={6} py={4}>
+                <Box mx="auto" px={6} py={4}>
                     <VStack align="stretch" spacing={4}>
                         <Box>
                             <Building2Icon size={24} color="#3182CE" />
@@ -467,7 +468,7 @@ export default function AllOffers() {
             </Box>
 
             {/* Content */}
-            <Box maxW="1400px" mx="auto" px={6} py={6}>
+            <Box  mx="auto" px={6} py={6}>
                 {statusConfig.map((status, idx) => (
                     <Box
                         key={status.id}
