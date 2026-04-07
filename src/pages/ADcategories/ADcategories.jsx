@@ -6,7 +6,9 @@ import {
     Input,
     InputGroup,
     InputRightElement,
-    IconButton
+    IconButton,
+    Badge,
+    Spinner
 } from "@chakra-ui/react";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { ChevronLeft, ChevronRight, Search, X } from "lucide-react";
@@ -19,12 +21,13 @@ import { useNavigate } from "react-router";
 
 const CATEGORY_PAGE_KEY = "categories_page";
 
-export default function ADcategories({ reloadDependance, role='admin' }) {
+export default function ADcategories({ reloadDependance, role = 'admin' }) {
     const navigate = useNavigate();
 
     const [categories, setCategories] = useState([]);
     const [loading, setLoading] = useState(false);
     const [totalPage, setTotalPage] = useState(1);
+    const [totalCount, setTotalCount] = useState(0);
 
     /* ---------------- pagination (sessionStorage) ---------------- */
     const [page, setPage] = useState(() => {
@@ -57,7 +60,7 @@ export default function ADcategories({ reloadDependance, role='admin' }) {
             const res = await apiCategories.pageAll(page, searchText);
             setCategories(res.data.records);
             setTotalPage(res.data.pagination.total_pages);
-
+            setTotalCount(res.data.pagination.total_count);
         } finally {
             setLoading(false);
         }
@@ -99,31 +102,52 @@ export default function ADcategories({ reloadDependance, role='admin' }) {
     return (
         <Box pr={"20px"} pb={"20px"}>
             {/* Header */}
-            <CategoriesHeader onReload={()=>fetchCategories(page, debouncedSearch)} role={role}/>
+            <CategoriesHeader onReload={() => fetchCategories(page, debouncedSearch)} role={role} />
 
             {/* Search */}
-            <Box mb="20px" maxW="360px">
-                <InputGroup>
-                    <Input
-                        placeholder="Search categories..."
-                        value={search}
-                        onChange={(e) => setSearch(e.target.value)}
-                    />
-                    <InputRightElement>
-                        {search ? (
-                            <IconButton
-                                size="sm"
-                                variant="ghost"
-                                icon={<X size={16} />}
-                                aria-label="Clear"
-                                onClick={() => setSearch("")}
-                            />
+            <Flex alignItems={'center'} mb="20px" gap={4}>
+                <Box  maxW="360px">
+                    <InputGroup>
+                        <Input
+                            placeholder="Search categories..."
+                            value={search}
+                            onChange={(e) => setSearch(e.target.value)}
+                        />
+                        <InputRightElement>
+                            {search ? (
+                                <IconButton
+                                    size="sm"
+                                    variant="ghost"
+                                    icon={<X size={16} />}
+                                    aria-label="Clear"
+                                    onClick={() => setSearch("")}
+                                />
+                            ) : (
+                                <Search size={16} />
+                            )}
+                        </InputRightElement>
+                    </InputGroup>
+                </Box>
+                {/* Total count — always visible */}
+                <Flex align="center" gap={2}>
+                    <Badge
+                        colorScheme="blue"
+                        px={3}
+                        py={1}
+                        borderRadius="full"
+                        fontSize="sm"
+                        fontWeight="semibold"
+                    >
+                        {loading ? (
+                            <Flex align="center" gap={1}>
+                                <Spinner size="xs" /> <span>Yuklanmoqda...</span>
+                            </Flex>
                         ) : (
-                            <Search size={16} />
+                            `Jami: ${totalCount ?? "-"} ta kategoriya`
                         )}
-                    </InputRightElement>
-                </InputGroup>
-            </Box>
+                    </Badge>
+                </Flex>
+            </Flex>
 
             {/* Cards */}
             <SimpleGrid columns={{ base: 1, md: 2, xl: 3 }} spacing="20px">
@@ -136,10 +160,10 @@ export default function ADcategories({ reloadDependance, role='admin' }) {
                             key={cat.id}
                             category={cat}
                             onEdit={() => fetchCategories(page, debouncedSearch)}
-                            onDelete={() =>fetchCategories(page, debouncedSearch)}
+                            onDelete={() => fetchCategories(page, debouncedSearch)}
                             onOpen={() => {
                                 //category factories sahifasiga
-                                switch(role) {
+                                switch (role) {
                                     case 'admin':
                                         navigate(`/factories/categories/${cat.id}?name=${encodeURIComponent(cat?.name)}`)
                                         break;
