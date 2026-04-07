@@ -5,8 +5,8 @@ class apiLocations {
         const response = await $api.get(`${BASE_URL}/api/erp/locations/type/${locType}/${searchText}/page?page=${page}`)
         return response;
     }
-    static pageAllFilteredFarctories = async (page, searchText, address) => {
-        const response = await $api.get(`${BASE_URL}/api/erp/address?address=${address}&searchName=${searchText}&page=${page}`)
+    static pageAllFilteredFarctories = async (params) => {
+        const response = await $api.get(`${BASE_URL}/api/erp/filter/page?${params.toString()}`)
         return response;
     }
     static pageFactoryWarehouses = async (page, factoryId) => {

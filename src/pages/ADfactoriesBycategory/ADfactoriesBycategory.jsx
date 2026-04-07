@@ -15,6 +15,8 @@ import {
     TagCloseButton,
     Divider,
     Select,
+    Spinner,
+    Badge,
 } from "@chakra-ui/react";
 import React, { useEffect, useState, useCallback, useRef } from "react";
 import { ChevronLeft, ChevronRight, Search, X, Link2, Save } from "lucide-react";
@@ -44,6 +46,7 @@ export default function ADfactoriesBycategory({ reloadDependance, role = 'admin'
     const [loading, setLoading] = useState(false);
     const [saveLoading, setSaveLoading] = useState(false)
     const [totalPage, setTotalPage] = useState(1);
+    const [totalCount, setTotalCount] = useState(0);
 
     /* ---------------- join mode ---------------- */
     const [joinMode, setJoinMode] = useState(false);
@@ -109,7 +112,7 @@ export default function ADfactoriesBycategory({ reloadDependance, role = 'admin'
 
                 setFactories(res.data.data.records);
                 setTotalPage(res.data.data.pagination.total_pages);
-
+                setTotalCount(res.data.data.pagination.total_count);
             } catch (err) {
                 if (joinMode) {
                     setJoinMode(false)
@@ -280,7 +283,7 @@ export default function ADfactoriesBycategory({ reloadDependance, role = 'admin'
 
             {/* Search */}
             <Flex mb="20px" alignItems={'center'} gap={4}>
-                <Box maxW="400px">
+                <Flex maxW="400px" gap={4}>
                     <InputGroup>
                         <Input
                             placeholder="Search factories..."
@@ -301,7 +304,26 @@ export default function ADfactoriesBycategory({ reloadDependance, role = 'admin'
                             )}
                         </InputRightElement>
                     </InputGroup>
-                </Box>
+                    {/* Total count — always visible */}
+                    <Flex align="center" gap={2}>
+                        <Badge
+                            colorScheme="blue"
+                            px={3}
+                            py={1}
+                            borderRadius="full"
+                            fontSize="sm"
+                            fontWeight="semibold"
+                        >
+                            {loading ? (
+                                <Flex align="center" gap={1}>
+                                    <Spinner size="xs" /> <span>Yuklanmoqda...</span>
+                                </Flex>
+                            ) : (
+                                `Jami: ${totalCount ?? "-"} ta zavod`
+                            )}
+                        </Badge>
+                    </Flex>
+                </Flex>
                 <Select
                     value={selectedRegion}
                     onChange={(e) => {

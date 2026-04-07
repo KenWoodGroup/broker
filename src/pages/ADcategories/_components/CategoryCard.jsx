@@ -5,8 +5,10 @@ import {
     IconButton,
     useColorModeValue,
     useDisclosure,
+    HStack,
+    Icon,
 } from "@chakra-ui/react";
-import { Layers, Pencil, Trash2 } from "lucide-react";
+import { Layers, LucideFactory, Pencil, Trash2 } from "lucide-react";
 import React, { useState } from "react";
 import EditCategoryButton from "./EditCategoryButton";
 import ConfirmDelModal from "../../../components/common/ConfirmDelModal";
@@ -99,6 +101,12 @@ const CategoryCard = React.memo(function CategoryCard({
             <Text fontWeight="600" fontSize="lg" noOfLines={2}>
                 {category?.name || "-"}
             </Text>
+            <HStack>
+                <Icon as={LucideFactory}/>
+                <Text>
+                    {category?.location_count ?? "-"}
+                </Text>
+            </HStack>
             <ConfirmDelModal
                 isOpen={confirmDelModal.isOpen}
                 onClose={confirmDelModal.onClose}
