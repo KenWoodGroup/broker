@@ -24,6 +24,7 @@ import { apiStock } from "../../../utils/Controllers/apiStock";
 export default function SalePriceEditButton({ salePriceTypes = [], onSave }) {
     const toast = useToast();
 
+    console.log(salePriceTypes)
     const [isOpen, setIsOpen] = useState(false);
     const [selectedTypeId, setSelectedTypeId] = useState("");
     const [oldPrice, setOldPrice] = useState("");
@@ -50,7 +51,7 @@ export default function SalePriceEditButton({ salePriceTypes = [], onSave }) {
         setNewPrice(selected ? selected.sale_price : "");
     }, [selectedTypeId, salePriceTypes]);
 
-    const handleSave =  async () => {
+    const handleSave = async () => {
         if (!selectedTypeId || !newPrice) {
             toast({
                 title: "Error",
@@ -64,13 +65,13 @@ export default function SalePriceEditButton({ salePriceTypes = [], onSave }) {
 
         setSaving(true);
         try {
-            const id = salePriceTypes?.find((item)=> item?.price_type?.id === selectedTypeId)?.id;
+            const id = salePriceTypes?.find((item) => item?.price_type?.id === selectedTypeId)?.id;
             const payload = {
                 sale_price: +newPrice
             }
-            await apiStock.UpdateSalePrice(id, payload);
+            await apiStock.UpdateSalePrice(id, payload, salePriceTypes[0]?.id);
             onSave()
-        }finally {
+        } finally {
             setSaving(false)
         }
         closeModal();
@@ -129,7 +130,7 @@ export default function SalePriceEditButton({ salePriceTypes = [], onSave }) {
                             <Button variant="ghost" onClick={closeModal}>
                                 Bekor qilish
                             </Button>
-                            <Button 
+                            <Button
                                 isLoading={saving}
                                 loadingText="Saqlanmoqda..."
                                 colorScheme="blue" onClick={handleSave}
