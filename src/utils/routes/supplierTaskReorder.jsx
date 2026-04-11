@@ -1,5 +1,4 @@
-import AdtaskReorder from "../../pages/AdtaskReorder/AdtaskReorder";
-
+import AdtaskReorder from "../../pages/ADtaskReorder/AdtaskReorder"
 // hello world
 const supplierTaskReorder = [
     {
