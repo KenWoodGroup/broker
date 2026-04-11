@@ -185,7 +185,8 @@ function TaskDetailsModal({ isOpen, onClose, details }) {
                     ) : (
                         <VStack align="stretch" spacing={4}>
                             {productName ? (
-                                <Box
+                                <>
+                                  <Box
                                     p={4}
                                     borderRadius="lg"
                                     bg={panelBg}
@@ -206,6 +207,9 @@ function TaskDetailsModal({ isOpen, onClose, details }) {
                                         {String(productName)}
                                     </Text>
                                 </Box>
+                                
+                                </>
+                              
                             ) : null}
 
                             {restEntries.length > 0 ? (
@@ -283,7 +287,6 @@ function TaskCard({ row }) {
                 borderRadius="lg"
                 border="1px solid"
                 borderColor={borderColor}
-                padding
                 bg="surface"
                 transition="all 0.25s ease"
                 _hover={{
@@ -477,7 +480,7 @@ export default function AllTasks() {
     return (
         <Box p={6}>
             <Heading size="lg" mb={4}>
-                Mening vazifalarim
+                Vazifalar
             </Heading>
 
             <HStack spacing={4} mb={4} flexWrap="wrap">
