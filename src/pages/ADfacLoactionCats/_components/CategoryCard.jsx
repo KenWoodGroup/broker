@@ -78,7 +78,6 @@ const CategoryCard = React.memo(function CategoryCard({
                 <Text fontWeight="600" fontSize="lg">
                     {category?.name || "-"}
                 </Text>
-                
             </VStack>
 
             <ConfirmDelModal isOpen={confirmModal.isOpen} onClose={confirmModal.onClose} onConfirm={deletePair} itemName={category?.name} loading={loading} typeItem={"category from factory"}/>

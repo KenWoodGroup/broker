@@ -8,51 +8,53 @@ import UsersPage from "../../pages/ADfacUsers/ADfacUsers";
 import WarehousesPage from "../../pages/ADfacWarehouses/ADfacWarehouses";
 import WarehouseStockPage from "../../pages/ADfacWarehouseStock/ADfacWarehouseStock";
 
+
 const adminFacRoutes = [
-    {
-        name: "ad fac products",
-        path: 'products',
-        element: <ADfacProducts />
-    },
-    {
-        name: "ad fac categories",
-        path: "",
-        element: <ADfacLocalCats role={'admin'}/>
-    },
-    {
-        name: "ad fac products by category",
-        path: 'category/:categoryId',
-        element: <ADfacProductsByCategory />
-    },
-    {
-        name:"ad categories bs factory",
-        path:"categories",
-        element:<ADcategoriesByFactory/>
-    },
-    {
-        name:"ad factory options",
-        path:'options',
-        element:<FactoryOptionsPage/>
-    },
-    {
-        name:'ad factory warehouses',
-        path:'warehouses',
-        element:<WarehousesPage/>
-    },
-    {
-        name:'ad factory warehouse stock',
-        path:'warehouses/:warehouseId',
-        element:<WarehouseStockPage/>
-    },
-    {
-        name:'ad factory clients',
-        path:'clients',
-        element:<ClientsPage/>
-    },
-    {
-        name:'ad factory users',
-        path:'users',
-        element:<UsersPage role={'admin'}/>
-    }
+  {
+    name: "ad fac products",
+    path: "products",
+    element: <ADfacProducts />,
+  },
+  {
+    name: "ad fac categories",
+    path: "",
+    element: <ADfacLocalCats role={"admin"} />,
+  },
+  {
+    name: "ad fac products by category",
+    path: "category/:categoryId",
+    element: <ADfacProductsByCategory />,
+  },
+  {
+    name: "ad categories bs factory",
+    path: "categories",
+    element: <ADcategoriesByFactory />,
+  },
+  {
+    name: "ad factory options",
+    path: "options",
+    element: <FactoryOptionsPage />,
+  },
+  {
+    name: "ad factory warehouses",
+    path: "warehouses",
+    element: <WarehousesPage />,
+  },
+  {
+    name: "ad factory warehouse stock",
+    path: "warehouses/:warehouseId",
+    element: <WarehouseStockPage />,
+  },
+  {
+    name: "ad factory clients",
+    path: "clients",
+    element: <ClientsPage />,
+  },
+  {
+    name: "ad factory users",
+    path: "users",
+    element: <UsersPage role={"admin"} />,
+  },
+  
 ];
-export default adminFacRoutes
+export default adminFacRoutes;

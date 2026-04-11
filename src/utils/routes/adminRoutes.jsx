@@ -12,7 +12,6 @@ import SPoperators from "../../pages/SPoperators/SPoperators";
 import ADhome from "../../pages/ADhome/ADhome";
 import RolesPage from "../../pages/ADworkers/ADworkers";
 import ADsuppliers from "../../pages/ADsuplliers/ADsuppliers";
-import LeadFactory from "../../pages/LeadFactory";
 
 const adminRoutes = [
     {
@@ -74,13 +73,7 @@ const adminRoutes = [
         name:'roles',
         path:'roles',
         element:<RolesPage/>
-    },
-        {
-        name:'lead-factory',
-        path:'lead-factory',
-        element:<LeadFactory/>
     }
-
 
 ];
 

@@ -209,7 +209,7 @@ export default function Clcompany({ role }) {
             {/* Фильтры */}
             <Flex mb="20px" gap={4} wrap="wrap">
                 {/* Поиск */}
-                <Flex flex="1" minW="200px" maxW="600px" gap={4} mr={8}>
+                <Box flex="1" minW="200px" maxW="400px">
                     <InputGroup>
                         <InputLeftElement pointerEvents="none">
                             <Search size={18} color="gray" />
@@ -220,26 +220,7 @@ export default function Clcompany({ role }) {
                             onChange={handleSearchChange}
                         />
                     </InputGroup>
-                    {/* Total count — always visible */}
-                    <Flex align="center" gap={2}>
-                        <Badge
-                            colorScheme="blue"
-                            px={3}
-                            py={1}
-                            borderRadius="full"
-                            fontSize="sm"
-                            fontWeight="semibold"
-                        >
-                            {loading ? (
-                                <Flex align="center" gap={1}>
-                                    <Spinner size="xs" /> <span>Yuklanmoqda...</span>
-                                </Flex>
-                            ) : (
-                                `Jami: ${pagination?.total_count ?? "-"} ta quruvchi`
-                            )}
-                        </Badge>
-                    </Flex>
-                </Flex>
+                </Box>
 
                 {/* Регион */}
                 <Box w="300px">

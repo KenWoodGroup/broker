@@ -37,7 +37,7 @@ export default function Sidebar({ collapsed, links = [], end }) {
     const setCollapsed = useUIStore((s) => s.toggleSidebar);
     const { logout } = useAuth();
     const { user } = useAuthStore();
-    const { i18n } = useTranslation();
+    const { i18n } = useTranslation()
     const selectLanguage = (lang) => {
         changeLanguage(lang);
         localStorage.setItem("lang", lang);
@@ -105,7 +105,7 @@ export default function Sidebar({ collapsed, links = [], end }) {
             <VStack align="stretch">
                 <VStack spacing={1} py={3} align="stretch">
                     {/* Language Switch */}
-
+                    
 
                     {/* Theme Switch */}
                     <Flex

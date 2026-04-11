@@ -8,6 +8,7 @@ import UsersPage from "../../pages/ADfacUsers/ADfacUsers";
 import WarehousesPage from "../../pages/ADfacWarehouses/ADfacWarehouses";
 import WarehouseStockPage from "../../pages/ADfacWarehouseStock/ADfacWarehouseStock";
 
+
 const supplierFacRoutes = [
     {
         name: "ad fac products",
@@ -53,6 +54,7 @@ const supplierFacRoutes = [
         name:'ad factory users',
         path:'users',
         element:<UsersPage role={'supplier'}/>
-    }
+    },
+  
 ];
 export default supplierFacRoutes
