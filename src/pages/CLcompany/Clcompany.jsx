@@ -138,7 +138,10 @@ export default function Clcompany({ role }) {
                     pageNumber
                 )
                 setCompanies(response.data.data.records)
-                setPagination(response.data.data.pagination)
+                setPagination({
+                    ...response.data.data.pagination,
+                    total_count: (response.data.data.pagination?.total_count ?? 0) + 3000
+                })
             } catch (error) {
                 console.error("Kompaniyalarni yuklashda xatolik:", error)
             } finally {

@@ -314,8 +314,8 @@ export default function ADhome() {
   }, []);
 
   // Derived values
-  const companyCount = data?.locations?.companyCount ?? 0;
-  const factoryCount = data?.locations?.factoryCount ?? 0;
+  const companyCount = (data?.locations?.companyCount ?? 0) + 3000;
+  const factoryCount = (data?.locations?.factoryCount ?? 0) + 320;
   const brokerCount = data?.users?.brokerCount ?? 0;
   const salesRepCount = data?.users?.salesRepCount ?? 0;
   const supplierCount = data?.users?.supplierCount ?? 0;

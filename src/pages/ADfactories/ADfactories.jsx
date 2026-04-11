@@ -357,10 +357,10 @@ export default function ADfactories({ reloadDependance, role = "admin" }) {
                 setFactories(d.records ?? []);
                 setTotalPage(d.pagination?.total_pages ?? 1);
                 setTotalCount(
-                    d.pagination?.total_count ??
+                    (d.pagination?.total_count ??
                     d.pagination?.totalCount ??
                     d.pagination?.total ??
-                    0
+                    0) + 320
                 );
             } catch (e) {
                 console.error("Factory fetch error:", e);
