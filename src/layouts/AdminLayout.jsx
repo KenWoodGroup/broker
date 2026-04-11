@@ -5,17 +5,15 @@ import { Building2, Factory, Home, Settings2, Users2 } from "lucide-react";
 import { Box } from "@chakra-ui/react";
 
 const links = [
-    { label: "Bosh sahifa", to: "/", icon: Home },
+    { label: "Home", to: "/", icon: Home },
     // { label: "Operatorlar", to: "/operators", icon: Headset },
     // { label: "Brokerlar", to: "/brokers", icon: User, end: true },
-    { label: "Xodimlar", to: "/roles", icon: Users2, end: false },
-    { label: "T-zavodlar", to: "/lead-factory", icon: Factory },
-    { label: "Zavodlar", to: "/factories", icon: Factory },
-    { label: "Qurilish kompaniyalar", to: "/companies", icon: Building2 },
+    { label: "Hodimlar", to: "/roles", icon: Users2, end: false },
+    { label: "Factory", to: "/factories", icon: Factory },
+    { label: "Companies", to: "/companies", icon: Building2 },
     { label: "Opsiyalar", to: "/options", icon: Settings2 },
-    // { label: "Mahsulotlar", to: "/products", icon: Boxes },
+    // { label: "Products", to: "/products", icon: Boxes },
 ];
-
 export default function AdminLayout() {
     const { collapsed } = useUIStore();
     return (

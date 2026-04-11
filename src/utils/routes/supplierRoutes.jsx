@@ -16,8 +16,8 @@ const supplierRoutes = [
         element:<CLOffersCreate role="supplier"/>
     },
     {
-        path: 'factories',
         name: "factories splr",
+        path: 'factories',
         element: <ADfactories role="supplier"/>
     },
     {
@@ -30,5 +30,7 @@ const supplierRoutes = [
         name: "factories by category",
         element: <ADfactoriesBycategory role='supplier'/>
     },
+
+
 ];
 export default supplierRoutes

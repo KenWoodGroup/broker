@@ -1,101 +1,118 @@
-import { Route, Routes } from 'react-router'
-import './App.css'
-import Login from './pages/Login/Login'
-import RequireAuth from './auth/RequireAuth'
-import AdminLayout from './layouts/AdminLayout'
-import adminRoutes from './utils/routes/adminRoutes'
-import { Toaster } from 'react-hot-toast'
-import ErrorPage from './pages/ErrorPage'
-import SuperAdminLayout from './layouts/SuperAdminLayout'
-import superAdminRoutes from './utils/routes/superAdminRoutes'
-import BrokerLayout from './layouts/BrokerLayout'
-import brokerRoutes from './utils/routes/brokerRoutes'
-import AdminFactoryLayout from './layouts/AdminFactoryLayout'
-import adminFacRoutes from './utils/routes/adminFacRoutes'
-import CallOperRoutes from './utils/routes/call-operatorRoutes'
-import CallOperatorLayout from './layouts/CallOperatorLayout'
-import SupplierLayout from './layouts/SupplierLayout'
-import supplierRoutes from './utils/routes/supplierRoutes'
-import useGlobalHotkeys from './hooks/useGlobalHotkeys'
-import SupplierFactoryLayout from './layouts/SupplierFactoryLayout'
-import supplierFacRoutes from './utils/routes/supplierFacRoutes'
-
+import { Navigate, Route, Routes } from "react-router";
+import "./App.css";
+import Login from "./pages/Login/Login";
+import RequireAuth from "./auth/RequireAuth";
+import AdminLayout from "./layouts/AdminLayout";
+import adminRoutes from "./utils/routes/adminRoutes";
+import { Toaster } from "react-hot-toast";
+import ErrorPage from "./pages/ErrorPage";
+import SuperAdminLayout from "./layouts/SuperAdminLayout";
+import superAdminRoutes from "./utils/routes/superAdminRoutes";
+import BrokerLayout from "./layouts/BrokerLayout";
+import brokerRoutes from "./utils/routes/brokerRoutes";
+import AdminFactoryLayout from "./layouts/AdminFactoryLayout";
+import adminFacRoutes from "./utils/routes/adminFacRoutes";
+import CallOperRoutes from "./utils/routes/call-operatorRoutes";
+import CallOperatorLayout from "./layouts/CallOperatorLayout";
+import SupplierLayout from "./layouts/SupplierLayout";
+import supplierRoutes from "./utils/routes/supplierRoutes";
+import useGlobalHotkeys from "./hooks/useGlobalHotkeys";
+import SupplierFactoryLayout from "./layouts/SupplierFactoryLayout";
+import supplierFacRoutes from "./utils/routes/supplierFacRoutes";
+import TasksLayout from "./layouts/TasksLayout";
+import supplierTaskPrice from "./utils/routes/supplierTaskPrice";
+import supplierTaskReorder from "./utils/routes/supplierTaskReorder";
+import TaskReorderLayout from "./layouts/TaskReorderLayout";
 
 function App() {
   useGlobalHotkeys();
   return (
     <>
       <Routes>
-        <Route path='/login' element={<Login />} />
+        <Route path="/login" element={<Login />} />
         <Route element={<RequireAuth role={"SuperAdmin"} />}>
-          <Route path='/superadmin' element={<SuperAdminLayout />}>
+          <Route path="/superadmin" element={<SuperAdminLayout />}>
             {superAdminRoutes.map((r) => {
-              return (
-                <Route key={r.name} path={r.path} element={r.element} />
-              )
+              return <Route key={r.name} path={r.path} element={r.element} />;
             })}
           </Route>
         </Route>
         <Route element={<RequireAuth role={"Admin"} />}>
-          <Route path='/' element={<AdminLayout />}>
+          <Route path="/" element={<AdminLayout />}>
             {adminRoutes.map((r) => {
-              return (
-                <Route key={r.name} path={r.path} element={r.element} />
-              )
+              return <Route key={r.name} path={r.path} element={r.element} />;
             })}
-            <Route path='/factories/:factoryId' element={<AdminFactoryLayout />}>
+            <Route
+              path="/factories/:factoryId"
+              element={<AdminFactoryLayout />}
+            >
               {adminFacRoutes.map((r) => {
-                return (
-                  <Route key={r.name} path={r.path} element={r.element} />
-                )
+                return <Route key={r.name} path={r.path} element={r.element} />;
               })}
             </Route>
           </Route>
         </Route>
         <Route element={<RequireAuth role={"Supplier"} />}>
-          <Route path='/supplier' element={<SupplierLayout />}>
+          <Route path="/supplier" element={<SupplierLayout />}>
             {supplierRoutes.map((r) => {
-              return (
-                <Route key={r.name} path={r.path} element={r.element} />
-              )
+              return <Route key={r.name} path={r.path} element={r.element} />;
             })}
-            <Route path='/supplier/factories/:factoryId' element={<SupplierFactoryLayout />}>
+            <Route
+              path="/supplier/factories/:factoryId"
+              element={<SupplierFactoryLayout />}
+            >
               {supplierFacRoutes.map((r) => {
-                return (
-                  <Route key={r.name} path={r.path} element={r.element} />
-                )
+                return <Route key={r.name} path={r.path} element={r.element} />;
               })}
+            </Route>
+            <Route path="/supplier/taskprice" element={<TasksLayout />}>
+              <Route index element={<Navigate to="pending" replace />} />
+              {supplierTaskPrice.map((task) => {
+                return (
+                  <Route
+                    key={task.name}
+                    path={task.path}
+                    element={task.element}
+                  />
+                );
+              })}
+            </Route>
+            <Route path="/supplier/taskreorder" element={<TaskReorderLayout />}>
+              <Route index element={<Navigate to="pending" replace />} />
+              {supplierTaskReorder.map((task) => (
+                <Route
+                  key={task.name}
+                  path={task.path}
+                  element={task.element}
+                />
+              ))}
             </Route>
           </Route>
         </Route>
         <Route element={<RequireAuth role={"Broker"} />}>
-          <Route path='/operator' element={<BrokerLayout />}>
+          <Route path="/operator" element={<BrokerLayout />}>
             {brokerRoutes.map((r) => {
-              return (
-                <Route key={r.name} path={r.path} element={r.element} />
-              )
+              return <Route key={r.name} path={r.path} element={r.element} />;
             })}
           </Route>
         </Route>
         <Route element={<RequireAuth role={"operator"} />}>
-          <Route path='/call-operator' element={<CallOperatorLayout />}>
+          <Route path="/call-operator" element={<CallOperatorLayout />}>
             {CallOperRoutes.map((r) => {
-              return (
-                <Route key={r.name} path={r.path} element={r.element} />
-              )
+              return <Route key={r.name} path={r.path} element={r.element} />;
             })}
           </Route>
         </Route>
-        <Route path='*' element={<ErrorPage />} />
+        <Route path="*" element={<ErrorPage />} />
       </Routes>
       <Toaster
-        position='top-center'
+        position="top-center"
         toastOptions={{
           duration: 3000,
         }}
       />
     </>
-  )
+  );
 }
 
-export default App
+export default App;
