@@ -60,7 +60,6 @@ export default function Sidebar({ collapsed, links = [], end }) {
             top={0}
             zIndex={1000}
         >
-            {/* COLLAPSE TOGGLE BUTTON */}
             <Button
                 position="absolute"
                 right="0px"
