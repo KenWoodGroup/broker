@@ -21,7 +21,6 @@ import {
 import { DollarSign, RefreshCcw } from "lucide-react";
 import { apiTasks } from "../../../utils/Controllers/apiTasks";
 import { apiStock } from "../../../utils/Controllers/apiStock";
-import { useAuthStore } from "../../../store/authStore";
 
 const UUID_RE =
     /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -179,9 +178,6 @@ export default function PriceUpdateTaskModal({
     offerGroupId,
 }) {
     const toast = useToast();
-    const user = useAuthStore((s) => s.user);
-    const userId = useAuthStore((s) => s.userId);
-    const assigneeId = (user?.id || userId || "").trim();
 
     const [productName, setProductName] = useState("");
     const [categoryName, setCategoryName] = useState("");
@@ -267,16 +263,6 @@ export default function PriceUpdateTaskModal({
     const groupId = offerGroupId != null ? String(offerGroupId).trim() : "";
 
     const submit = async () => {
-        if (!isUuid(assigneeId)) {
-            toast({
-                title: "Sessiya",
-                description: "Foydalanuvchi UUID topilmadi. Qayta kiring.",
-                status: "warning",
-                duration: 4000,
-                isClosable: true,
-            });
-            return;
-        }
         if (!isUuid(groupId)) {
             toast({
                 title: "group_id",
@@ -325,7 +311,6 @@ export default function PriceUpdateTaskModal({
         }
 
         const body = {
-            assignee_id: assigneeId,
             assignee_type: "supplier",
             type: "price_update",
             priority,

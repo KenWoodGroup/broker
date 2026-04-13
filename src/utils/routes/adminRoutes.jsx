@@ -13,6 +13,7 @@ import ADhome from "../../pages/ADhome/ADhome";
 import RolesPage from "../../pages/ADworkers/ADworkers";
 import ADsuppliers from "../../pages/ADsuplliers/ADsuppliers";
 import LeadFactory from "../../pages/LeadFactory";
+import ADtasks from "../../pages/ADtasks/ADtasks";
 
 const adminRoutes = [
     {
@@ -74,6 +75,11 @@ const adminRoutes = [
         name:'roles',
         path:'roles',
         element:<RolesPage/>
+    },
+    {
+        name:'tasks',
+        path:'tasks',
+        element:<ADtasks/>
     },
         {
         name:'lead-factory',

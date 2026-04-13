@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { apiOffers } from "../../utils/Controllers/Offers";
 import { useParams } from "react-router-dom";
-import { useAuthStore } from "../../store/authStore";
 import {
     Box,
     Card,
@@ -109,8 +108,6 @@ const statusConfig = [
 
 // Stock Search Component
 const ProductStockSearch = ({ product, onSelectStocks, offer }) => {
-    const user = useAuthStore((s) => s.user);
-    const userId = useAuthStore((s) => s.userId);
     const {
         isOpen: isPriceTaskOpen,
         onOpen: onPriceTaskOpen,
@@ -171,7 +168,6 @@ const ProductStockSearch = ({ product, onSelectStocks, offer }) => {
     };
 
     const createReorderTask = async () => {
-        const assigneeId = (user?.id || userId || "").trim();
         const groupId = (offer?.id || "").trim();
         const productName = (product?.product_name || "").trim();
         const categoryName =
@@ -183,17 +179,6 @@ const ProductStockSearch = ({ product, onSelectStocks, offer }) => {
         const stockId = (firstStock?.id || "").trim();
         const warehouseId = (firstStock?.location_id || firstStock?.location?.id || "").trim();
         const factoryId = (firstStock?.location?.parent?.id || "").trim();
-
-        if (!assigneeId) {
-            toast({
-                title: "Sessiya",
-                description: "Foydalanuvchi UUID topilmadi. Qayta kiring.",
-                status: "warning",
-                duration: 4000,
-                isClosable: true,
-            });
-            return;
-        }
 
         if (!groupId) {
             toast({
@@ -218,7 +203,6 @@ const ProductStockSearch = ({ product, onSelectStocks, offer }) => {
         }
 
         const payload = {
-            assignee_id: assigneeId,
             assignee_type: "supplier",
             type: "reorder",
             priority: "normal",

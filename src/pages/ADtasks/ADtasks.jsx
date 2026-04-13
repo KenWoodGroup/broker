@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
     Box,
     Heading,
@@ -23,6 +23,7 @@ import {
     IconButton,
     useDisclosure,
     Divider,
+    Flex,
 } from "@chakra-ui/react";
 import {
     ChevronLeft,
@@ -36,9 +37,12 @@ import {
     Users,
     Building2,
     CheckCheck,
+    Plus,
 } from "lucide-react";
-import { useAuthStore } from "../../store/authStore";
 import { apiTasks } from "../../utils/Controllers/apiTasks";
+import CreateTaskModal from "./_components/CreateTaskModal";
+
+/** ADtasks — AllTasks.jsx dan mustaqil; faqat `apiTasks.getPage` ishlatiladi. */
 
 function normalizeListResponse(res) {
     const root = res?.data;
@@ -113,7 +117,6 @@ function taskPriorityLabel(raw) {
     return TASK_PRIORITY_UZ[k] ?? String(raw);
 }
 
-/** Xodim kartalaridagi role badge uslubiga yaqin */
 const ASSIGNEE_TYPE_CONFIG = {
     supplier: {
         label: "Ta'minotchi",
@@ -195,8 +198,7 @@ function TaskDetailsModal({ isOpen, onClose, details }) {
                     ) : (
                         <VStack align="stretch" spacing={4}>
                             {productName ? (
-                                <>
-                                  <Box
+                                <Box
                                     p={4}
                                     borderRadius="lg"
                                     bg={panelBg}
@@ -213,19 +215,23 @@ function TaskDetailsModal({ isOpen, onClose, details }) {
                                     >
                                         {DETAIL_FIELD_LABELS.product_name}
                                     </Text>
-                                    <Text fontWeight="bold" fontSize="lg" color="text">
+                                    <Text
+                                        fontWeight="bold"
+                                        fontSize="lg"
+                                        color="text"
+                                    >
                                         {String(productName)}
                                     </Text>
                                 </Box>
-                                
-                                </>
-                              
                             ) : null}
 
                             {restEntries.length > 0 ? (
                                 <>
                                     {productName ? <Divider /> : null}
-                                    <SimpleGrid columns={{ base: 1, sm: 2 }} spacing={3}>
+                                    <SimpleGrid
+                                        columns={{ base: 1, sm: 2 }}
+                                        spacing={3}
+                                    >
                                         {restEntries.map(([key, value]) => {
                                             const label =
                                                 DETAIL_FIELD_LABELS[key] ?? key;
@@ -252,11 +258,15 @@ function TaskDetailsModal({ isOpen, onClose, details }) {
                                                         {label}
                                                     </Text>
                                                     <Text
-                                                        fontSize={isId ? "xs" : "sm"}
+                                                        fontSize={
+                                                            isId ? "xs" : "sm"
+                                                        }
                                                         fontWeight="medium"
                                                         color="text"
                                                         fontFamily={
-                                                            isId ? "mono" : undefined
+                                                            isId
+                                                                ? "mono"
+                                                                : undefined
                                                         }
                                                         wordBreak="break-all"
                                                         title={String(value)}
@@ -309,7 +319,11 @@ function TaskCard({ row }) {
                 h="100%"
             >
                 <VStack align="stretch" spacing={3}>
-                    <HStack justify="space-between" align="flex-start" spacing={2}>
+                    <HStack
+                        justify="space-between"
+                        align="flex-start"
+                        spacing={2}
+                    >
                         <HStack spacing={2} minW={0}>
                             <Icon
                                 as={ClipboardList}
@@ -390,13 +404,19 @@ function TaskCard({ row }) {
 
                     <VStack align="stretch" spacing={1.5} pt={1}>
                         <HStack spacing={2} color={subtle} fontSize="sm" minW={0}>
+                         
                         </HStack>
                         <HStack
                             justify="space-between"
                             align="center"
                             spacing={2}
                         >
-                            <HStack spacing={2} color={subtle} fontSize="sm" minW={0}>
+                            <HStack
+                                spacing={2}
+                                color={subtle}
+                                fontSize="sm"
+                                minW={0}
+                            >
                                 <Icon as={Calendar} boxSize={4} flexShrink={0} />
                                 <Text>{formatWhen(created)}</Text>
                             </HStack>
@@ -424,20 +444,18 @@ function TaskCard({ row }) {
     );
 }
 
-export default function AllTasks() {
+export default function ADtasks() {
     const toast = useToast();
-    const user = useAuthStore((s) => s.user);
-    const storeUserId = useAuthStore((s) => s.userId);
-
-    const createdBy = useMemo(
-        () => String(user?.id ?? storeUserId ?? "").trim(),
-        [user?.id, storeUserId]
-    );
+    const {
+        isOpen: isCreateOpen,
+        onOpen: onCreateOpen,
+        onClose: onCreateClose,
+    } = useDisclosure();
 
     const [status, setStatus] = useState("all");
     const [type, setType] = useState("all");
     const [page, setPage] = useState(1);
-    const [limit, setLimit] = useState(20);
+    const [limit] = useState(20);
     const [rows, setRows] = useState([]);
     const [loading, setLoading] = useState(false);
     const [pagination, setPagination] = useState({
@@ -448,10 +466,9 @@ export default function AllTasks() {
     });
 
     const fetchTasks = useCallback(async () => {
-        if (!createdBy) return;
         setLoading(true);
         try {
-            const res = await apiTasks.getByCreatedBy(createdBy, {
+            const res = await apiTasks.getPage({
                 status,
                 type,
                 page,
@@ -461,9 +478,7 @@ export default function AllTasks() {
             setRows(items);
             setPagination({
                 currentPage:
-                    p.current_page ??
-                    p.currentPage ??
-                    page,
+                    p.current_page ?? p.currentPage ?? page,
                 totalPages:
                     p.total_pages ??
                     p.totalPages ??
@@ -487,7 +502,11 @@ export default function AllTasks() {
         } finally {
             setLoading(false);
         }
-    }, [createdBy, status, type, page, limit, toast]);
+    }, [status, type, page, limit, toast]);
+
+    const handleCreatedTask = useCallback(() => {
+        fetchTasks();
+    }, [fetchTasks]);
 
     useEffect(() => {
         fetchTasks();
@@ -497,28 +516,25 @@ export default function AllTasks() {
         setPage(1);
     }, [status, type, limit]);
 
-    if (!createdBy) {
-        return (
-            <Box p={6}>
-                <Heading size="md" mb={2}>
-                    Mening vazifalarim
-                </Heading>
-                <Text color="gray.500">
-                    Foydalanuvchi identifikatori topilmadi. Qayta kiring.
-                </Text>
-            </Box>
-        );
-    }
-
     const totalPages = Math.max(1, Number(pagination.totalPages) || 1);
     const canPrev = page > 1;
     const canNext = page < totalPages;
 
     return (
         <Box p={6}>
-            <Heading size="lg" mb={4}>
-                Vazifalar
-            </Heading>
+            <Flex justify="space-between" align="center" mb={4} gap={4} wrap="wrap">
+                <Heading size="lg">Barcha vazifalar</Heading>
+                <Button
+                    colorScheme="blue"
+                    leftIcon={<Icon as={Plus} boxSize={5} />}
+                    borderRadius="xl"
+                    size="md"
+                    onClick={onCreateOpen}
+                    boxShadow="sm"
+                >
+                    Yaratish
+                </Button>
+            </Flex>
 
             <HStack spacing={4} mb={4} flexWrap="wrap">
                 <Box minW="160px">
@@ -551,7 +567,6 @@ export default function AllTasks() {
                         <option value="reorder">Qayta buyurtma</option>
                     </Select>
                 </Box>
-            
             </HStack>
 
             {loading ? (
@@ -565,7 +580,7 @@ export default function AllTasks() {
                     borderRadius="lg"
                     borderStyle="dashed"
                 >
-                    <Text color="gray.500">Vazifalar yo'q</Text>
+                    <Text color="gray.500">Vazifalar yo&apos;q</Text>
                 </Center>
             ) : (
                 <SimpleGrid columns={{ base: 1, md: 2, xl: 3 }} spacing={4}>
@@ -606,6 +621,12 @@ export default function AllTasks() {
                     </Button>
                 </HStack>
             </HStack>
+
+            <CreateTaskModal
+                isOpen={isCreateOpen}
+                onClose={onCreateClose}
+                onCreated={handleCreatedTask}
+            />
         </Box>
     );
 }
