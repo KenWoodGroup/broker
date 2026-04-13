@@ -7,6 +7,21 @@ class apiTasks {
     };
 
     /**
+     * GET /api/tasks — admin ro‘yxati (barcha vazifalar)
+     */
+    static getPage = async ({
+        status = "all",
+        type = "all",
+        page = 1,
+        limit = 20,
+    } = {}) => {
+        const response = await $api.get(`/tasks`, {
+            params: { status, type, page, limit },
+        });
+        return response;
+    };
+
+    /**
      * GET /api/tasks/created-by/{created_by}
      * Query: status, type, page, limit (use "all" where applicable)
      */
