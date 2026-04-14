@@ -21,9 +21,11 @@ class apiStock {
         return response;
     }
     static GetByAdress = async (data) => {
-        const response = await $api.get(`/erp/stock/broker?name=${data?.name}&page=${data?.page}`, data,);
+        const name = encodeURIComponent(data?.name ?? "");
+        const page = data?.page ?? 1;
+        const response = await $api.get(`/erp/stock/broker?name=${name}&page=${page}`);
         return response;
-    }
+    };
 
 }
 

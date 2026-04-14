@@ -472,7 +472,7 @@ export default function UnverifiedFactories({ role = "admin" }) {
     if (!statusTarget || !newStatus) return;
     setStatusLoading(true);
     try {
-      await apiUnverifiedFactories.update(statusTarget.id, { status: newStatus });
+      await apiUnverifiedFactories.updateStatus(statusTarget.id, { status: newStatus });
       toast({ title: "Status yangilandi", status: "success", duration: 2000 });
       statusModal.onClose();
       fetchData();
@@ -508,8 +508,7 @@ export default function UnverifiedFactories({ role = "admin" }) {
     if (!rejectTarget) return;
     setRejectLoading(true);
     try {
-      await apiUnverifiedFactories.update(rejectTarget.id, {
-        status: "rejected",
+      await apiUnverifiedFactories.reject(rejectTarget.id, {
         reason: rejectReason?.trim() || "",
       });
       toast({ title: "Rad etildi", status: "info", duration: 2000 });
@@ -838,6 +837,7 @@ export default function UnverifiedFactories({ role = "admin" }) {
           </ModalFooter>
         </ModalContent>
       </Modal>
+
       {/* ── Delete Modal ── */}
       <Modal isOpen={deleteModal.isOpen} onClose={deleteModal.onClose} size="md" isCentered motionPreset="slideInBottom">
         <ModalOverlay bg="blackAlpha.600" backdropFilter="blur(8px)" />
