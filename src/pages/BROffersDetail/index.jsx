@@ -47,6 +47,7 @@ import {
     AccordionPanel,
     AccordionIcon,
     useColorMode,
+    useDisclosure,
 } from "@chakra-ui/react";
 import {
     FaBuilding,
@@ -81,6 +82,13 @@ import {
     X,
 } from "lucide-react";
 import { apiStock } from "../../utils/Controllers/apiStock";
+import { apiTasks } from "../../utils/Controllers/apiTasks";
+import {
+    PRICE_UPDATE_RULES,
+    getLatestSalePriceUpdatedAt,
+    isPriceUpdatePastMediumYellow,
+} from "../../constants/priceFreshness";
+import PriceUpdateTaskModal from "./_components/PriceUpdateTaskModal";
 
 // Status configuration
 const statusConfig = [
@@ -99,7 +107,24 @@ const statusConfig = [
 ];
 
 // Stock Search Component
-const ProductStockSearch = ({ product, onSelectStocks }) => {
+const ProductStockSearch = ({ product, onSelectStocks, offer }) => {
+    const {
+        isOpen: isPriceTaskOpen,
+        onOpen: onPriceTaskOpen,
+        onClose: onPriceTaskClose,
+    } = useDisclosure();
+    const [priceTaskStock, setPriceTaskStock] = useState(null);
+
+    const openPriceTask = (stock) => {
+        setPriceTaskStock(stock);
+        onPriceTaskOpen();
+    };
+
+    const closePriceTask = () => {
+        setPriceTaskStock(null);
+        onPriceTaskClose();
+    };
+
     const [isOpen, setIsOpen] = useState(false);
     const [stockData, setStockData] = useState([]);
     const [loading, setLoading] = useState(false);
@@ -108,6 +133,7 @@ const ProductStockSearch = ({ product, onSelectStocks }) => {
     const [totalPages, setTotalPages] = useState(1);
     const [totalCount, setTotalCount] = useState(0);
     const [selectedStocks, setSelectedStocks] = useState([]);
+    const [reorderSubmitting, setReorderSubmitting] = useState(false);
     const toast = useToast();
     const { colorMode } = useColorMode();
 
@@ -138,6 +164,83 @@ const ProductStockSearch = ({ product, onSelectStocks }) => {
             });
         } finally {
             setLoading(false);
+        }
+    };
+
+    const createReorderTask = async () => {
+        const groupId = (offer?.id || "").trim();
+        const productName = (product?.product_name || "").trim();
+        const categoryName =
+            (product?.product?.category?.name || "").trim() ||
+            (product?.category_name || "").trim() ||
+            "Kategoriyasiz";
+
+        const firstStock = stockData?.[0];
+        const stockId = (firstStock?.id || "").trim();
+        const warehouseId = (firstStock?.location_id || firstStock?.location?.id || "").trim();
+        const factoryId = (firstStock?.location?.parent?.id || "").trim();
+
+        if (!groupId) {
+            toast({
+                title: "group_id",
+                description: "Offer ID topilmadi (group_id bo'sh bo'lmasin)",
+                status: "warning",
+                duration: 4000,
+                isClosable: true,
+            });
+            return;
+        }
+
+        if (!productName) {
+            toast({
+                title: "Ma'lumot",
+                description: "product_name topilmadi",
+                status: "warning",
+                duration: 4000,
+                isClosable: true,
+            });
+            return;
+        }
+
+        const payload = {
+            assignee_type: "supplier",
+            type: "reorder",
+            priority: "normal",
+            source: "manual",
+            group_id: groupId,
+            details: {
+                product_name: productName,
+                category_name: categoryName,
+                factory_id: factoryId,
+                warehouse_id: warehouseId,
+                stock_id: stockId,
+            },
+        };
+
+        try {
+            setReorderSubmitting(true);
+            await apiTasks.create(payload);
+            toast({
+                title: "Yuborildi",
+                description: "Reorder task yaratildi",
+                status: "success",
+                duration: 3000,
+                isClosable: true,
+            });
+        } catch (error) {
+            console.error(error);
+            const msg = error?.response?.data?.message;
+            toast({
+                title: "Xatolik",
+                description: Array.isArray(msg)
+                    ? msg.join(". ")
+                    : msg || "Task yaratishda xatolik",
+                status: "error",
+                duration: 6000,
+                isClosable: true,
+            });
+        } finally {
+            setReorderSubmitting(false);
         }
     };
 
@@ -294,6 +397,12 @@ const ProductStockSearch = ({ product, onSelectStocks }) => {
                                     const selectedStock = selectedStocks.find(s => s.id === stock.id);
                                     const currentQuantityStr = selectedStock?.quantityStr ?? "";
                                     const currentQuantityNum = parseFloat(currentQuantityStr) || 0;
+                                    const latestPriceAt = getLatestSalePriceUpdatedAt(
+                                        stock.sale_price_type
+                                    );
+                                    const showPriceTask =
+                                        latestPriceAt &&
+                                        isPriceUpdatePastMediumYellow(latestPriceAt);
 
                                     return (
                                         <Box
@@ -362,17 +471,49 @@ const ProductStockSearch = ({ product, onSelectStocks }) => {
                                                 </Flex>
                                             )}
 
-                                            <Flex mt={2} gap={2} wrap="wrap">
+                                            <Flex mt={2} gap={2} wrap="wrap" align="center">
                                                 <Tooltip label={stock.location?.address}>
                                                     <Badge variant="outline" size="sm">
                                                         📍 {stock.location?.parent?.name || stock.location?.address?.substring(0, 30)}
                                                     </Badge>
                                                 </Tooltip>
                                             </Flex>
+
+                                            {showPriceTask && (
+                                                <Box
+                                                    mt={3}
+                                                    p={3}
+                                                    borderWidth="1px"
+                                                    borderRadius="md"
+                                                 borderColor="transparent"
+                                                >
+                                                    <Button
+                                                        size="sm"
+                                                        colorScheme="orange"
+                                                        onClick={() => openPriceTask(stock)}
+                                                    >
+                                                        Narx vazifasi
+                                                    </Button>
+                                                </Box>
+                                            )}
                                         </Box>
                                     );
                                 })}
                             </Stack>
+                        )}
+
+                        {!loading && totalCount > 0 && totalCount < 10 && (
+                           
+                                 
+                                    <Button
+                                        size="sm"
+                                        colorScheme="blue"
+                                        onClick={createReorderTask}
+                                        isLoading={reorderSubmitting}
+                                    >
+                                        Reorder task yuborish
+                                    </Button>
+                            
                         )}
 
                         {totalPages > 1 && (
@@ -423,6 +564,14 @@ const ProductStockSearch = ({ product, onSelectStocks }) => {
                     </VStack>
                 </Box>
             </Collapse>
+
+            <PriceUpdateTaskModal
+                isOpen={isPriceTaskOpen}
+                onClose={closePriceTask}
+                stock={priceTaskStock}
+                offerLineItem={product}
+                offerGroupId={offer?.id}
+            />
         </Box>
     );
 };
@@ -733,8 +882,10 @@ export default function BROffersDetail() {
                                             </TableContainer>
 
                                             <ProductStockSearch
+                                                key={item.id}
                                                 product={item}
                                                 onSelectStocks={handleSelectStocks}
+                                                offer={offer}
                                             />
                                         </AccordionPanel>
                                     </AccordionItem>

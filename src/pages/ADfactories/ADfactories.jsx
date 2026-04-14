@@ -73,11 +73,32 @@ export default function ADfactories({ reloadDependance, role = 'admin' }) {
             }
 
             isFirstRender.current = false;
-        }, SEARCH_DEBOUNCE);
+        })}, [SEARCH_DEBOUNCE]);
 
-        return () => clearTimeout(handler);
-    }, [search]);
-
+    /* ─── Fetch factories ─── */
+  
+//   const fetchFactories = useCallback(
+//         async (page, searchTerm, addressList, categoryIds) => {
+//             try {
+//                 setLoading(true);
+//                 const res = await apiFetchFilteredFactories(page, searchTerm, addressList, categoryIds);
+//                 const d = res.data?.data ?? res.data; // supports both {data:{...}} and direct
+//                 setFactories(d.records ?? []);
+//                 setTotalPage(d.pagination?.total_pages ?? 1);
+//                 setTotalCount(
+//                     (d.pagination?.total_count ??
+//                     d.pagination?.totalCount ??
+//                     d.pagination?.total ??
+//                     0) + 320
+//                 );
+//             } catch (e) {
+//                 console.error("Factory fetch error:", e);
+//             } finally {
+//                 setLoading(false);
+//             }
+//         },
+//         []
+//     );
     /* ---------------- fetch factories ---------------- */
     const fetchFactories = useCallback(async (page, searchText, address) => {
         try {

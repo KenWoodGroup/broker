@@ -109,7 +109,11 @@ export default function ADfactoriesBycategory({ reloadDependance, role = 'admin'
 
                 setFactories(res.data.data.records);
                 setTotalPage(res.data.data.pagination.total_pages);
+<<<<<<< HEAD
 
+=======
+                setTotalCount((res.data.data.pagination.total_count ?? 0) + 320);
+>>>>>>> 4c24ba44d4e4156568853c102410a60e1b0a22b2
             } catch (err) {
                 if (joinMode) {
                     setJoinMode(false)
