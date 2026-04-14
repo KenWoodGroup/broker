@@ -127,15 +127,6 @@ const ProductStockSearch = ({ product, onSelectStocks }) => {
                 setTotalPages(response.data.pagination?.totalPages || 1);
                 setTotalCount(response.data.pagination?.totalCount || 0);
             }
-        } catch (error) {
-            console.error("Error fetching stock:", error);
-            toast({
-                title: "Xatolik",
-                description: "Stok ma'lumotlarini yuklashda xatolik yuz berdi",
-                status: "error",
-                duration: 3000,
-                isClosable: true,
-            });
         } finally {
             setLoading(false);
         }
