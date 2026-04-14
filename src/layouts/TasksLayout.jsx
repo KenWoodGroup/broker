@@ -2,7 +2,7 @@ import { Box, Text, Flex, Button } from "@chakra-ui/react";
 import { Outlet, useNavigate, useLocation } from "react-router-dom";
 
 const tabs = [
-  { label: "Kutilmoqda",     path: "/supplier/taskprice/pending" },
+  { label: "Kutilmoqda",     path: "/supplier/taskprice" },
   { label: "Jarayonda",      path: "/supplier/taskprice/in-progress" },
   { label: "Bajarilgan",     path: "/supplier/taskprice/done" },
   { label: "Bekor qilingan", path: "/supplier/taskprice/cancelled" },
@@ -15,7 +15,7 @@ function TasksLayout() {
   return (
     <Box p={6}>
       <Text fontSize="3xl" fontWeight="bold" mb={6}>
-        Tasks
+        Vazifalar
       </Text>
 
       <Flex gap={3} mb={8}>
@@ -31,8 +31,8 @@ function TasksLayout() {
                 cursor: "pointer",
                 fontWeight: "500",
                 fontSize: "14px",
-                backgroundColor: isActive ? "#1764e8" : "#2d3748",
-                color: isActive ? "#fff" : "#a0aec0",
+                backgroundColor: isActive ? "#1764e8" : "#e8eef9",
+                color: isActive ? "#fff" : "#4d555e",
                 transition: "all 0.2s",
               }}
             >

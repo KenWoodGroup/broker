@@ -12,6 +12,7 @@ import { useEffect, useState } from "react";
 import { apiTaskPrice } from "../../utils/Controllers/apiTaskPrice";
 import { useAuthStore } from "../../store/authStore";
 
+
 const TableSkeleton = ({ rows = 5, cols = 8 }) => (
   <Table>
     <Thead>
@@ -86,6 +87,13 @@ function AdtaskReorder({ status = "pending" }) {
   const { userId } = useAuthStore();
   const { isOpen, onOpen, onClose } = useDisclosure();
 
+const bgModal     = "surface";   // white / #1a202c
+const colorText   = "text";      // #1a202c / #edf2f7
+const colorMuted  = "textSub";   // #718096 / #e2e8f0
+const borderColor = "border";    // #e2e8f0 / #2d3748
+const btnBorder   = "border";    // #e2e8f0 / #2d3748
+const btnColor    = "text";      // #1a202c / #edf2f7
+
   const activeTab = status === "pending" ? "all" : "my";
 
   const [loading, setLoading]           = useState(false);
@@ -94,6 +102,7 @@ function AdtaskReorder({ status = "pending" }) {
   const [totalPages, setTotalPages]     = useState(1);
   const [selectedTask, setSelectedTask] = useState(null);
   const [modalLoading, setModalLoading] = useState(false);
+    const [completeLoading, setCompleteLoading] = useState(false);
   const pageSize = 7;
 
   const fetchTask = async (page = 1) => {
@@ -130,6 +139,7 @@ function AdtaskReorder({ status = "pending" }) {
   };
 
   const handleComplete = async () => {
+    setCompleteLoading(true)
     try {
       await apiTaskPrice.updateStatus(selectedTask.id, {
         status: "in_progress",
@@ -139,6 +149,8 @@ function AdtaskReorder({ status = "pending" }) {
       fetchTask(currentPage);
     } catch (err) {
       console.error(err);
+    } finally{
+      setCompleteLoading(false)
     }
   };
 
@@ -174,7 +186,16 @@ function AdtaskReorder({ status = "pending" }) {
             </Thead>
             <Tbody>
               {taskPrice.map((price, index) => (
-                <Tr key={index} _hover={{ bg: "#1a2535", cursor: "pointer" }}>
+                <Tr
+                  key={index}
+                  onMouseEnter={(e) =>
+                    (e.currentTarget.style.backgroundColor = "rgba(0,0,0,0.15)")
+                  }
+                  onMouseLeave={(e) =>
+                    (e.currentTarget.style.backgroundColor = "transparent")
+                  }
+                  style={{ cursor: "pointer" }}
+                >
                   <Td>{(currentPage - 1) * pageSize + index + 1}</Td>
                   <Td>{price.details?.product_name}</Td>
                   <Td>{price.details?.category_name}</Td>
@@ -220,8 +241,8 @@ function AdtaskReorder({ status = "pending" }) {
 
       <Modal isOpen={isOpen} onClose={handleClose} size="md" isCentered>
         <ModalOverlay />
-        <ModalContent bg="#1a202c" color="#e2e8f0">
-          <ModalHeader borderBottom="1px solid #2d3748">
+        <ModalContent bg={bgModal} color={colorText}>
+          <ModalHeader borderBottom="1px solid" borderColor={borderColor}>
             Topshiriq tafsilotlari
           </ModalHeader>
           <ModalCloseButton />
@@ -260,26 +281,28 @@ function AdtaskReorder({ status = "pending" }) {
               <Text textAlign="center">Ma'lumot topilmadi</Text>
             )}
           </ModalBody>
-          <ModalFooter borderTop="1px solid #2d3748" gap={3}>
+          <ModalFooter borderTop="1px solid" borderColor={borderColor} gap={3}>
             <Button
               onClick={handleClose}
               style={{
                 flex: 1, padding: "10px", borderRadius: "8px",
-                border: "1px solid #4a5568", backgroundColor: "transparent",
-                color: "#e2e8f0", cursor: "pointer", fontWeight: "500", fontSize: "14px",
+                 border: `1px solid ${btnBorder}`, backgroundColor: "transparent",
+                color: "#8a8c8e", cursor: "pointer", fontWeight: "500", fontSize: "14px",
               }}
             >
               Bekor qilish
             </Button>
             <Button
               onClick={handleComplete}
+               isLoading={completeLoading} 
+               loadingText="Yuklanmoqda..."
               style={{
                 flex: 1, padding: "10px", borderRadius: "8px",
                 border: "none", backgroundColor: "#1764e8",
                 color: "#fff", cursor: "pointer", fontWeight: "500", fontSize: "14px",
               }}
             >
-              Bajarish
+              Tugatildi
             </Button>
           </ModalFooter>
         </ModalContent>

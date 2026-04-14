@@ -23,6 +23,7 @@ import TasksLayout from "./layouts/TasksLayout";
 import supplierTaskPrice from "./utils/routes/supplierTaskPrice";
 import supplierTaskReorder from "./utils/routes/supplierTaskReorder";
 import TaskReorderLayout from "./layouts/TaskReorderLayout";
+// import UnverifiedFactories from "./pages/LeadFactory";
 
 function App() {
   useGlobalHotkeys();
@@ -61,12 +62,13 @@ function App() {
               path="/supplier/factories/:factoryId"
               element={<SupplierFactoryLayout />}
             >
+              {/* <Route path="lead-factories" element={<UnverifiedFactories role="supplier" />} /> */}
               {supplierFacRoutes.map((r) => {
                 return <Route key={r.name} path={r.path} element={r.element} />;
               })}
             </Route>
             <Route path="/supplier/taskprice" element={<TasksLayout />}>
-              <Route index element={<Navigate to="pending" replace />} />
+              {/* <Route index element={<Navigate to="" replace />} /> */}
               {supplierTaskPrice.map((task) => {
                 return (
                   <Route

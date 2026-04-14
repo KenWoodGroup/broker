@@ -7,8 +7,9 @@ import {  Boxes, CheckSquare2, Factory, GripVertical, Home } from "lucide-react"
 const links = [
     { label: "Home", to: "/supplier", icon: Home, end:true },
     { label: "Zavod", to: "/supplier/factories", icon: Factory, },
+    // { label: "T-Zavod", to: "/supplier/lead-factories", icon: Factory },
     { label: "Mahsulot", to: "/supplier/products", icon: Boxes },
-    { label: "Narxni yangilash", to: "/supplier/taskprice/pending", icon: CheckSquare2},
+    { label: "Narxni yangilash", to: "/supplier/taskprice", icon: CheckSquare2, end:false},
     { label: "Mahsulot ko'paytirish", to: "/supplier/taskreorder", icon: GripVertical},
     
     // { label: "Products", to: "/products", icon: Boxes },

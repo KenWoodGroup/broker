@@ -3,7 +3,7 @@ import AdtaskPrice from "../../pages/ADtaskPrice/AdtaskPrice";
 const supplierTaskPrice = [
     {
         name:"pending",
-        path:"pending",
+        path:"",
         element:<AdtaskPrice status="pending"/>
     },
     {
