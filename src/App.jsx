@@ -1,4 +1,4 @@
-import { Route, Routes } from 'react-router'
+import { Navigate, Route, Routes } from 'react-router'
 import './App.css'
 import Login from './pages/Login/Login'
 import RequireAuth from './auth/RequireAuth'
@@ -21,6 +21,8 @@ import SupplierFactoryLayout from './layouts/SupplierFactoryLayout'
 import supplierFacRoutes from './utils/routes/supplierFacRoutes'
 import TasksLayout from './layouts/TasksLayout'
 import supplierTaskPrice from './utils/routes/supplierTaskPrice'
+import TaskReorderLayout from './layouts/TaskReorderLayout'
+import supplierTaskReorder from './utils/routes/supplierTaskReorder'
 
 
 function App() {
@@ -79,6 +81,16 @@ function App() {
                   />
                 );
               })}
+            </Route>
+             <Route path="/supplier/taskreorder" element={<TaskReorderLayout />}>
+              <Route index element={<Navigate to="pending" replace />} />
+              {supplierTaskReorder.map((task) => (
+                <Route
+                  key={task.name}
+                  path={task.path}
+                  element={task.element}
+                />
+              ))}
             </Route>
           </Route>
         </Route>
