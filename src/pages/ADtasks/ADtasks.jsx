@@ -556,6 +556,7 @@ export default function ADtasks() {
     const [saving, setSaving] = useState(false);
     const [deleting, setDeleting] = useState(false);
     const [activeTask, setActiveTask] = useState(null);
+    const [total, setTotal] = useState(0);
     const [pagination, setPagination] = useState({
         currentPage: 1,
         totalPages: 1,
@@ -574,6 +575,14 @@ export default function ADtasks() {
             });
             const { items, pagination: p } = normalizeListResponse(res);
             setRows(items);
+            setTotal(
+                Number(
+                    res?.data?.total ??
+                        res?.data?.data?.total ??
+                        p?.total ??
+                        0
+                ) || 0
+            );
             setPagination({
                 currentPage:
                     p.current_page ?? p.currentPage ?? page,
@@ -581,7 +590,11 @@ export default function ADtasks() {
                     p.total_pages ??
                     p.totalPages ??
                     (items.length < limit ? page : page + 1),
-                totalCount: p.total_count ?? p.totalCount ?? items.length,
+                totalCount:
+                    p.total ??
+                    p.total_count ??
+                    p.totalCount ??
+                    0,
                 limit: p.limit ?? limit,
             });
         } catch (e) {
@@ -597,6 +610,7 @@ export default function ADtasks() {
                 isClosable: true,
             });
             setRows([]);
+            setTotal(0);
         } finally {
             setLoading(false);
         }
@@ -700,7 +714,6 @@ export default function ADtasks() {
     const totalPages = Math.max(1, Number(pagination.totalPages) || 1);
     const canPrev = page > 1;
     const canNext = page < totalPages;
-    const total = Number(pagination.totalCount) || 0;
     const countBg = useColorModeValue("blue.50", "whiteAlpha.100");
     const countText = useColorModeValue("blue.700", "blue.100");
 
@@ -801,9 +814,7 @@ export default function ADtasks() {
             <HStack justify="space-between" mt={4} flexWrap="wrap" gap={2}>
                 <Text fontSize="sm" color="gray.600">
                     Sahifa {page} / {totalPages}
-                    {pagination.totalCount != null
-                        ? ` · Jami: ${pagination.totalCount}`
-                        : ""}
+                   
                 </Text>
                 <HStack>
                     <Button
