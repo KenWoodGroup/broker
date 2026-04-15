@@ -24,6 +24,10 @@ import {
     useDisclosure,
     Divider,
     Flex,
+    Menu,
+    MenuButton,
+    MenuList,
+    MenuItem,
 } from "@chakra-ui/react";
 import {
     ChevronLeft,
@@ -38,9 +42,14 @@ import {
     Building2,
     CheckCheck,
     Plus,
+    MoreVertical,
+    Pencil,
+    Trash2,
 } from "lucide-react";
 import { apiTasks } from "../../utils/Controllers/apiTasks";
 import CreateTaskModal from "./_components/CreateTaskModal";
+import EditTaskModal from "./_components/EditTaskModal";
+import ConfirmDelModal from "../../components/common/ConfirmDelModal";
 
 /** ADtasks — AllTasks.jsx dan mustaqil; faqat `apiTasks.getPage` ishlatiladi. */
 
@@ -287,11 +296,19 @@ function TaskDetailsModal({ isOpen, onClose, details }) {
     );
 }
 
-function TaskCard({ row }) {
+function TaskCard({ row, onRequestEdit, onRequestDelete }) {
     const { isOpen, onOpen, onClose } = useDisclosure();
+    const {
+        isOpen: isMenuOpen,
+        onOpen: onMenuOpen,
+        onClose: onMenuClose,
+    } = useDisclosure();
     const borderColor = useColorModeValue("gray.200", "gray.600");
     const hoverBorder = useColorModeValue("blue.300", "blue.400");
     const subtle = useColorModeValue("gray.600", "gray.400");
+    const menuHoverBg = useColorModeValue("gray.50", "whiteAlpha.100");
+    const menuDangerHoverBg = useColorModeValue("red.50", "whiteAlpha.100");
+    const menuDangerColor = useColorModeValue("red.600", "red.300");
     const title = row.details?.product_name ?? row.product_name ?? "—";
     const created = row.created_at ?? row.createdAt;
     const assignee = assigneeTypeDisplay(row.assignee_type);
@@ -317,6 +334,7 @@ function TaskCard({ row }) {
                     borderColor: hoverBorder,
                 }}
                 h="100%"
+                onMouseLeave={onMenuClose}
             >
                 <VStack align="stretch" spacing={3}>
                     <HStack
@@ -420,16 +438,82 @@ function TaskCard({ row }) {
                                 <Icon as={Calendar} boxSize={4} flexShrink={0} />
                                 <Text>{formatWhen(created)}</Text>
                             </HStack>
-                            <IconButton
-                                icon={<Info size={18} />}
-                                aria-label="Batafsil ma'lumot"
-                                size="sm"
-                                variant="ghost"
-                                colorScheme="blue"
-                                borderRadius="full"
-                                onClick={onOpen}
-                                isDisabled={!hasDetails}
-                            />
+                            <HStack spacing={1}>
+                                <IconButton
+                                    icon={<Info size={18} />}
+                                    aria-label="Batafsil ma'lumot"
+                                    size="sm"
+                                    variant="ghost"
+                                    colorScheme="blue"
+                                    borderRadius="full"
+                                    onClick={onOpen}
+                                    isDisabled={!hasDetails}
+                                />
+                                <Menu
+                                    placement="bottom-end"
+                                    gutter={6}
+                                    isLazy
+                                    isOpen={isMenuOpen}
+                                    onOpen={onMenuOpen}
+                                    onClose={onMenuClose}
+                                    closeOnSelect
+                                    closeOnBlur
+                                >
+                                    <MenuButton
+                                        as={IconButton}
+                                        icon={<MoreVertical size={18} />}
+                                        aria-label="Amallar"
+                                        size="sm"
+                                        variant="ghost"
+                                        borderRadius="full"
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            if (isMenuOpen) onMenuClose();
+                                            else onMenuOpen();
+                                        }}
+                                    />
+                                    <MenuList
+                                        p={2}
+                                        borderRadius="xl"
+                                        boxShadow="xl"
+                                        borderWidth="1px"
+                                        minW="190px"
+                                        zIndex={20}
+                                    >
+                                        <MenuItem
+                                            icon={<Pencil size={16} />}
+                                            onClick={() => {
+                                                onMenuClose();
+                                                setTimeout(
+                                                    () => onRequestEdit?.(row),
+                                                    0
+                                                );
+                                            }}
+                                            borderRadius="lg"
+                                            _hover={{ bg: menuHoverBg }}
+                                            _focus={{ bg: menuHoverBg }}
+                                        >
+                                            Tahrirlash
+                                        </MenuItem>
+                                        <MenuItem
+                                            icon={<Trash2 size={16} />}
+                                            onClick={() => {
+                                                onMenuClose();
+                                                setTimeout(
+                                                    () => onRequestDelete?.(row),
+                                                    0
+                                                );
+                                            }}
+                                            borderRadius="lg"
+                                            color={menuDangerColor}
+                                            _hover={{ bg: menuDangerHoverBg }}
+                                            _focus={{ bg: menuDangerHoverBg }}
+                                        >
+                                            O‘chirish
+                                        </MenuItem>
+                                    </MenuList>
+                                </Menu>
+                            </HStack>
                         </HStack>
                     </VStack>
                 </VStack>
@@ -452,12 +536,26 @@ export default function ADtasks() {
         onClose: onCreateClose,
     } = useDisclosure();
 
+    const {
+        isOpen: isEditOpen,
+        onOpen: onEditOpen,
+        onClose: onEditClose,
+    } = useDisclosure();
+    const {
+        isOpen: isDelOpen,
+        onOpen: onDelOpen,
+        onClose: onDelClose,
+    } = useDisclosure();
+
     const [status, setStatus] = useState("all");
     const [type, setType] = useState("all");
     const [page, setPage] = useState(1);
     const [limit] = useState(20);
     const [rows, setRows] = useState([]);
     const [loading, setLoading] = useState(false);
+    const [saving, setSaving] = useState(false);
+    const [deleting, setDeleting] = useState(false);
+    const [activeTask, setActiveTask] = useState(null);
     const [pagination, setPagination] = useState({
         currentPage: 1,
         totalPages: 1,
@@ -508,6 +606,89 @@ export default function ADtasks() {
         fetchTasks();
     }, [fetchTasks]);
 
+    const openEdit = useCallback(
+        (row) => {
+            setActiveTask(row);
+            onEditOpen();
+        },
+        [onEditOpen]
+    );
+
+    const openDelete = useCallback(
+        (row) => {
+            setActiveTask(row);
+            onDelOpen();
+        },
+        [onDelOpen]
+    );
+
+    const handleSaveEdit = useCallback(
+        async (payload) => {
+            if (!activeTask?.id) return;
+            setSaving(true);
+            try {
+                await apiTasks.update(activeTask.id, payload);
+                toast({
+                    title: "Saqlandi",
+                    description: "Vazifa yangilandi",
+                    status: "success",
+                    duration: 2500,
+                    isClosable: true,
+                });
+                onEditClose();
+                setActiveTask(null);
+                fetchTasks();
+            } catch (e) {
+                console.error(e);
+                const msg = e?.response?.data?.message;
+                toast({
+                    title: "Xatolik",
+                    description: Array.isArray(msg)
+                        ? msg.join(". ")
+                        : msg || "Yangilab bo'lmadi",
+                    status: "error",
+                    duration: 6000,
+                    isClosable: true,
+                });
+            } finally {
+                setSaving(false);
+            }
+        },
+        [activeTask?.id, fetchTasks, onEditClose, toast]
+    );
+
+    const handleConfirmDelete = useCallback(async () => {
+        if (!activeTask?.id) return;
+        setDeleting(true);
+        try {
+            await apiTasks.remove(activeTask.id);
+            toast({
+                title: "O‘chirildi",
+                description: "Vazifa o‘chirildi",
+                status: "success",
+                duration: 2500,
+                isClosable: true,
+            });
+            onDelClose();
+            setActiveTask(null);
+            fetchTasks();
+        } catch (e) {
+            console.error(e);
+            const msg = e?.response?.data?.message;
+            toast({
+                title: "Xatolik",
+                description: Array.isArray(msg)
+                    ? msg.join(". ")
+                    : msg || "O‘chirib bo'lmadi",
+                status: "error",
+                duration: 6000,
+                isClosable: true,
+            });
+        } finally {
+            setDeleting(false);
+        }
+    }, [activeTask?.id, fetchTasks, onDelClose, toast]);
+
     useEffect(() => {
         fetchTasks();
     }, [fetchTasks]);
@@ -519,11 +700,17 @@ export default function ADtasks() {
     const totalPages = Math.max(1, Number(pagination.totalPages) || 1);
     const canPrev = page > 1;
     const canNext = page < totalPages;
+    const total = Number(pagination.totalCount) || 0;
+    const countBg = useColorModeValue("blue.50", "whiteAlpha.100");
+    const countText = useColorModeValue("blue.700", "blue.100");
 
     return (
         <Box p={6}>
             <Flex justify="space-between" align="center" mb={4} gap={4} wrap="wrap">
-                <Heading size="lg">Barcha vazifalar</Heading>
+                <HStack spacing={3} flexWrap="wrap">
+                    <Heading size="lg">Barcha vazifalar</Heading>
+                
+                </HStack>
                 <Button
                     colorScheme="blue"
                     leftIcon={<Icon as={Plus} boxSize={5} />}
@@ -538,9 +725,6 @@ export default function ADtasks() {
 
             <HStack spacing={4} mb={4} flexWrap="wrap">
                 <Box minW="160px">
-                    <Text fontSize="sm" mb={1} color="gray.600">
-                        Status
-                    </Text>
                     <Select
                         size="sm"
                         value={status}
@@ -554,9 +738,6 @@ export default function ADtasks() {
                     </Select>
                 </Box>
                 <Box minW="160px">
-                    <Text fontSize="sm" mb={1} color="gray.600">
-                        Type
-                    </Text>
                     <Select
                         size="sm"
                         value={type}
@@ -567,6 +748,28 @@ export default function ADtasks() {
                         <option value="reorder">Qayta buyurtma</option>
                     </Select>
                 </Box>
+                    <Box px={3} py="7px" bg={countBg} borderRadius="full">
+                        {loading ? (
+                            <Flex align="center" gap={2}>
+                                <Spinner size="xs" color="blue.500" />
+                                <Text
+                                    fontSize="12px"
+                                    color={countText}
+                                    fontWeight="700"
+                                >
+                                    Yuklanmoqda
+                                </Text>
+                            </Flex>
+                        ) : (
+                            <Text
+                                fontSize="12px"
+                                color={countText}
+                                fontWeight="700"
+                            >
+                                JAMI: {total} TA
+                            </Text>
+                        )}
+                    </Box>
             </HStack>
 
             {loading ? (
@@ -588,6 +791,8 @@ export default function ADtasks() {
                         <TaskCard
                             key={row.id ?? JSON.stringify(row)}
                             row={row}
+                            onRequestEdit={openEdit}
+                            onRequestDelete={openDelete}
                         />
                     ))}
                 </SimpleGrid>
@@ -626,6 +831,33 @@ export default function ADtasks() {
                 isOpen={isCreateOpen}
                 onClose={onCreateClose}
                 onCreated={handleCreatedTask}
+            />
+
+            <EditTaskModal
+                isOpen={isEditOpen}
+                onClose={() => {
+                    onEditClose();
+                    setActiveTask(null);
+                }}
+                task={activeTask}
+                onSave={handleSaveEdit}
+                isSaving={saving}
+            />
+
+            <ConfirmDelModal
+                isOpen={isDelOpen}
+                onClose={() => {
+                    onDelClose();
+                    setActiveTask(null);
+                }}
+                onConfirm={handleConfirmDelete}
+                itemName={
+                    activeTask?.details?.product_name ??
+                    activeTask?.product_name ??
+                    String(activeTask?.id ?? "")
+                }
+                loading={deleting}
+                typeItem="vazifa"
             />
         </Box>
     );
