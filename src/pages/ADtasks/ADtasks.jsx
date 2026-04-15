@@ -700,11 +700,17 @@ export default function ADtasks() {
     const totalPages = Math.max(1, Number(pagination.totalPages) || 1);
     const canPrev = page > 1;
     const canNext = page < totalPages;
+    const total = Number(pagination.totalCount) || 0;
+    const countBg = useColorModeValue("blue.50", "whiteAlpha.100");
+    const countText = useColorModeValue("blue.700", "blue.100");
 
     return (
         <Box p={6}>
             <Flex justify="space-between" align="center" mb={4} gap={4} wrap="wrap">
-                <Heading size="lg">Barcha vazifalar</Heading>
+                <HStack spacing={3} flexWrap="wrap">
+                    <Heading size="lg">Barcha vazifalar</Heading>
+                
+                </HStack>
                 <Button
                     colorScheme="blue"
                     leftIcon={<Icon as={Plus} boxSize={5} />}
@@ -719,9 +725,6 @@ export default function ADtasks() {
 
             <HStack spacing={4} mb={4} flexWrap="wrap">
                 <Box minW="160px">
-                    <Text fontSize="sm" mb={1} color="gray.600">
-                        Status
-                    </Text>
                     <Select
                         size="sm"
                         value={status}
@@ -735,9 +738,6 @@ export default function ADtasks() {
                     </Select>
                 </Box>
                 <Box minW="160px">
-                    <Text fontSize="sm" mb={1} color="gray.600">
-                        Type
-                    </Text>
                     <Select
                         size="sm"
                         value={type}
@@ -748,6 +748,28 @@ export default function ADtasks() {
                         <option value="reorder">Qayta buyurtma</option>
                     </Select>
                 </Box>
+                    <Box px={3} py="7px" bg={countBg} borderRadius="full">
+                        {loading ? (
+                            <Flex align="center" gap={2}>
+                                <Spinner size="xs" color="blue.500" />
+                                <Text
+                                    fontSize="12px"
+                                    color={countText}
+                                    fontWeight="700"
+                                >
+                                    Yuklanmoqda
+                                </Text>
+                            </Flex>
+                        ) : (
+                            <Text
+                                fontSize="12px"
+                                color={countText}
+                                fontWeight="700"
+                            >
+                                JAMI: {total} TA
+                            </Text>
+                        )}
+                    </Box>
             </HStack>
 
             {loading ? (

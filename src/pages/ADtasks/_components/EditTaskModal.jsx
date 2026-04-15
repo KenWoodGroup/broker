@@ -221,6 +221,7 @@ export default function EditTaskModal({
                                         Muddat (ixtiyoriy)
                                     </Text>
                                 </HStack>
+                    
                             </HStack>
                             <Input
                                 type="datetime-local"
