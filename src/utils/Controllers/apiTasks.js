@@ -1,8 +1,8 @@
-import { $api, BASE_URL } from "../api/axios";
+import { $api } from "../api/axios";
 
 class apiTasks {
     static create = async (data) => {
-        const response = await $api.post(`${BASE_URL}/api/tasks`, data);
+        const response = await $api.post(`/tasks`, data);
         return response;
     };
 
@@ -18,6 +18,24 @@ class apiTasks {
         const response = await $api.get(`/tasks`, {
             params: { status, type, page, limit },
         });
+        return response;
+    };
+
+    /**
+     * PUT /api/tasks/{id}
+     */
+    static update = async (id, data) => {
+        const safeId = encodeURIComponent(String(id).trim());
+        const response = await $api.put(`/tasks/${safeId}`, data);
+        return response;
+    };
+
+    /**
+     * DELETE /api/tasks/{id}
+     */
+    static remove = async (id) => {
+        const safeId = encodeURIComponent(String(id).trim());
+        const response = await $api.delete(`/tasks/${safeId}`);
         return response;
     };
 

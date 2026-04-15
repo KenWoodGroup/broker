@@ -7,8 +7,10 @@ import handleApiError from "./handleError";
 
 export const BASE_URL = "https://api.usderp.uz/broker";
 
+const API_BASE = import.meta.env.DEV ? "/api" : `${BASE_URL}/api`;
+
 export const $api = axios.create({
-    baseURL: `${BASE_URL}/api`,
+    baseURL: API_BASE,
     // headers: { "Content-Type": "application/json" },
 });
 
@@ -91,7 +93,7 @@ $api.interceptors.response.use(
                 }
 
                 // ---- Refresh request ----
-                const res = await axios.post(`${BASE_URL}/api/auth/refresh`, {
+                const res = await axios.post(`${API_BASE}/auth/refresh`, {
                     refreshToken,
                     userId,
                 });
