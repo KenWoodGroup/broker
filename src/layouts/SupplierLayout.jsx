@@ -2,7 +2,7 @@ import { Outlet } from "react-router";
 import Sidebar from "../components/common/Sidebar";
 import { Box } from "@chakra-ui/react";
 import { useUIStore } from "../store/useUIStore";
-import { Boxes, CheckSquare2, Factory, Home } from "lucide-react";
+import { Boxes, CheckSquare2, Factory, GripVertical, Home } from "lucide-react";
 
 const links = [
   { label: "Bosh sahifa", to: "/supplier", icon: Home, end: true },
@@ -14,6 +14,8 @@ const links = [
     icon: CheckSquare2,
     end: false,
   },
+    { label: "Mahsulot ko'paytirish", to: "/supplier/taskreorder", icon: GripVertical},
+
 
   // { label: "Products", to: "/products", icon: Boxes },
 ];
