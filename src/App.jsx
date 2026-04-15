@@ -19,6 +19,8 @@ import supplierRoutes from './utils/routes/supplierRoutes'
 import useGlobalHotkeys from './hooks/useGlobalHotkeys'
 import SupplierFactoryLayout from './layouts/SupplierFactoryLayout'
 import supplierFacRoutes from './utils/routes/supplierFacRoutes'
+import TasksLayout from './layouts/TasksLayout'
+import supplierTaskPrice from './utils/routes/supplierTaskPrice'
 
 
 function App() {
@@ -64,6 +66,18 @@ function App() {
                 return (
                   <Route key={r.name} path={r.path} element={r.element} />
                 )
+              })}
+            </Route>
+            <Route path="/supplier/taskprice" element={<TasksLayout />}>
+              {/* <Route index element={<Navigate to="" replace />} /> */}
+              {supplierTaskPrice.map((task) => {
+                return (
+                  <Route
+                    key={task.name}
+                    path={task.path}
+                    element={task.element}
+                  />
+                );
               })}
             </Route>
           </Route>
