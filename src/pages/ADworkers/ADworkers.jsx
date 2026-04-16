@@ -55,6 +55,13 @@ const roles = [
         color: "orange",
         description: "Xom ashyo va yetkazib berish",
     },
+    {
+        id: "lot_creator",
+        name: "Lot creator",
+        icon: ShoppingCart,
+        color: "teal",
+        description: "Lot yaratish va boshqarish",
+    },
     // {
     //     id: "sales",
     //     name: "Sotuvchi",
@@ -105,7 +112,6 @@ export default function RolesPage() {
                         onClick={() => navigate(`/roles/${role.id}`)}
                     >
                         <VStack align="start" spacing="12px">
-                            {/* ICON */}
                             <Box
                                 p="10px"
                                 borderRadius="12px"

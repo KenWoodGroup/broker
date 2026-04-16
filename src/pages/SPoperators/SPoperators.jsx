@@ -1,4 +1,21 @@
-import { Box, Button, Code, Heading, HStack, IconButton, Spinner, Table, TableContainer, Tbody, Td, Th, Thead, Tr, useDisclosure } from "@chakra-ui/react";
+import {
+    Box,
+    Button,
+    Flex,
+    Heading,
+    HStack,
+    IconButton,
+    Spinner,
+    Table,
+    TableContainer,
+    Tbody,
+    Td,
+    Text,
+    Th,
+    Thead,
+    Tr,
+    useDisclosure,
+} from "@chakra-ui/react";
 import { useEffect, useRef, useState } from "react";
 import TableSkeleton from "../../components/ui/TableSkeleton";
 import { apiManagers } from "../../utils/Controllers/Managers";
@@ -9,7 +26,8 @@ import ResetPassModal from "../../components/common/ResetPassModal";
 import OperatorModal from "./_components/OperatorModal";
 import { apiUsers } from "../../utils/Controllers/Users";
 import { useNavigate } from "react-router";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, PencilLine, Trash } from "lucide-react";
+import LoginPermissionSwitch from "../ClcompanyDetail/__components/LoginPermissionSwitch";
 
 export default function SPoperators() {
     const navigate = useNavigate()
@@ -93,7 +111,7 @@ export default function SPoperators() {
 
     return (
         <Box py="20px" pr="20px">
-            <Box display="flex" justifyContent="space-between" mb={6}>
+            <Flex justifyContent="space-between" mb="20px">
                 <HStack>
                     <IconButton
                         variant="ghost"
@@ -112,75 +130,70 @@ export default function SPoperators() {
                         formModal.onOpen();
                     }}
                 >
-                    + Create broker
+                    + Broker yaratish
                 </Button>
-            </Box>
-            {/* TABLE */}
-            <Box
-                bg="bg"
-                rounded="xl"
-                shadow="md"
-            >
-                {tableLoading ? (
-                    <Box textAlign="center">
-                        <Table>
-                            <Thead bg={"surface"}>
-                                <Tr>
-                                    <Th>#</Th>
-                                    <Th>Full Name</Th>
-                                    <Th>Username</Th>
-                                    <Th>Created time</Th>
-                                    <Th>Last updated</Th>
-                                    <Th textAlign="right">Actions</Th>
-                                </Tr>
-                            </Thead>
-                            <Tbody>
-                                <TableSkeleton rows={10} columns={6} />
-                            </Tbody>
-                        </Table>
-                        {/* <Spinner marginTop={"10px"} size="lg" /> */}
-                    </Box>
-                ) : managers.length > 0 ? (
-                    <TableContainer
-                        borderWidth="1px"
-                        borderRadius="lg"
-                        boxShadow="md"
-                    >
-                        <Table variant="simple">
-                            <Thead>
-                                <Tr>
-                                    <Th>#</Th>
-                                    <Th>Full Name</Th>
-                                    <Th>Username</Th>
-                                    <Th>Created time</Th>
-                                    <Th>Last updated</Th>
-                                    <Th textAlign="right">Actions</Th>
-                                </Tr>
-                            </Thead>
+            </Flex>
 
-                            <Tbody>
-                                {managers.map((item, index) => (
-                                    <Tr key={item.id}>
-                                        <Td>{index + 1}</Td>
-                                        <Td>{item.full_name}</Td>
-                                        <Td><CopyUsername username={item.username} /></Td>
-                                        <Td>{formatDateTime(item.createdAt, 'uz-UZ', {
-                                            month: 'numeric'
-                                        })}</Td>
-                                        <Td>{formatDateTime(item.updatedAt, 'uz-Uz', {
-                                            month: 'numeric'
-                                        })}</Td>
-                                        <Td textAlign="right">
+            {tableLoading ? (
+                <Flex justify="center" py="50px">
+                    <Spinner size="xl" />
+                </Flex>
+            ) : managers.length === 0 ? (
+                <Flex
+                    justify="center"
+                    align="center"
+                    direction="column"
+                    py="80px"
+                    borderWidth="1px"
+                    borderRadius="lg"
+                >
+                    <Text fontSize="lg" fontWeight="semibold" color="gray.500">
+                        Ma'lumot yo‘q
+                    </Text>
+                    <Text fontSize="sm" color="gray.400">
+                        Hozircha brokerlar mavjud emas
+                    </Text>
+                </Flex>
+            ) : (
+                <TableContainer borderWidth="1px" borderRadius="lg" boxShadow="md">
+                    <Table variant="simple">
+                        <Thead>
+                            <Tr>
+                                <Th>#</Th>
+                                <Th>To'liq ism</Th>
+                                <Th>Username</Th>
+                                <Th>Yaratilgan sana</Th>
+                                <Th>Login</Th>
+                                <Th></Th>
+                            </Tr>
+                        </Thead>
+
+                        <Tbody>
+                            {managers.map((item, index) => (
+                                <Tr key={item.id}>
+                                    <Td>{index + 1}</Td>
+                                    <Td>{item.full_name}</Td>
+                                    <Td>
+                                        <CopyUsername username={item.username} />
+                                    </Td>
+                                    <Td>
+                                        {formatDateTime(item.createdAt, "uz-UZ", {
+                                            month: "numeric",
+                                        })}
+                                    </Td>
+                                    <Td>
+                                        <LoginPermissionSwitch userId={item.id} initialValue={item.is_login} />
+                                    </Td>
+                                    <Td>
+                                        <Flex gap="10px">
                                             <Button
                                                 size="sm"
-                                                mr={3}
                                                 colorScheme="blue"
                                                 variant="ghost"
-                                                onClick={() => {
-                                                    handleClick(item)
-                                                }}
+                                                onClick={() => handleClick(item)}
                                             >
-                                                Edit
+                                                              <PencilLine size={18} />
+
                                             </Button>
                                             <Button
                                                 size="sm"
@@ -191,21 +204,17 @@ export default function SPoperators() {
                                                     confirmModal.onOpen();
                                                 }}
                                             >
-                                                Delete
-                                            </Button>
-                                        </Td>
-                                    </Tr>
-                                ))}
-                            </Tbody>
-                        </Table>
-                    </TableContainer>
+                                                                <Trash size={18} />
 
-                ) : (
-                    <Box textAlign="center" py={6} color="gray.500">
-                        No managers found
-                    </Box>
-                )}
-            </Box>
+                                            </Button>
+                                        </Flex>
+                                    </Td>
+                                </Tr>
+                            ))}
+                        </Tbody>
+                    </Table>
+                </TableContainer>
+            )}
             {/* MODAL */}
             <OperatorModal isOpen={formModal.isOpen} onClose={formModal.onClose} reload={fetchManagers} initialData={editingManager} />
             <ConfirmDelModal isOpen={confirmModal.isOpen} onClose={confirmModal.onClose} itemName={deletingManger?.full_name} typeItem={"Manager"} loading={delLoading} onConfirm={() => deleteManager(deletingManger?.id)} />

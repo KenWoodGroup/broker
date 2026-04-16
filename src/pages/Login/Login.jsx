@@ -92,6 +92,10 @@ export default function Login() {
                     navigate('/supplier');
                     toastService.success("Successfully")
                 }
+                else if (role === "lot_creator") {
+                    navigate('/lotcreator');
+                    toastService.success("Successfully")
+                }
                 else {
                     toastService.error("Role mos kelmadi")
                 }

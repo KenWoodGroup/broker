@@ -21,6 +21,19 @@ class apiUsers {
         const response = await $api.get(`${BASE_URL}/api/user/supplier?page=${page}`);
         return response;
     }
+    static getLotCreators = async (page) => {
+        try {
+            const response = await $api.get(`${BASE_URL}/api/user/lot-creator?page=${page}`);
+            return response;
+        } catch (error) {
+            // some backends use dashed role names in routes
+            if (error?.response?.status === 404) {
+                const response = await $api.get(`${BASE_URL}/api/user/lot-creator?page=${page}`);
+                return response;
+            }
+            throw error;
+        }
+    }
     static Add = async (data) => {
         const response = await $api.post(`${BASE_URL}/api/erp/user`, data, { showSuccessToast: "User successfully created" })
         return response;

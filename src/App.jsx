@@ -23,6 +23,8 @@ import TasksLayout from './layouts/TasksLayout'
 import supplierTaskPrice from './utils/routes/supplierTaskPrice'
 import TaskReorderLayout from './layouts/TaskReorderLayout'
 import supplierTaskReorder from './utils/routes/supplierTaskReorder'
+import LotCreatorLayout from './layouts/LotCreatorLayout'
+import lotCreatorRoutes from './utils/routes/lotCreatorRoutes'
 
 
 function App() {
@@ -106,6 +108,15 @@ function App() {
         <Route element={<RequireAuth role={"operator"} />}>
           <Route path='/call-operator' element={<CallOperatorLayout />}>
             {CallOperRoutes.map((r) => {
+              return (
+                <Route key={r.name} path={r.path} element={r.element} />
+              )
+            })}
+          </Route>
+        </Route>
+        <Route element={<RequireAuth role={"LotCreator"} />}>
+          <Route path='/lotcreator' element={<LotCreatorLayout />}>
+            {lotCreatorRoutes.map((r) => {
               return (
                 <Route key={r.name} path={r.path} element={r.element} />
               )

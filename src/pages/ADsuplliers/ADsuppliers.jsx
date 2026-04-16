@@ -22,6 +22,7 @@ import DeleteOperator from "./__components/DeleteOperator"
 import EditOperators from "./__components/EditOperators"
 import { ArrowLeft } from "lucide-react"
 import { useNavigate } from "react-router"
+import LoginPermissionSwitch from "../ClcompanyDetail/__components/LoginPermissionSwitch"
 
 export default function ADsuppliers() {
     const navigate = useNavigate()
@@ -97,6 +98,7 @@ export default function ADsuppliers() {
                                     <Th>To'liq ism</Th>
                                     <Th>Username</Th>
                                     <Th>Yaratilgan sana</Th>
+                                    <Th>Login</Th>
                                     <Th></Th>
                                 </Tr>
                             </Thead>
@@ -111,6 +113,9 @@ export default function ADsuppliers() {
 
                                         <Td>
                                             {new Date(item.createdAt).toLocaleDateString()}
+                                        </Td>
+                                        <Td>
+                                            <LoginPermissionSwitch userId={item.id} initialValue={item.is_login} />
                                         </Td>
                                         <Td>
                                             <Flex gap="10px">
