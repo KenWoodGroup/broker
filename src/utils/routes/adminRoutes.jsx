@@ -4,6 +4,7 @@ import ADfactories from "../../pages/ADfactories/ADfactories";
 import ADfactoriesBycategory from "../../pages/ADfactoriesBycategory/ADfactoriesBycategory";
 import ADcompany from "../../pages/BRcompany/BRcompany";
 import ADOperators from "../../pages/ADOperators/ADOperators";
+import ADLotCreators from "../../pages/ADLotCreators/ADLotCreators";
 import Clcompany from "../../pages/CLcompany/Clcompany";
 import OptionsPage from "../../pages/ADoptions/ADoptions";
 import ClcompanyDetail from "../../pages/ClcompanyDetail/ClcompanyDetail";
@@ -14,6 +15,7 @@ import RolesPage from "../../pages/ADworkers/ADworkers";
 import ADsuppliers from "../../pages/ADsuplliers/ADsuppliers";
 import LeadFactory from "../../pages/LeadFactory";
 import ADtasks from "../../pages/ADtasks/ADtasks";
+import ADCustomers from "../../pages/ADCustomers/ADCustomers.jsx";
 
 const adminRoutes = [
     {
@@ -47,6 +49,11 @@ const adminRoutes = [
         element: <Clcompany role={'Admin'} />
     },
     {
+        path: "customers",
+        name: "customers",
+        element: <ADCustomers />,
+    },
+    {
         path: '/company-detail/:id',
         name: 'companies detail',
         element: <ClcompanyDetail role={'Admin'} />
@@ -70,6 +77,11 @@ const adminRoutes = [
         name:'ad suppliers',
         path:'roles/suppliers',
         element:<ADsuppliers/>
+    },
+    {
+        name: "lot creators",
+        path: "roles/lot_creator",
+        element: <ADLotCreators />,
     },
     {
         name:'roles',

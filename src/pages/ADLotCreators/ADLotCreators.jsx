@@ -13,61 +13,60 @@ import {
     Text,
     Spinner,
     HStack,
-    IconButton
-} from "@chakra-ui/react"
-import CreateOperators from "./__components/CreateOperators"
-import { apiUsers } from "../../utils/Controllers/Users"
-import { useEffect, useState } from "react"
-import DeleteOperator from "./__components/DeleteOperator"
-import EditOperators from "./__components/EditOperators"
-import { ArrowLeft } from "lucide-react"
-import { useNavigate } from "react-router"
-import LoginPermissionSwitch from "../ClcompanyDetail/__components/LoginPermissionSwitch"
+    IconButton,
+} from "@chakra-ui/react";
+import { useEffect, useState } from "react";
+import { ArrowLeft } from "lucide-react";
+import { useNavigate } from "react-router";
+import { apiUsers } from "../../utils/Controllers/Users";
+import CreateLotCreator from "./__components/CreateLotCreator";
+import DeleteLotCreator from "./__components/DeleteLotCreator";
+import EditLotCreator from "./__components/EditLotCreator";
+import LoginPermissionSwitch from "../ClcompanyDetail/__components/LoginPermissionSwitch";
 
-export default function ADOperators() {
-    const navigate = useNavigate()
-    const [operators, setOperators] = useState([])
-    const [pagination, setPagination] = useState(null)
-    const [page, setPage] = useState(1)
-    const [loading, setLoading] = useState(false)
+export default function ADLotCreators() {
+    const navigate = useNavigate();
 
-    const getAllOperators = async (pageNumber = 1) => {
+    const [users, setUsers] = useState([]);
+    const [pagination, setPagination] = useState(null);
+    const [page, setPage] = useState(1);
+    const [loading, setLoading] = useState(false);
+
+    const getAll = async (pageNumber = 1) => {
         try {
-            setLoading(true)
-            const response = await apiUsers.getOperator(pageNumber)
-
-            setOperators(response.data.data?.records)
-            setPagination(response.data.data?.pagination)
+            setLoading(true);
+            const response = await apiUsers.getLotCreators(pageNumber);
+            setUsers(response.data.data?.records || []);
+            setPagination(response.data.data?.pagination || null);
         } finally {
-            setLoading(false)
+            setLoading(false);
         }
-    }
+    };
 
     useEffect(() => {
-        getAllOperators(page)
-    }, [page])
+        getAll(page);
+    }, [page]);
+
     return (
         <Box py="20px" pr="20px">
             <Flex justifyContent="space-between" mb="20px">
                 <HStack>
                     <IconButton
                         variant="ghost"
-                        aria-label="Back to factories"
+                        aria-label="Back to roles"
                         icon={<ArrowLeft size={18} />}
-                        onClick={() => {
-                            navigate(-1)
-                        }}
+                        onClick={() => navigate(-1)}
                     />
-                    <Heading size="lg">Operatorlar</Heading>
+                    <Heading size="lg">Lot yaratuvchilar</Heading>
                 </HStack>
-                <CreateOperators refresh={() => getAllOperators(page)} />
+                <CreateLotCreator refresh={() => getAll(page)} />
             </Flex>
 
             {loading ? (
                 <Flex justify="center" py="50px">
                     <Spinner size="xl" />
                 </Flex>
-            ) : operators?.length === 0 ? (
+            ) : users?.length === 0 ? (
                 <Flex
                     justify="center"
                     align="center"
@@ -80,16 +79,12 @@ export default function ADOperators() {
                         Ma'lumot yo‘q
                     </Text>
                     <Text fontSize="sm" color="gray.400">
-                        Hozircha operatorlar mavjud emas
+                        Hozircha lot creatorlar mavjud emas
                     </Text>
                 </Flex>
             ) : (
                 <>
-                    <TableContainer
-                        borderWidth="1px"
-                        borderRadius="lg"
-                        boxShadow="md"
-                    >
+                    <TableContainer borderWidth="1px" borderRadius="lg" boxShadow="md">
                         <Table variant="simple">
                             <Thead>
                                 <Tr>
@@ -102,27 +97,19 @@ export default function ADOperators() {
                                 </Tr>
                             </Thead>
                             <Tbody>
-                                {operators.map((item, index) => (
+                                {users.map((item, index) => (
                                     <Tr key={item.id}>
-                                        <Td>
-                                            {(page - 1) * 10 + index + 1}
-                                        </Td>
+                                        <Td>{(page - 1) * 10 + index + 1}</Td>
                                         <Td>{item.full_name}</Td>
                                         <Td>{item.username}</Td>
-
-                                        <Td>
-                                            {new Date(item.createdAt).toLocaleDateString()}
-                                        </Td>
+                                        <Td>{new Date(item.createdAt).toLocaleDateString()}</Td>
                                         <Td>
                                             <LoginPermissionSwitch userId={item.id} initialValue={item.is_login} />
                                         </Td>
                                         <Td>
                                             <Flex gap="10px">
-                                                <DeleteOperator
-                                                    id={item?.id}
-                                                    refresh={() => getAllOperators(page)}
-                                                />
-                                                <EditOperators data={item} refresh={() => getAllOperators(page)} />
+                                                <DeleteLotCreator id={item?.id} refresh={() => getAll(page)} />
+                                                <EditLotCreator data={item} refresh={() => getAll(page)} />
                                             </Flex>
                                         </Td>
                                     </Tr>
@@ -132,21 +119,11 @@ export default function ADOperators() {
                     </TableContainer>
 
                     {pagination && (
-                        <Flex
-                            mt="20px"
-                            justifyContent="space-between"
-                            alignItems="center"
-                        >
-                            <Text fontSize="sm">
-                                Jami: {pagination.total_count}
-                            </Text>
+                        <Flex mt="20px" justifyContent="space-between" alignItems="center">
+                            <Text fontSize="sm">Jami: {pagination.total_count}</Text>
 
                             <HStack>
-                                <Button
-                                    size="sm"
-                                    onClick={() => setPage((prev) => prev - 1)}
-                                    isDisabled={page === 1}
-                                >
+                                <Button size="sm" onClick={() => setPage((prev) => prev - 1)} isDisabled={page === 1}>
                                     Oldingi
                                 </Button>
 
@@ -166,7 +143,7 @@ export default function ADOperators() {
                     )}
                 </>
             )}
-
         </Box>
-    )
+    );
 }
+

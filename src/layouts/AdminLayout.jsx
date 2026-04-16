@@ -12,6 +12,7 @@ const links = [
     { label: "T-zavodlar", to: "/lead-factory", icon: Factory },
     { label: "Zavodlar", to: "/factories", icon: Factory },
     { label: "Qurilish kompaniyalar", to: "/companies", icon: Building2 },
+    { label: "Buyurtmachilar", to: "/customers", icon: Building2 },
     { label: "Vazifalar", to: "/tasks", icon: ClipboardPen },
     { label: "Opsiyalar", to: "/options", icon: Settings2 },
     // { label: "Mahsulotlar", to: "/products", icon: Boxes },

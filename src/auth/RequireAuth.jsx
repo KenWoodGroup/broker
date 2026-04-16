@@ -14,6 +14,8 @@ export default function RequireAuth({role}) {
                 return "Broker";
             case "admin" :
                 return "Admin"
+            case "lot_creator":
+                return "LotCreator"
             case "operator" :
                 return "operator"
             case "supplier" :
