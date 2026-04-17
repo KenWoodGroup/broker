@@ -28,13 +28,16 @@ import {
     useToast,
 } from "@chakra-ui/react";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { Plus } from "lucide-react";
 import { apiLots } from "../../../utils/Controllers/Lots";
 import { apiLotLocations } from "../../../utils/Controllers/LotLocations";
 import CreateCustomerModal from "./CreateCustomerModal";
+import CreateBuilderModal from "./CreateBuilderModal";
 
 export default function CreateLotModal({ isOpen, onClose, onCreated, typeOptions = [], categoryOptions = [] }) {
     const toast = useToast();
     const createCustomer = useDisclosure();
+    const createBuilder = useDisclosure();
 
     const [saving, setSaving] = useState(false);
     const [form, setForm] = useState({
@@ -505,13 +508,26 @@ export default function CreateLotModal({ isOpen, onClose, onCreated, typeOptions
                                             </Button>
                                         </Flex>
                                     ) : (
-                                        <Input
-                                            value={builderQuery}
-                                            onChange={(e) => setBuilderQuery(e.target.value)}
-                                            placeholder="Quruvchi izlash..."
-                                            bg="surface"
-                                            mb="10px"
-                                        />
+                                        <HStack mb="10px" align="start">
+                                            <Input
+                                                value={builderQuery}
+                                                onChange={(e) => setBuilderQuery(e.target.value)}
+                                                placeholder="Quruvchi izlash..."
+                                                bg="surface"
+                                            />
+                                            <Button
+                                                display="flex"
+                                                alignItems="center"
+                                                justifyContent="center"
+                                                onClick={createBuilder.onOpen}
+                                                flexShrink={0}
+                                                minW="44px"
+                                                px={0}
+                                                aria-label="Company yaratish"
+                                            >
+                                                <Plus size="20px" />
+                                            </Button>
+                                        </HStack>
                                     )}
 
                                     {!form.builder_id && builderLoading ? (
@@ -572,6 +588,16 @@ export default function CreateLotModal({ isOpen, onClose, onCreated, typeOptions
                 onCreated={(created) => {
                     if (!created) return;
                     onPickCustomer(created);
+                }}
+            />
+
+            <CreateBuilderModal
+                isOpen={createBuilder.isOpen}
+                onClose={createBuilder.onClose}
+                initialName={builderQuery}
+                onCreated={(created) => {
+                    if (!created) return;
+                    onPickBuilder(created);
                 }}
             />
         </>

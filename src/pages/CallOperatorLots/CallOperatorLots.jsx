@@ -1,37 +1,28 @@
 import {
     Badge,
     Box,
-    Button,
     Flex,
     Grid,
     Heading,
-    IconButton,
     Input,
     InputGroup,
     InputRightElement,
     Select,
     Spinner,
     Text,
-    useColorModeValue,
-    useDisclosure,
+    IconButton,
     HStack,
     VStack,
+    useColorModeValue,
 } from "@chakra-ui/react";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { apiLots } from "../../utils/Controllers/Lots";
-import CreateLotModal from "./_components/CreateLotModal";
-import EditLotModal from "./_components/EditLotModal";
-import DeleteLotModal from "./_components/DeleteLotModal";
-import { PencilLine, Search, Trash2, X } from "lucide-react";
+import { Search, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { apiLots } from "../../utils/Controllers/Lots";
 
-export default function LotCreatorLots() {
+export default function CallOperatorLots() {
     const navigate = useNavigate();
-    const createLotModal = useDisclosure();
-    const editLotModal = useDisclosure();
-    const deleteLotModal = useDisclosure();
-    const [activeLotId, setActiveLotId] = useState(null);
-    const [activeLot, setActiveLot] = useState(null);
+
     const TYPE_OPTIONS = useMemo(
         () => [
             "Mukamal qurilish",
@@ -63,7 +54,6 @@ export default function LotCreatorLots() {
     const requestSeq = useRef(0);
 
     const extractList = (res) => {
-        // backend can be: {data:{data:{records, pagination}}} or {data:{records, pagination}} or array
         const data = res?.data;
         const records = data?.data?.records ?? data?.records ?? data?.data ?? data;
         const pag = data?.data?.pagination ?? data?.pagination ?? null;
@@ -73,15 +63,15 @@ export default function LotCreatorLots() {
         };
     };
 
-    const fetchLots = async (next = {}) => {
+    const fetchLots = async () => {
         const seq = ++requestSeq.current;
         try {
             setLoading(true);
             const params = {
-                type: next.type ?? filters.type ?? undefined,
-                category: next.category ?? filters.category ?? undefined,
-                searchName: (next.searchName ?? filters.searchName)?.trim() || undefined,
-                page: next.page ?? filters.page ?? 1,
+                type: filters.type || undefined,
+                category: filters.category || undefined,
+                searchName: filters.searchName?.trim() || undefined,
+                page: filters.page || 1,
             };
             const res = await apiLots.filter(params);
             if (seq === requestSeq.current) {
@@ -94,33 +84,15 @@ export default function LotCreatorLots() {
         }
     };
 
-    const fetchFiltered = async (nextFilters) => {
-        const seq = ++requestSeq.current;
-        try {
-            setLoading(true);
-            const res = await apiLots.filter(nextFilters);
-            if (seq === requestSeq.current) {
-                const list = extractList(res);
-                setLots(list.records);
-                setPagination(list.pagination);
-            }
-        } finally {
-            if (seq === requestSeq.current) setLoading(false);
-        }
-    };
-
     useEffect(() => {
-        fetchLots({ page: 1 });
+        fetchLots();
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
-    // Auto-fetch on filter change (debounced for searchName)
     useEffect(() => {
         const t = setTimeout(() => {
-            // always use filter endpoint
             fetchLots();
         }, 350);
-
         return () => clearTimeout(t);
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [filters.type, filters.category, filters.searchName, filters.page]);
@@ -152,10 +124,6 @@ export default function LotCreatorLots() {
                         Lotlar
                     </Heading>
                 </Box>
-
-                <Button variant="solidPrimary" onClick={createLotModal.onOpen}>
-                    + Yaratish
-                </Button>
             </Flex>
 
             <Flex gap={3} mb="20px" flexWrap="wrap" align="center">
@@ -219,7 +187,7 @@ export default function LotCreatorLots() {
                     ))}
                 </Select>
 
-                <Box px={3} py="7px" bg={countBg} borderRadius="full" >
+                <Box px={3} py="7px" bg={countBg} borderRadius="full" ml={{ base: 0, md: "auto" }}>
                     {loading ? (
                         <Flex align="center" gap={2}>
                             <Spinner size="xs" color="blue.500" />
@@ -235,7 +203,6 @@ export default function LotCreatorLots() {
                 </Box>
             </Flex>
 
-            {/* LIST */}
             <Box>
                 {loading ? (
                     <Flex justify="center" py="50px">
@@ -276,7 +243,7 @@ export default function LotCreatorLots() {
                                     cursor="pointer"
                                     onClick={() => {
                                         if (!lot?.id) return;
-                                        navigate(`/lotcreator/lots/${lot.id}`);
+                                        navigate(`/call-operator/lots/${lot.id}`);
                                     }}
                                 >
                                     <Flex justify="space-between" align="start" gap="10px">
@@ -291,30 +258,6 @@ export default function LotCreatorLots() {
                                                 </Text>
                                             </Text>
                                         </Box>
-                                        <Flex gap="6px" onClick={(e) => e.stopPropagation()}>
-                                            <IconButton
-                                                size="sm"
-                                                aria-label="Edit lot"
-                                                variant="ghost"
-                                                colorScheme="blue"
-                                                icon={<PencilLine size={18} />}
-                                                onClick={() => {
-                                                    setActiveLotId(lot?.id);
-                                                    editLotModal.onOpen();
-                                                }}
-                                            />
-                                            <IconButton
-                                                size="sm"
-                                                aria-label="Delete lot"
-                                                variant="ghost"
-                                                colorScheme="red"
-                                                icon={<Trash2 size={18} />}
-                                                onClick={() => {
-                                                    setActiveLot(lot);
-                                                    deleteLotModal.onOpen();
-                                                }}
-                                            />
-                                        </Flex>
                                     </Flex>
 
                                     <VStack align="stretch" spacing="6px" mt="10px">
@@ -365,76 +308,52 @@ export default function LotCreatorLots() {
                 )}
             </Box>
 
-            {/* PAGINATION (bottom) */}
             {pagination ? (
                 <Flex mt="16px" justify="space-between" align="center" flexWrap="wrap" gap="10px">
                     <Text fontSize="sm" color="textSub">
                         Sahifa: {pagination.currentPage ?? 1} / {pagination.total_pages ?? 1}
                     </Text>
                     <HStack>
-                        <Button
-                            size="sm"
+                        <Box
+                            as="button"
+                            disabled={(pagination.currentPage ?? 1) <= 1 || loading}
                             onClick={() => {
                                 const prev = (pagination.currentPage ?? 1) - 1;
                                 if (prev < 1) return;
                                 setFilters((p) => ({ ...p, page: prev }));
                             }}
-                            isDisabled={(pagination.currentPage ?? 1) <= 1 || loading}
+                            style={{
+                                padding: "8px 12px",
+                                borderRadius: "10px",
+                                border: "1px solid var(--chakra-colors-border)",
+                                opacity: (pagination.currentPage ?? 1) <= 1 || loading ? 0.5 : 1,
+                            }}
                         >
                             Oldingi
-                        </Button>
-                        <Button
-                            size="sm"
+                        </Box>
+                        <Box
+                            as="button"
+                            disabled={(pagination.currentPage ?? 1) >= (pagination.total_pages ?? 1) || loading}
                             onClick={() => {
                                 const curr = pagination.currentPage ?? 1;
                                 const total = pagination.total_pages ?? curr;
-                                const nextPage = curr + 1;
-                                if (nextPage > total) return;
-                                setFilters((p) => ({ ...p, page: nextPage }));
+                                const next = curr + 1;
+                                if (next > total) return;
+                                setFilters((p) => ({ ...p, page: next }));
                             }}
-                            isDisabled={(pagination.currentPage ?? 1) >= (pagination.total_pages ?? 1) || loading}
+                            style={{
+                                padding: "8px 12px",
+                                borderRadius: "10px",
+                                border: "1px solid var(--chakra-colors-border)",
+                                opacity:
+                                    (pagination.currentPage ?? 1) >= (pagination.total_pages ?? 1) || loading ? 0.5 : 1,
+                            }}
                         >
                             Keyingi
-                        </Button>
+                        </Box>
                     </HStack>
                 </Flex>
             ) : null}
-            <CreateLotModal
-                isOpen={createLotModal.isOpen}
-                onClose={createLotModal.onClose}
-                typeOptions={TYPE_OPTIONS}
-                categoryOptions={CATEGORY_OPTIONS}
-                onCreated={() => {
-                    fetchLots({ page: 1 });
-                }}
-            />
-
-            <EditLotModal
-                isOpen={editLotModal.isOpen}
-                onClose={() => {
-                    editLotModal.onClose();
-                    setActiveLotId(null);
-                }}
-                lotId={activeLotId}
-                typeOptions={TYPE_OPTIONS}
-                categoryOptions={CATEGORY_OPTIONS}
-                onUpdated={() => {
-                    fetchLots();
-                }}
-            />
-
-            <DeleteLotModal
-                isOpen={deleteLotModal.isOpen}
-                onClose={() => {
-                    deleteLotModal.onClose();
-                    setActiveLot(null);
-                }}
-                lot={activeLot}
-                onDeleted={() => {
-                    fetchLots();
-                }}
-            />
         </Box>
     );
 }
-

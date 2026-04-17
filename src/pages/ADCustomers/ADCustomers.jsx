@@ -12,6 +12,7 @@ import {
     useDisclosure,
 } from "@chakra-ui/react";
 import { useEffect, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { apiLotLocations } from "../../utils/Controllers/LotLocations";
 import CreateCustomerModal from "../LotCreatorLots/_components/CreateCustomerModal";
 import EditCustomerModal from "./_components/EditCustomerModal";
@@ -19,6 +20,7 @@ import DeleteCustomerModal from "./_components/DeleteCustomerModal";
 import { PencilLine, Trash2 } from "lucide-react";
 
 export default function ADCustomers() {
+    const navigate = useNavigate();
     const createModal = useDisclosure();
     const editModal = useDisclosure();
     const deleteModal = useDisclosure();
@@ -95,6 +97,7 @@ export default function ADCustomers() {
             >
                      <Box flex="1" minW={{ base: "100%", md: "280px" }}>
                     <Input
+                    w={400}
                         value={searchInput}
                         onChange={(e) => setSearchInput(e.target.value)}
                         placeholder="Buyurtmachi qidirish..."
@@ -140,6 +143,11 @@ export default function ADCustomers() {
                             p="14px"
                             _hover={{ borderColor: "blue.400", boxShadow: "md", transform: "translateY(-2px)" }}
                             transition="0.15s ease"
+                            cursor="pointer"
+                            onClick={() => {
+                                if (!c?.id) return;
+                                navigate(`/customers/${c.id}`);
+                            }}
                         >
                             <Flex justify="space-between" align="start" gap="10px">
                                 <Box>
@@ -154,7 +162,8 @@ export default function ADCustomers() {
                                         variant="ghost"
                                         colorScheme="blue"
                                         icon={<PencilLine size={18} />}
-                                        onClick={() => {
+                                        onClick={(e) => {
+                                            e.stopPropagation();
                                             setActiveCustomerId(c?.id);
                                             editModal.onOpen();
                                         }}
@@ -165,7 +174,8 @@ export default function ADCustomers() {
                                         variant="ghost"
                                         colorScheme="red"
                                         icon={<Trash2 size={18} />}
-                                        onClick={() => {
+                                        onClick={(e) => {
+                                            e.stopPropagation();
                                             setActiveCustomer(c);
                                             deleteModal.onOpen();
                                         }}

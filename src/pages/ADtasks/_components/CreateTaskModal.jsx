@@ -652,6 +652,9 @@ export default function CreateTaskModal({ isOpen, onClose, onCreated }) {
                                         value={dueDate}
                                         onChange={(e) => setDueDate(e.target.value)}
                                     />
+                                    <Text fontSize="xs" color="gray.500" mt={2}>
+                                        Vaqt zonasi: Toshkent (Asia/Tashkent)
+                                    </Text>
                                 </Box>
                             ) : null}
                         </Flex>

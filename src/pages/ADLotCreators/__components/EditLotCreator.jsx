@@ -97,10 +97,6 @@ export default function EditLotCreator({ data, refresh }) {
                                 <Input name="username" value={formData.username} onChange={handleChange} />
                             </FormControl>
 
-                            <FormControl>
-                                <FormLabel>Email</FormLabel>
-                                <Input type="email" name="email" value={formData.email} onChange={handleChange} />
-                            </FormControl>
                         </VStack>
                     </ModalBody>
 

@@ -16,6 +16,11 @@ class apiLotLocations {
         return response;
     };
 
+    static createCompany = async (data) => {
+        const response = await $api.post(`/locations`, data, { showSuccessToast: "Company created" });
+        return response;
+    };
+
     static pageByType = async ({ type, searchName = "all", page = 1 } = {}) => {
         const t = type || "customer";
         const s = (searchName ?? "all").toString().trim() || "all";
