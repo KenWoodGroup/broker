@@ -18,16 +18,7 @@ import {
     Badge,
 } from "@chakra-ui/react";
 import { Pencil, CalendarDays, Flag, CheckCircle2 } from "lucide-react";
-
-function toLocalInputValue(iso) {
-    if (!iso) return "";
-    const d = new Date(iso);
-    if (Number.isNaN(d.getTime())) return "";
-    const pad = (n) => String(n).padStart(2, "0");
-    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(
-        d.getHours()
-    )}:${pad(d.getMinutes())}`;
-}
+import { toTashkentDatetimeLocalValue } from "../../../utils/date/tashkent";
 
 export default function EditTaskModal({
     isOpen,
@@ -50,7 +41,7 @@ export default function EditTaskModal({
         return {
             status: String(t.status || "pending"),
             priority: String(t.priority || "normal"),
-            dueDate: toLocalInputValue(t.due_date || t.dueDate),
+            dueDate: toTashkentDatetimeLocalValue(t.due_date || t.dueDate),
         };
     }, [task]);
 
@@ -229,6 +220,9 @@ export default function EditTaskModal({
                                 onChange={(e) => setDueDate(e.target.value)}
                                 borderRadius="lg"
                             />
+                            <Text fontSize="xs" color="gray.500" mt={2}>
+                                Vaqt zonasi: Toshkent (Asia/Tashkent)
+                            </Text>
                             <Text fontSize="xs" color="gray.500" mt={2}>
                                 Bo‘sh qoldirsangiz, muddat o‘chiriladi.
                             </Text>

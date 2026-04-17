@@ -50,6 +50,7 @@ import { apiTasks } from "../../utils/Controllers/apiTasks";
 import CreateTaskModal from "./_components/CreateTaskModal";
 import EditTaskModal from "./_components/EditTaskModal";
 import ConfirmDelModal from "../../components/common/ConfirmDelModal";
+import { formatDateTimeTashkent } from "../../utils/date/tashkent";
 
 /** ADtasks — AllTasks.jsx dan mustaqil; faqat `apiTasks.getPage` ishlatiladi. */
 
@@ -72,16 +73,7 @@ function normalizeListResponse(res) {
 }
 
 function formatWhen(iso) {
-    if (!iso) return "—";
-    const d = new Date(iso);
-    if (Number.isNaN(d.getTime())) return String(iso);
-    return d.toLocaleString("uz-UZ", {
-        day: "2-digit",
-        month: "2-digit",
-        year: "numeric",
-        hour: "2-digit",
-        minute: "2-digit",
-    });
+    return formatDateTimeTashkent(iso);
 }
 
 const TASK_TYPE_UZ = {
@@ -737,9 +729,10 @@ export default function ADtasks() {
             </Flex>
 
             <HStack spacing={4} mb={4} flexWrap="wrap">
-                <Box minW="160px">
+                <Box minW="200px" flex="1 1 220px" maxW="260px">
                     <Select
-                        size="sm"
+                        size="md"
+                        borderRadius="8px"
                         value={status}
                         onChange={(e) => setStatus(e.target.value)}
                     >
@@ -750,9 +743,10 @@ export default function ADtasks() {
                         <option value="cancelled">Bekor qilindi</option>
                     </Select>
                 </Box>
-                <Box minW="160px">
+                <Box minW="200px" flex="1 1 220px" maxW="260px">
                     <Select
-                        size="sm"
+                        size="md"
+                        borderRadius="8px"
                         value={type}
                         onChange={(e) => setType(e.target.value)}
                     >
