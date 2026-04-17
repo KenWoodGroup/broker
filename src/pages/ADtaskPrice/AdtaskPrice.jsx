@@ -145,6 +145,7 @@ function AdtaskPrice({ status = "pending" }) {
   const [selectedTask, setSelectedTask] = useState(null);
   const [modalLoading, setModalLoading] = useState(false);
   const [completeLoading, setCompleteLoading] = useState(false);
+  const [totalCount, setTotalCount] = useState(0);
   const pageSize = 30;
 
   const fetchTask = async (page = 1) => {
@@ -164,6 +165,7 @@ function AdtaskPrice({ status = "pending" }) {
       );
       setTaskPrice(res?.data.data);
       const total = res?.data.total || res?.data.count || 0;
+      setTotalCount(total);
       setTotalPages(res?.data.totalPages || Math.ceil(total / pageSize));
     } finally {
       setLoading(false);
@@ -197,7 +199,7 @@ function AdtaskPrice({ status = "pending" }) {
       const warehouseId = selectedTask.details?.warehouse_id;
       const productName = selectedTask.details?.product_name;
       navigate(
-        `/supplier/factories/${factoryId}/warehouses/${warehouseId}?name=${productName}`,
+        `/supplier/factories/${factoryId}/warehouses/${warehouseId}?task_stock_id=${selectedTask?.details?.stock_id}`,
       );
       handleClose();
     } catch (err) {
