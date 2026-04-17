@@ -10,6 +10,7 @@ export default function FactoryNav({ role = 'admin' }) {
         { label: "Options", to: "/options", end: true },
         { label: "Clients", to: "/clients", end: true },
         { label: "Users", to: "/users", end: true },
+        { label: "Info", to: "/info", end: true },
     ].filter(item =>
         role === 'admin' || !['Options', 'Clients'].includes(item.label)
     );

@@ -27,6 +27,7 @@ import CreateCompany from "./__components/CreateCompany"
 import CreateCompanyByExcell from "./__components/CreateCompanyByExcell"
 import DeleteCompany from "./__components/DeleteCompany"
 import StatusEdit from "./__components/StatusEdit"
+import ContactPhone from "./__components/ContactPhone"
 
 const REGIONS = [
     { id: 2, name: "Andijon viloyati" },
@@ -316,6 +317,7 @@ export default function Clcompany({ role }) {
                                     <Th>Turi</Th>
                                     <Th>Manzil</Th>
                                     <Th>Status</Th>
+                                    <Th></Th>
                                     <Th>Telefon</Th>
                                     {isAdmin(role) && <Th>Balans</Th>}
                                     <Th>Yaratilgan</Th>
@@ -353,6 +355,14 @@ export default function Clcompany({ role }) {
                                         {/* Status column - edit available for everyone */}
                                         <Td onClick={(e) => e.stopPropagation()}>
                                             <StatusEdit
+                                                data={item}
+                                                refresh={refreshCurrent}
+                                            />
+                                        </Td>
+
+
+                                        <Td onClick={(e) => e.stopPropagation()}>
+                                            <ContactPhone
                                                 data={item}
                                                 refresh={refreshCurrent}
                                             />
