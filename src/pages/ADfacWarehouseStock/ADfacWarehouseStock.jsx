@@ -54,7 +54,7 @@ import { apiStock } from "../../utils/Controllers/apiStock";
 import { apiInvoices } from "../../utils/Controllers/apiInvoices";
 import { apiUsers } from "../../utils/Controllers/Users";
 import { toastService } from "../../utils/toast";
-import { EditIcon } from "lucide-react";
+import { Edit, Edit2, EditIcon } from "lucide-react";
 import SalePriceEditButton from "./components/SalePriceEditButton";
 import { PRICE_UPDATE_RULES } from "../../constants/priceFreshness";
 
@@ -87,7 +87,6 @@ const WarehouseStockPage = () => {
       .catch(console.error)
       .finally(() => setTaskStockLoading(false));
   }, [taskStockId]);
- 
 
   const {
     isOpen: isUploadOpen,
@@ -346,23 +345,26 @@ const WarehouseStockPage = () => {
     </Card>
   );
 
- 
   const renderTaskStockCard = (stock) => {
     if (!stock) return null;
     const daysAgo = getDaysDiff(stock?.updatedAt || stock?.createdAt);
+    console.log("taskStock sale_price_type:", taskStock?.sale_price_type);
+
     return (
       <Box
+        cursor={"pointer"}
         bg="#ed6b0e"
         borderRadius="8px"
         border="1px solid rgba(255,255,255,0.15)"
         px={6}
         py={2}
         mb={2}
+        position="relative"
+        role="group"
       >
         {/* Oxirgi yangilanish */}
         <Text fontSize="13px" color="rgba(255,255,255,0.6)" mb={4}>
-          Oxirgi yangilanish:{" "}
-          {formatDate(stock?.updatedAt || stock?.createdAt)}
+          Oxirgi yangilanish: {formatDate(stock?.updatedAt || stock?.createdAt)}
         </Text>
 
         <SimpleGrid columns={{ base: 1, md: 3 }} spacing={6}>
@@ -376,7 +378,12 @@ const WarehouseStockPage = () => {
             >
               MAHSULOT
             </Text>
-            <Text fontSize="17px" fontWeight="700" color="#fff" lineHeight="1.3">
+            <Text
+              fontSize="17px"
+              fontWeight="700"
+              color="#fff"
+              lineHeight="1.3"
+            >
               {stock?.product?.name || "—"}
             </Text>
             <Box
@@ -412,10 +419,15 @@ const WarehouseStockPage = () => {
             </Text>
             {stock?.sale_price_type && stock?.sale_price_type?.length > 0 ? (
               stock.sale_price_type.map((priceType) => (
-                <Text key={priceType?.id} fontSize="14px" color="#FFD166" fontWeight="600">
-                  {priceType?.price_type?.name}:{" "}
+                <Text
+                  key={priceType?.id}
+                  fontSize="14px"
+                  color="#FFD166"
+                  fontWeight="600"
+                >
+                  {priceType?.price_type?.name || "ulgurji"}:{""}
                   {parseFloat(priceType?.sale_price).toLocaleString()} (
-                  {getDaysDiff(priceType?.updatedAt)} kun oldin)
+                  {getDaysDiff(priceType?.updatedAt)} kun oldin)  
                 </Text>
               ))
             ) : (
@@ -445,6 +457,20 @@ const WarehouseStockPage = () => {
             )}
           </VStack>
         </SimpleGrid>
+        <Box
+          position="absolute"
+          top={4}
+          right={4}
+          opacity={0}
+          _groupHover={{ opacity: 1 }}
+          transition="opacity 0.2s"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <SalePriceEditButton
+            salePriceTypes={stock?.sale_price_type ?? []}
+            onSave={() => fetchStocks()}
+          />
+        </Box>
       </Box>
     );
   };
@@ -501,16 +527,10 @@ const WarehouseStockPage = () => {
       </Box>
 
       <Container maxW="container.xl" pt={6}>
-      
         {taskStockId && (
           <Box mb={2}>
             {taskStockLoading ? (
-              <Box
-                bg="#E8660A"
-                borderRadius="12px"
-                p={5}
-                mb={4}
-              >
+              <Box bg="#E8660A" borderRadius="12px" p={5} mb={4}>
                 <SkeletonText
                   noOfLines={3}
                   spacing={3}
@@ -749,7 +769,11 @@ const WarehouseStockPage = () => {
                     <CardBody>
                       <SimpleGrid columns={2} spacing={4}>
                         <VStack>
-                          <Text fontSize="3xl" fontWeight="bold" color="green.600">
+                          <Text
+                            fontSize="3xl"
+                            fontWeight="bold"
+                            color="green.600"
+                          >
                             {uploadResult?.summary?.created}
                           </Text>
                           <Text fontSize="sm" color="gray.600">
@@ -757,7 +781,11 @@ const WarehouseStockPage = () => {
                           </Text>
                         </VStack>
                         <VStack>
-                          <Text fontSize="3xl" fontWeight="bold" color="orange.500">
+                          <Text
+                            fontSize="3xl"
+                            fontWeight="bold"
+                            color="orange.500"
+                          >
                             {uploadResult?.summary?.skipped}
                           </Text>
                           <Text fontSize="sm" color="gray.600">
