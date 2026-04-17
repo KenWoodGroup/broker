@@ -41,6 +41,10 @@ class apiLocations {
         const response = await $api.post(`${BASE_URL}/api/erp/locations/upload-client/${facId}`, file, { showSuccessToast: `Clients successfully created` })
         return response;
     }
+    static PhoneStatusEdit = async (id, data) => {
+        const response = await $api.put(`${BASE_URL}/api/locations/contacted/${id}`, data, { showSuccessToast: `Phone status successfully updated` })
+        return response;
+    }
     static AddWeb = async (data) => {
         const response = await $api.post(`${BASE_URL}/api/locations/web`, data, { showSuccessToast: `successfully created` })
         return response;
