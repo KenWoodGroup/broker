@@ -43,14 +43,7 @@ const CreateCategoryButton = ({ onReload }) => {
 
     return (
         <>
-            <Button
-                variant="solidPrimary"
-                display="flex"
-                alignItems="center"
-                gap="3px"
-                onClick={onOpen}
-            >
-                <Plus size="22px" />
+            <Button colorScheme="blue" leftIcon={<Plus size={18} />} onClick={onOpen}>
                 Category
             </Button>
 
@@ -69,12 +62,7 @@ const CreateCategoryButton = ({ onReload }) => {
                     </ModalBody>
 
                     <ModalFooter>
-                        <Button
-                            _hover={{ bg: "secondary" }}
-                            variant="solidPrimary"
-                            onClick={handleCreate}
-                            isLoading={loading}
-                        >
+                        <Button colorScheme="blue" onClick={handleCreate} isLoading={loading}>
                             Create
                         </Button>
                     </ModalFooter>

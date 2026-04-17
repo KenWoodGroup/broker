@@ -30,8 +30,6 @@ import {
     MenuItem,
 } from "@chakra-ui/react";
 import {
-    ChevronLeft,
-    ChevronRight,
     ClipboardList,
     Calendar,
     Flag,
@@ -51,6 +49,7 @@ import CreateTaskModal from "./_components/CreateTaskModal";
 import EditTaskModal from "./_components/EditTaskModal";
 import ConfirmDelModal from "../../components/common/ConfirmDelModal";
 import { formatDateTimeTashkent } from "../../utils/date/tashkent";
+import PaginationBar from "../../components/common/PaginationBar";
 
 /** ADtasks — AllTasks.jsx dan mustaqil; faqat `apiTasks.getPage` ishlatiladi. */
 
@@ -704,13 +703,9 @@ export default function ADtasks() {
     }, [status, type, limit]);
 
     const totalPages = Math.max(1, Number(pagination.totalPages) || 1);
-    const canPrev = page > 1;
-    const canNext = page < totalPages;
-    const countBg = useColorModeValue("blue.50", "whiteAlpha.100");
-    const countText = useColorModeValue("blue.700", "blue.100");
 
     return (
-        <Box p={6}>
+        <Box pr="20px" pb="20px" pt="20px">
             <Flex justify="space-between" align="center" mb={4} gap={4} wrap="wrap">
                 <HStack spacing={3} flexWrap="wrap">
                     <Heading size="lg">Barcha vazifalar</Heading>
@@ -728,56 +723,53 @@ export default function ADtasks() {
                 </Button>
             </Flex>
 
-            <HStack spacing={4} mb={4} flexWrap="wrap">
-                <Box minW="200px" flex="1 1 220px" maxW="260px">
-                    <Select
-                        size="md"
-                        borderRadius="8px"
-                        value={status}
-                        onChange={(e) => setStatus(e.target.value)}
+            <Flex mb="14px" align="center" gap={3} flexWrap="wrap">
+                <Select
+                    size="md"
+                    maxW="220px"
+                    value={status}
+                    onChange={(e) => setStatus(e.target.value)}
+                >
+                    <option value="all">Barchasi</option>
+                    <option value="pending">Kutilmoqda</option>
+                    <option value="in_progress">Bajarilmoqda</option>
+                    <option value="completed">Bajarildi</option>
+                    <option value="cancelled">Bekor qilindi</option>
+                </Select>
+
+                <Box w="1px" h="36px" bg="gray.200" flexShrink={0} />
+
+                <Select
+                    size="md"
+                    maxW="220px"
+                    value={type}
+                    onChange={(e) => setType(e.target.value)}
+                >
+                    <option value="all">Barchasi</option>
+                    <option value="price_update">Narx yangilash</option>
+                    <option value="reorder">Qayta buyurtma</option>
+                </Select>
+
+                <Flex align="center" gap={2}>
+                    <Badge
+                        colorScheme="blue"
+                        px={3}
+                        py={1}
+                        borderRadius="full"
+                        fontSize="sm"
+                        fontWeight="semibold"
                     >
-                        <option value="all">Barchasi</option>
-                        <option value="pending">Kutilmoqda</option>
-                        <option value="in_progress">Bajarilmoqda</option>
-                        <option value="completed">Bajarildi</option>
-                        <option value="cancelled">Bekor qilindi</option>
-                    </Select>
-                </Box>
-                <Box minW="200px" flex="1 1 220px" maxW="260px">
-                    <Select
-                        size="md"
-                        borderRadius="8px"
-                        value={type}
-                        onChange={(e) => setType(e.target.value)}
-                    >
-                        <option value="all">Barchasi</option>
-                        <option value="price_update">Narx yangilash</option>
-                        <option value="reorder">Qayta buyurtma</option>
-                    </Select>
-                </Box>
-                    <Box px={3} py="7px" bg={countBg} borderRadius="full">
                         {loading ? (
-                            <Flex align="center" gap={2}>
-                                <Spinner size="xs" color="blue.500" />
-                                <Text
-                                    fontSize="12px"
-                                    color={countText}
-                                    fontWeight="700"
-                                >
-                                    Yuklanmoqda
-                                </Text>
+                            <Flex align="center" gap={1}>
+                                <Spinner size="xs" />{" "}
+                                <span>Yuklanmoqda...</span>
                             </Flex>
                         ) : (
-                            <Text
-                                fontSize="12px"
-                                color={countText}
-                                fontWeight="700"
-                            >
-                                JAMI: {total} TA
-                            </Text>
+                            `Jami: ${total} ta vazifa`
                         )}
-                    </Box>
-            </HStack>
+                    </Badge>
+                </Flex>
+            </Flex>
 
             {loading ? (
                 <Center py={16}>
@@ -805,32 +797,12 @@ export default function ADtasks() {
                 </SimpleGrid>
             )}
 
-            <HStack justify="space-between" mt={4} flexWrap="wrap" gap={2}>
-                <Text fontSize="sm" color="gray.600">
-                    Sahifa {page} / {totalPages}
-                   
-                </Text>
-                <HStack>
-                    <Button
-                        size="sm"
-                        leftIcon={<ChevronLeft size={16} />}
-                        isDisabled={!canPrev || loading}
-                        onClick={() => setPage((p) => Math.max(1, p - 1))}
-                    >
-                        Oldingi
-                    </Button>
-                    <Button
-                        size="sm"
-                        rightIcon={<ChevronRight size={16} />}
-                        isDisabled={!canNext || loading}
-                        onClick={() =>
-                            setPage((p) => Math.min(totalPages, p + 1))
-                        }
-                    >
-                        Keyingi
-                    </Button>
-                </HStack>
-            </HStack>
+            <PaginationBar
+                page={page}
+                totalPages={totalPages}
+                loading={loading}
+                onPageChange={(p) => setPage(p)}
+            />
 
             <CreateTaskModal
                 isOpen={isCreateOpen}

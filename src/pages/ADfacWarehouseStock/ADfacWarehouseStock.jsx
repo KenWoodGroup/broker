@@ -57,6 +57,7 @@ import { toastService } from "../../utils/toast";
 import { Edit, Edit2, EditIcon } from "lucide-react";
 import SalePriceEditButton from "./components/SalePriceEditButton";
 import { PRICE_UPDATE_RULES } from "../../constants/priceFreshness";
+import PaginationBar from "../../components/common/PaginationBar";
 
 const WarehouseStockPage = () => {
   const temporarelyFreshness = PRICE_UPDATE_RULES.medium;
@@ -589,28 +590,14 @@ const WarehouseStockPage = () => {
               {stocks.map((stock) => renderStockCard(stock))}
             </VStack>
 
-            {pagination && pagination.total_pages > 1 && (
-              <HStack justify="center" mt={8}>
-                <Button
-                  size="sm"
-                  onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-                  isDisabled={currentPage === 1}
-                  leftIcon={<ChevronLeftIcon />}
-                >
-                  Oldingi
-                </Button>
-                <Text fontSize="sm" color="text" px={4}>
-                  {currentPage} / {pagination.total_pages}
-                </Text>
-                <Button
-                  size="sm"
-                  onClick={() => setCurrentPage((p) => p + 1)}
-                  isDisabled={currentPage >= pagination.total_pages}
-                  rightIcon={<ChevronRightIcon />}
-                >
-                  Keyingi
-                </Button>
-              </HStack>
+            {pagination && (
+              <PaginationBar
+                mt={8}
+                page={currentPage}
+                totalPages={pagination.total_pages ?? 1}
+                loading={loading}
+                onPageChange={(p) => setCurrentPage(p)}
+              />
             )}
           </>
         )}

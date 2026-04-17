@@ -26,7 +26,7 @@ import ResetPassModal from "../../components/common/ResetPassModal";
 import OperatorModal from "./_components/OperatorModal";
 import { apiUsers } from "../../utils/Controllers/Users";
 import { useNavigate } from "react-router";
-import { ArrowLeft, PencilLine, Trash } from "lucide-react";
+import { ArrowLeft, PencilLine, Plus, Trash } from "lucide-react";
 import LoginPermissionSwitch from "../ClcompanyDetail/__components/LoginPermissionSwitch";
 
 export default function SPoperators() {
@@ -124,13 +124,14 @@ export default function SPoperators() {
                     <Heading size="lg">Brokerlar</Heading>
                 </HStack>
                 <Button
-                    variant={"solidPrimary"}
+                    colorScheme="blue"
+                    leftIcon={<Plus size={15} />}
                     onClick={() => {
                         setEditingManager(null);
                         formModal.onOpen();
                     }}
                 >
-                    + Broker yaratish
+                    Broker yaratish
                 </Button>
             </Flex>
 

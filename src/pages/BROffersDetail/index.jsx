@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { apiOffers } from "../../utils/Controllers/Offers";
+import PaginationBar from "../../components/common/PaginationBar";
 import { useParams } from "react-router-dom";
 import {
     Box,
@@ -507,26 +508,14 @@ const ProductStockSearch = ({ product, onSelectStocks, offer }) => {
                             
                         )}
 
-                        {totalPages > 1 && (
-                            <HStack justify="center" spacing={2} pt={2}>
-                                <Button
-                                    size="sm"
-                                    onClick={() => handlePageChange(currentPage - 1)}
-                                    isDisabled={currentPage === 1}
-                                >
-                                    Oldingi
-                                </Button>
-                                <Text fontSize="sm">
-                                    {currentPage} / {totalPages}
-                                </Text>
-                                <Button
-                                    size="sm"
-                                    onClick={() => handlePageChange(currentPage + 1)}
-                                    isDisabled={currentPage === totalPages}
-                                >
-                                    Keyingi
-                                </Button>
-                            </HStack>
+                        {stockData.length > 0 && (
+                            <PaginationBar
+                                mt={2}
+                                page={currentPage}
+                                totalPages={totalPages}
+                                loading={loading}
+                                onPageChange={handlePageChange}
+                            />
                         )}
 
                         {selectedStocks.length > 0 && (

@@ -2,23 +2,23 @@ import {
     Badge,
     Box,
     Flex,
-    Grid,
     Heading,
     Input,
     InputGroup,
     InputRightElement,
     Select,
+    SimpleGrid,
     Spinner,
     Text,
     IconButton,
-    HStack,
-    VStack,
     useColorModeValue,
 } from "@chakra-ui/react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Search, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { apiLots } from "../../utils/Controllers/Lots";
+import PaginationBar from "../../components/common/PaginationBar";
+import { LotCardIconRows } from "../../components/common/EntityCardDetailRows";
 
 export default function CallOperatorLots() {
     const navigate = useNavigate();
@@ -113,11 +113,11 @@ export default function CallOperatorLots() {
 
     const inputBg = useColorModeValue("white", "gray.800");
     const borderCol = useColorModeValue("gray.200", "gray.600");
-    const countBg = useColorModeValue("blue.50", "blue.900");
-    const countText = useColorModeValue("blue.700", "blue.200");
+    const cardBg = useColorModeValue("white", "gray.800");
+    const cardBorder = useColorModeValue("gray.200", "gray.700");
 
     return (
-        <Box py="20px" pr="20px">
+        <Box pr="20px" pb="20px" pl="20px"   pr="20px" pb="20px"  pt="20px">
             <Flex justify="space-between" align="center" mb="16px" gap="12px" flexWrap="wrap">
                 <Box>
                     <Heading size="lg" mb="6px">
@@ -187,20 +187,23 @@ export default function CallOperatorLots() {
                     ))}
                 </Select>
 
-                <Box px={3} py="7px" bg={countBg} borderRadius="full" ml={{ base: 0, md: "auto" }}>
+                <Badge
+                    colorScheme="blue"
+                    px={3}
+                    py={1}
+                    borderRadius="full"
+                    fontSize="sm"
+                    fontWeight="semibold"
+                    ml={{ base: 0, md: "auto" }}
+                >
                     {loading ? (
-                        <Flex align="center" gap={2}>
-                            <Spinner size="xs" color="blue.500" />
-                            <Text fontSize="12px" color={countText} fontWeight="700">
-                                Yuklanmoqda
-                            </Text>
+                        <Flex align="center" gap={1}>
+                            <Spinner size="xs" /> <span>Yuklanmoqda...</span>
                         </Flex>
                     ) : (
-                        <Text fontSize="12px" color={countText} fontWeight="700">
-                            JAMI: {(pagination?.total_count ?? lots.length) || 0} TA
-                        </Text>
+                        `Jami: ${(pagination?.total_count ?? lots.length) || 0} ta`
                     )}
-                </Box>
+                </Badge>
             </Flex>
 
             <Box>
@@ -213,7 +216,7 @@ export default function CallOperatorLots() {
                         <Text color="textSub">Lot topilmadi</Text>
                     </Box>
                 ) : (
-                    <Grid templateColumns={{ base: "1fr", lg: "repeat(2, 1fr)", xl: "repeat(3, 1fr)" }} gap="14px">
+                    <SimpleGrid columns={{ base: 1, md: 2, xl: 3 }} spacing="20px">
                         {lots.map((lot) => {
                             const title =
                                 lot?.name ??
@@ -233,61 +236,30 @@ export default function CallOperatorLots() {
                             return (
                                 <Box
                                     key={lot?.id ?? `${title}-${Math.random()}`}
-                                    bg="surface"
-                                    borderWidth="1px"
-                                    borderColor="border"
-                                    borderRadius="16px"
-                                    p="14px"
-                                    _hover={{ borderColor: "blue.400", boxShadow: "md", transform: "translateY(-2px)" }}
-                                    transition="0.15s ease"
+                                    bg={cardBg}
+                                    border="1px solid"
+                                    borderColor={cardBorder}
+                                    borderRadius="12px"
+                                    p="16px"
+                                    transition="all .2s"
+                                    _hover={{ shadow: "md" }}
                                     cursor="pointer"
                                     onClick={() => {
                                         if (!lot?.id) return;
                                         navigate(`/call-operator/lots/${lot.id}`);
                                     }}
                                 >
-                                    <Flex justify="space-between" align="start" gap="10px">
-                                        <Box>
-                                            <Heading size="sm" mb="6px" noOfLines={2}>
-                                                {title}
-                                            </Heading>
-                                            <Text fontSize="xs" color="textSub" noOfLines={1}>
-                                                Lot raqami:{" "}
-                                                <Text as="span" fontWeight="600" color="inherit">
-                                                    {lotNumber}
-                                                </Text>
-                                            </Text>
-                                        </Box>
-                                    </Flex>
-
-                                    <VStack align="stretch" spacing="6px" mt="10px">
-                                        <Text fontSize="sm" color="textSub" noOfLines={2}>
-                                            <Text as="span" fontWeight="600" color="inherit">
-                                                Summa:
-                                            </Text>{" "}
-                                            {amount}
-                                        </Text>
-                                        <Text fontSize="sm" color="textSub" noOfLines={2}>
-                                            <Text as="span" fontWeight="600" color="inherit">
-                                                Manzil:
-                                            </Text>{" "}
-                                            {address}
-                                        </Text>
-                                        <Flex gap="10px" flexWrap="wrap">
-                                            <Text fontSize="sm" color="textSub">
-                                                <Text as="span" fontWeight="600" color="inherit">
-                                                    Boshlanish:
-                                                </Text>{" "}
-                                                {start}
-                                            </Text>
-                                            <Text fontSize="sm" color="textSub">
-                                                <Text as="span" fontWeight="600" color="inherit">
-                                                    Tugash:
-                                                </Text>{" "}
-                                                {end}
-                                            </Text>
-                                        </Flex>
-                                    </VStack>
+                                    <Text fontWeight="600" fontSize="lg" mb="4px" noOfLines={2}>
+                                        {title}
+                                    </Text>
+                                    <Text fontSize="xs" color="gray.500" noOfLines={1} mb="10px">
+                                        #{lotNumber}
+                                    </Text>
+                                    <LotCardIconRows
+                                        amount={amount}
+                                        address={address}
+                                        periodLabel={`${start} — ${end}`}
+                                    />
 
                                     <Flex gap="8px" mt="10px" flexWrap="wrap">
                                         {type ? (
@@ -304,55 +276,18 @@ export default function CallOperatorLots() {
                                 </Box>
                             );
                         })}
-                    </Grid>
+                    </SimpleGrid>
                 )}
             </Box>
 
             {pagination ? (
-                <Flex mt="16px" justify="space-between" align="center" flexWrap="wrap" gap="10px">
-                    <Text fontSize="sm" color="textSub">
-                        Sahifa: {pagination.currentPage ?? 1} / {pagination.total_pages ?? 1}
-                    </Text>
-                    <HStack>
-                        <Box
-                            as="button"
-                            disabled={(pagination.currentPage ?? 1) <= 1 || loading}
-                            onClick={() => {
-                                const prev = (pagination.currentPage ?? 1) - 1;
-                                if (prev < 1) return;
-                                setFilters((p) => ({ ...p, page: prev }));
-                            }}
-                            style={{
-                                padding: "8px 12px",
-                                borderRadius: "10px",
-                                border: "1px solid var(--chakra-colors-border)",
-                                opacity: (pagination.currentPage ?? 1) <= 1 || loading ? 0.5 : 1,
-                            }}
-                        >
-                            Oldingi
-                        </Box>
-                        <Box
-                            as="button"
-                            disabled={(pagination.currentPage ?? 1) >= (pagination.total_pages ?? 1) || loading}
-                            onClick={() => {
-                                const curr = pagination.currentPage ?? 1;
-                                const total = pagination.total_pages ?? curr;
-                                const next = curr + 1;
-                                if (next > total) return;
-                                setFilters((p) => ({ ...p, page: next }));
-                            }}
-                            style={{
-                                padding: "8px 12px",
-                                borderRadius: "10px",
-                                border: "1px solid var(--chakra-colors-border)",
-                                opacity:
-                                    (pagination.currentPage ?? 1) >= (pagination.total_pages ?? 1) || loading ? 0.5 : 1,
-                            }}
-                        >
-                            Keyingi
-                        </Box>
-                    </HStack>
-                </Flex>
+                <PaginationBar
+                    mt="30px"
+                    page={pagination.currentPage ?? 1}
+                    totalPages={pagination.total_pages ?? 1}
+                    loading={loading}
+                    onPageChange={(p) => setFilters((prev) => ({ ...prev, page: p }))}
+                />
             ) : null}
         </Box>
     );

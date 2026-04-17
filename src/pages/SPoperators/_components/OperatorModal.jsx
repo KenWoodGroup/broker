@@ -1,63 +1,61 @@
 import {
-    Modal,
-    ModalOverlay,
-    ModalContent,
-    ModalHeader,
-    ModalBody,
-    ModalFooter,
     Button,
     FormControl,
     FormLabel,
     Input,
     FormErrorMessage,
-    FormHelperText,
-    Text,
-    Spacer
+    VStack,
 } from "@chakra-ui/react";
+import { PencilLine, UserPlus } from "lucide-react";
 import { useEffect, useState } from "react";
 import { apiManagers } from "../../../utils/Controllers/Managers";
 import { apiUsers } from "../../../utils/Controllers/Users";
-
+import TaskModalShell from "../../../components/common/TaskModalShell";
 
 export default function OperatorModal({ isOpen, onClose, initialData, reload }) {
-    // UI states
     const [loading, setLoading] = useState(false);
     const [validating, setValidating] = useState(false);
 
-    // form states
     const [form, setForm] = useState({
         full_name: "",
         username: "",
         password: "",
-        role: "broker"
+        role: "broker",
     });
 
-    // ---- Functions
     const changeInput = (e) => {
-        setForm({ ...form, [e.target.name]: e.target.value })
+        setForm({ ...form, [e.target.name]: e.target.value });
     };
+
     useEffect(() => {
+        if (!isOpen) return;
         if (initialData) {
-            setForm({ ...form, username: initialData?.username, full_name: initialData?.full_name })
+            setForm({
+                full_name: initialData.full_name ?? "",
+                username: initialData.username ?? "",
+                password: "",
+                role: "broker",
+            });
         } else {
             setForm({
                 full_name: "",
                 username: "",
                 password: "",
-                role: "broker"
-            })
+                role: "broker",
+            });
         }
-    }, [initialData]);
+        setValidating(false);
+    }, [initialData, isOpen]);
 
-    // POST
     const addManager = async () => {
         if (!form.full_name || !form.username || !form.password) {
             setValidating(true);
             return;
         }
         try {
-            setLoading(true)
-            const res = await apiUsers.Add(form);
+            setLoading(true);
+            // /api/erp/user talab qiladi: telefon + boshqa role enum; brokerlar /api/user orqali yaratiladi
+            const res = await apiUsers.CreateOperator(form);
             if (res.status === 200 || res.status === 201) {
                 onClose();
                 reload();
@@ -65,18 +63,18 @@ export default function OperatorModal({ isOpen, onClose, initialData, reload }) 
                     full_name: "",
                     username: "",
                     password: "",
-                    role: "broker"
-                })
+                    role: "broker",
+                });
             }
         } finally {
-            setLoading(false)
+            setLoading(false);
         }
     };
-    // PUT
+
     const updateManager = async () => {
         try {
             setLoading(true);
-            const { password, role, ...payload } = form
+            const { password, role, ...payload } = form;
             const res = await apiManagers.Update(payload, initialData?.id);
             if (res.status === 200 || res.status === 201) {
                 onClose();
@@ -85,88 +83,94 @@ export default function OperatorModal({ isOpen, onClose, initialData, reload }) 
                     full_name: "",
                     username: "",
                     password: "",
-                    role: "broker"
+                    role: "broker",
                 });
             }
         } finally {
-            setLoading(false)
+            setLoading(false);
         }
     };
+
     const handleSubmit = () => {
         if (initialData) {
-            updateManager()
+            updateManager();
         } else {
-            addManager()
+            addManager();
         }
     };
 
+    const isEdit = Boolean(initialData);
+    const title = isEdit ? "Brokerni tahrirlash" : "Yangi broker";
+    const subtitle = isEdit
+        ? form.full_name?.trim() || initialData?.full_name || "Profil"
+        : "To'liq ism, username va parol";
+    const HeaderIcon = isEdit ? PencilLine : UserPlus;
 
     return (
-        <Modal isOpen={isOpen} onClose={onClose} isCentered>
-            <ModalOverlay bg="blackAlpha.400" backdropFilter="blur(6px)" />
-            <ModalContent>
-                <ModalHeader>
-                    {initialData ? "Edit broker" : "Add broker"}
-                </ModalHeader>
-
-                <ModalBody>
-                    <FormControl isInvalid={!form.full_name && validating}>
-                        <FormLabel>Full Name</FormLabel>
-                        <Input
-                            name="full_name"
-                            value={form.full_name}
-                            onChange={(e) => changeInput(e)}
-                            placeholder="Enter name"
-                        />
-                        <FormErrorMessage>
-                            Fullname should be entered
-                        </FormErrorMessage>
-                    </FormControl>
-                    <Spacer h={2}/>
-                    <FormControl isInvalid={!form.username && validating}>
-                        <FormLabel>Username</FormLabel>
-                        <Input
-                            name="username"
-                            value={form.username}
-                            onChange={(e) => changeInput(e)}
-                            placeholder="Enter username"
-                        />
-                        <FormErrorMessage>
-                            Username sholud be entered
-                        </FormErrorMessage>
-                    </FormControl>
-                    <Spacer h={2}/>
-                    {!initialData &&
-                        <FormControl isInvalid={!form.password && validating}>
-                            <FormLabel>Password</FormLabel>
-                            <Input
-                                name="password"
-                                value={form.password}
-                                onChange={(e) => changeInput(e)}
-                                placeholder="Enter password"
-                            />
-                            <FormErrorMessage>
-                                Password should be entered
-                            </FormErrorMessage>
-                        </FormControl>
-                    }
-                </ModalBody>
-
-                <ModalFooter>
-                    <Button variant="ghost" mr={3} onClick={onClose}>
-                        Cancel
+        <TaskModalShell
+            isOpen={isOpen}
+            onClose={onClose}
+            title={title}
+            subtitle={subtitle}
+            headerIcon={HeaderIcon}
+            footer={
+                <>
+                    <Button variant="ghost" onClick={onClose} isDisabled={loading}>
+                        Bekor qilish
                     </Button>
-
                     <Button
                         isLoading={loading}
                         loadingText="Saqlanmoqda..."
                         colorScheme="blue"
                         onClick={handleSubmit}
+                        borderRadius="xl"
+                        px={8}
                     >
-                        Save
+                        Saqlash
                     </Button>
-                </ModalFooter>
-            </ModalContent>
-        </Modal>
-    )
+                </>
+            }
+        >
+            <VStack spacing={4} align="stretch">
+                <FormControl isInvalid={!form.full_name && validating} isRequired>
+                    <FormLabel>To'liq ism</FormLabel>
+                    <Input
+                        name="full_name"
+                        value={form.full_name}
+                        onChange={changeInput}
+                        placeholder="Ism"
+                        borderRadius="lg"
+                    />
+                    <FormErrorMessage>Ism kiritilishi shart</FormErrorMessage>
+                </FormControl>
+
+                <FormControl isInvalid={!form.username && validating} isRequired>
+                    <FormLabel>Username</FormLabel>
+                    <Input
+                        name="username"
+                        value={form.username}
+                        onChange={changeInput}
+                        placeholder="Username"
+                        borderRadius="lg"
+                    />
+                    <FormErrorMessage>Username kiritilishi shart</FormErrorMessage>
+                </FormControl>
+
+                {!isEdit && (
+                    <FormControl isInvalid={!form.password && validating} isRequired>
+                        <FormLabel>Parol</FormLabel>
+                        <Input
+                            name="password"
+                            type="password"
+                            value={form.password}
+                            onChange={changeInput}
+                            placeholder="Parol"
+                            borderRadius="lg"
+                        />
+                        <FormErrorMessage>Parol kiritilishi shart</FormErrorMessage>
+                    </FormControl>
+                )}
+            </VStack>
+        </TaskModalShell>
+    );
 }

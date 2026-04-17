@@ -50,6 +50,7 @@ import {
 import { SearchIcon, DeleteIcon, DownloadIcon, CheckCircleIcon, WarningIcon } from '@chakra-ui/icons';
 import { FiUser, FiMapPin, FiPhone, FiUpload, FiFile, FiDollarSign } from 'react-icons/fi';
 import { apiLocations } from '../../utils/Controllers/Locations';
+import PaginationBar from '../../components/common/PaginationBar';
 
 // Debounce hook
 const useDebounce = (value, delay) => {
@@ -543,27 +544,14 @@ const ClientsPage = () => {
                     </Card>
                 )}
 
-                {/* Pagination */}
-                {pagination && pagination.total_pages > 1 && (
-                    <HStack justify="center" mt={8}>
-                        <Button
-                            size="sm"
-                            onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
-                            isDisabled={currentPage === 1}
-                        >
-                            Oldingi
-                        </Button>
-                        <Text fontSize="sm" color="text" px={4}>
-                            {currentPage} / {pagination.total_pages}
-                        </Text>
-                        <Button
-                            size="sm"
-                            onClick={() => setCurrentPage(p => p + 1)}
-                            isDisabled={currentPage >= pagination.total_pages}
-                        >
-                            Keyingi
-                        </Button>
-                    </HStack>
+                {pagination && (
+                    <PaginationBar
+                        mt={8}
+                        page={currentPage}
+                        totalPages={pagination.total_pages ?? 1}
+                        loading={loading}
+                        onPageChange={(p) => setCurrentPage(p)}
+                    />
                 )}
             </Container>
 

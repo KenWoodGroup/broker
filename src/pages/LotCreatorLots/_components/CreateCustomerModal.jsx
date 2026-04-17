@@ -1,20 +1,8 @@
-import {
-    Button,
-    FormControl,
-    FormLabel,
-    Input,
-    Modal,
-    ModalBody,
-    ModalCloseButton,
-    ModalContent,
-    ModalFooter,
-    ModalHeader,
-    ModalOverlay,
-    VStack,
-    useToast,
-} from "@chakra-ui/react";
+import { Button, FormControl, FormLabel, Input, VStack, useToast, Icon } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
+import { Plus, UserPlus } from "lucide-react";
 import { apiLotLocations } from "../../../utils/Controllers/LotLocations";
+import GradientFormModal from "../../../components/common/GradientFormModal";
 
 export default function CreateCustomerModal({ isOpen, onClose, onCreated, initialName = "" }) {
     const toast = useToast();
@@ -65,53 +53,51 @@ export default function CreateCustomerModal({ isOpen, onClose, onCreated, initia
     };
 
     return (
-        <Modal isOpen={isOpen} onClose={onClose} isCentered size="lg">
-            <ModalOverlay />
-            <ModalContent bg="surface" borderColor="border">
-                <ModalHeader>Yangi customer</ModalHeader>
-                <ModalCloseButton />
-                <ModalBody>
-                    <VStack spacing="12px" align="stretch">
-                        <FormControl isRequired>
-                            <FormLabel>Name</FormLabel>
-                            <Input name="name" value={form.name} onChange={handleChange} placeholder="Kenwood" bg="bg" />
-                        </FormControl>
-                        <FormControl>
-                            <FormLabel>Address</FormLabel>
-                            <Input name="address" value={form.address} onChange={handleChange} placeholder="address" bg="bg" />
-                        </FormControl>
-                        <FormControl>
-                            <FormLabel>Phone</FormLabel>
-                            <Input
-                                name="phone"
-                                value={form.phone}
-                                onChange={handleChange}
-                                placeholder="+998901234567"
-                                bg="bg"
-                            />
-                        </FormControl>
-                        <FormControl>
-                            <FormLabel>Director name</FormLabel>
-                            <Input
-                                name="director_name"
-                                value={form.director_name}
-                                onChange={handleChange}
-                                placeholder="Ro'zmatov Rustamjon Hoshimovich"
-                                bg="bg"
-                            />
-                        </FormControl>
-                    </VStack>
-                </ModalBody>
-                <ModalFooter>
-                    <Button variant="ghost" mr={3} onClick={onClose}>
-                        Bekor qilish
-                    </Button>
-                    <Button colorScheme="green" onClick={handleSubmit} isLoading={loading}>
-                        Yaratish
-                    </Button>
-                </ModalFooter>
-            </ModalContent>
-        </Modal>
+        <GradientFormModal
+            isOpen={isOpen}
+            onClose={onClose}
+            size="lg"
+            title="Yangi buyurtmachi"
+            subtitle="Asosiy rekvizitlarni kiriting"
+            headerIcon={UserPlus}
+            primaryLabel="Yaratish"
+            primaryLoading={loading}
+            primaryLoadingText="Yaratilmoqda..."
+            primaryLeftIcon={<Icon as={Plus} boxSize={4} />}
+            onPrimary={handleSubmit}
+        >
+            <VStack spacing={3} align="stretch">
+                <FormControl isRequired>
+                    <FormLabel>Nomi</FormLabel>
+                    <Input name="name" value={form.name} onChange={handleChange} placeholder="Kenwood" bg="bg" borderRadius="lg" />
+                </FormControl>
+                <FormControl>
+                    <FormLabel>Manzil</FormLabel>
+                    <Input name="address" value={form.address} onChange={handleChange} placeholder="Manzil" bg="bg" borderRadius="lg" />
+                </FormControl>
+                <FormControl>
+                    <FormLabel>Telefon</FormLabel>
+                    <Input
+                        name="phone"
+                        value={form.phone}
+                        onChange={handleChange}
+                        placeholder="+998901234567"
+                        bg="bg"
+                        borderRadius="lg"
+                    />
+                </FormControl>
+                <FormControl>
+                    <FormLabel>Direktor</FormLabel>
+                    <Input
+                        name="director_name"
+                        value={form.director_name}
+                        onChange={handleChange}
+                        placeholder="F.I.Sh."
+                        bg="bg"
+                        borderRadius="lg"
+                    />
+                </FormControl>
+            </VStack>
+        </GradientFormModal>
     );
 }
-

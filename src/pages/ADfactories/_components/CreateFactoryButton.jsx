@@ -1,22 +1,16 @@
 import {
     Button,
-    Modal,
-    ModalOverlay,
-    ModalContent,
-    ModalHeader,
-    ModalBody,
-    ModalFooter,
-    ModalCloseButton,
-    Input,
-    useDisclosure,
-    VStack,
     FormControl,
     FormLabel,
     FormErrorMessage,
+    Input,
+    useDisclosure,
+    VStack,
 } from "@chakra-ui/react";
-import { Plus } from "lucide-react";
+import { Plus, Factory } from "lucide-react";
 import { useState } from "react";
 import { apiLocations } from "../../../utils/Controllers/Locations";
+import TaskModalShell from "../../../components/common/TaskModalShell";
 
 const CreateFactoryButton = ({ onReload, role = 'admin' }) => {
     const { isOpen, onOpen, onClose } = useDisclosure();
@@ -26,7 +20,6 @@ const CreateFactoryButton = ({ onReload, role = 'admin' }) => {
     const [confirmPassword, setConfirmPassword] = useState("");
     const [loading, setLoading] = useState(false);
 
-    // Errors state
     const [errors, setErrors] = useState({});
 
     const validate = () => {
@@ -49,7 +42,7 @@ const CreateFactoryButton = ({ onReload, role = 'admin' }) => {
         setLoading(true);
 
         try {
-            let payload = {
+            const payload = {
                 name: companyName,
                 username,
                 password: role === 'admin' ? password : "usd+8575",
@@ -57,8 +50,8 @@ const CreateFactoryButton = ({ onReload, role = 'admin' }) => {
                 phone: "+998901234567",
                 full_name: username,
                 address: "Berilmagan"
-            }
-            const res = await apiLocations.Add(payload, "Factory")
+            };
+            await apiLocations.Add(payload, "Factory");
             onClose();
             setCompanyName("");
             setUsername("");
@@ -77,99 +70,104 @@ const CreateFactoryButton = ({ onReload, role = 'admin' }) => {
     return (
         <>
             <Button
-                variant="solidPrimary"
-                display="flex"
-                alignItems="center"
-                gap="3px"
+                colorScheme="blue"
+                leftIcon={<Plus size={18} />}
                 onClick={onOpen}
             >
-                <Plus size="22px" />
                 Factory
             </Button>
 
-            <Modal isOpen={isOpen} onClose={onClose} isCentered>
-                <ModalOverlay />
-                <ModalContent>
-                    <ModalHeader>Create Factory</ModalHeader>
-                    <ModalCloseButton />
-
-                    <ModalBody>
-                        <VStack spacing={4}>
-                            <FormControl isInvalid={!!errors.companyName}>
-                                <FormLabel>Company Name</FormLabel>
-                                <Input
-                                    placeholder="Company Name"
-                                    value={companyName}
-                                    onChange={(e) => {
-                                        setCompanyName(e.target.value);
-                                        if (errors.companyName) setErrors(prev => ({ ...prev, companyName: "" }));
-                                    }}
-                                />
-                                <FormErrorMessage>{errors.companyName}</FormErrorMessage>
-                            </FormControl>
-
-                            <FormControl isInvalid={!!errors.username}>
-                                <FormLabel>Username</FormLabel>
-                                <Input
-                                    placeholder="Username"
-                                    value={username}
-                                    onChange={(e) => {
-                                        setUsername(e.target.value);
-                                        if (errors.username) setErrors(prev => ({ ...prev, username: "" }));
-                                    }}
-                                />
-                                <FormErrorMessage>{errors.username}</FormErrorMessage>
-                            </FormControl>
-
-                            {role === 'admin' &&
-                                <FormControl isInvalid={!!errors.password}>
-                                    <FormLabel>Password</FormLabel>
-                                    <Input
-                                        type="password"
-                                        placeholder="Password"
-                                        value={password}
-                                        onChange={(e) => {
-                                            setPassword(e.target.value);
-                                            if (errors.password) setErrors(prev => ({ ...prev, password: "" }));
-                                            // match check
-                                            if (errors.confirmPassword && confirmPassword && confirmPassword === e.target.value)
-                                                setErrors(prev => ({ ...prev, confirmPassword: "" }));
-                                        }}
-                                    />
-                                    <FormErrorMessage>{errors.password}</FormErrorMessage>
-                                </FormControl>
-                            }
-                            {role === 'admin' &&
-                                <FormControl isInvalid={!!errors.confirmPassword}>
-                                    <FormLabel>Confirm Password</FormLabel>
-                                    <Input
-                                        type="password"
-                                        placeholder="Confirm Password"
-                                        value={confirmPassword}
-                                        onChange={(e) => {
-                                            setConfirmPassword(e.target.value);
-                                            if (errors.confirmPassword && password === e.target.value)
-                                                setErrors(prev => ({ ...prev, confirmPassword: "" }));
-                                        }}
-                                    />
-                                    <FormErrorMessage>{errors.confirmPassword}</FormErrorMessage>
-                                </FormControl>
-                            }
-                        </VStack>
-                    </ModalBody>
-
-                    <ModalFooter>
+            <TaskModalShell
+                isOpen={isOpen}
+                onClose={onClose}
+                size="lg"
+                title="Yangi zavod"
+                subtitle="Zavod nomi va kirish ma’lumotlari"
+                headerIcon={Factory}
+                footer={
+                    <>
+                        <Button variant="ghost" onClick={onClose} isDisabled={loading}>
+                            Bekor qilish
+                        </Button>
                         <Button
-                            _hover={{ bg: "secondary" }}
-                            variant="solidPrimary"
+                            colorScheme="blue"
                             onClick={handleCreate}
                             isLoading={loading}
+                            loadingText="Yaratilmoqda..."
+                            borderRadius="xl"
+                            px={8}
                         >
-                            Create
+                            Yaratish
                         </Button>
-                    </ModalFooter>
-                </ModalContent>
-            </Modal>
+                    </>
+                }
+            >
+                <VStack spacing={4} align="stretch">
+                    <FormControl isInvalid={!!errors.companyName}>
+                        <FormLabel>Zavod nomi</FormLabel>
+                        <Input
+                            placeholder="Zavod nomi"
+                            value={companyName}
+                            borderRadius="lg"
+                            onChange={(e) => {
+                                setCompanyName(e.target.value);
+                                if (errors.companyName) setErrors(prev => ({ ...prev, companyName: "" }));
+                            }}
+                        />
+                        <FormErrorMessage>{errors.companyName}</FormErrorMessage>
+                    </FormControl>
+
+                    <FormControl isInvalid={!!errors.username}>
+                        <FormLabel>Username</FormLabel>
+                        <Input
+                            placeholder="Username"
+                            value={username}
+                            borderRadius="lg"
+                            onChange={(e) => {
+                                setUsername(e.target.value);
+                                if (errors.username) setErrors(prev => ({ ...prev, username: "" }));
+                            }}
+                        />
+                        <FormErrorMessage>{errors.username}</FormErrorMessage>
+                    </FormControl>
+
+                    {role === 'admin' && (
+                        <FormControl isInvalid={!!errors.password}>
+                            <FormLabel>Parol</FormLabel>
+                            <Input
+                                type="password"
+                                placeholder="Parol"
+                                value={password}
+                                borderRadius="lg"
+                                onChange={(e) => {
+                                    setPassword(e.target.value);
+                                    if (errors.password) setErrors(prev => ({ ...prev, password: "" }));
+                                    if (errors.confirmPassword && confirmPassword && confirmPassword === e.target.value)
+                                        setErrors(prev => ({ ...prev, confirmPassword: "" }));
+                                }}
+                            />
+                            <FormErrorMessage>{errors.password}</FormErrorMessage>
+                        </FormControl>
+                    )}
+                    {role === 'admin' && (
+                        <FormControl isInvalid={!!errors.confirmPassword}>
+                            <FormLabel>Parolni tasdiqlang</FormLabel>
+                            <Input
+                                type="password"
+                                placeholder="Parolni qayta kiriting"
+                                value={confirmPassword}
+                                borderRadius="lg"
+                                onChange={(e) => {
+                                    setConfirmPassword(e.target.value);
+                                    if (errors.confirmPassword && password === e.target.value)
+                                        setErrors(prev => ({ ...prev, confirmPassword: "" }));
+                                }}
+                            />
+                            <FormErrorMessage>{errors.confirmPassword}</FormErrorMessage>
+                        </FormControl>
+                    )}
+                </VStack>
+            </TaskModalShell>
         </>
     );
 };
