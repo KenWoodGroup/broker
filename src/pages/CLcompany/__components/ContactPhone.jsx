@@ -14,17 +14,13 @@ export default function ContactPhone({ data }) {
 
     const toggleStatus = async () => {
         const nextState = !isContacted
-        
-        // Optimistic UI update
         setIsContacted(nextState)
         
         try {
             setLoading(true)
             await apiLocations.PhoneStatusEdit(data.id, { is_contacted: nextState })
-            // Success - no refresh needed as requested
         } catch (error) {
             console.error("Error updating phone status:", error)
-            // Rollback on error
             setIsContacted(!nextState)
         } finally {
             setLoading(false)
