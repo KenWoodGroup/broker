@@ -2,6 +2,7 @@ import ADcategories from "../../pages/ADcategories/ADcategories";
 import ADfactories from "../../pages/ADfactories/ADfactories";
 import ADfactoriesBycategory from "../../pages/ADfactoriesBycategory/ADfactoriesBycategory";
 import CLOffersCreate from "../../pages/CLOffersCreate/CLOffersCreate";
+import UnverifiedFactories from "../../pages/LeadFactory";
 import SPLRhome from "../../pages/SPLRhome/SPLRhome";
 
 const supplierRoutes = [
@@ -29,6 +30,11 @@ const supplierRoutes = [
         path: "factories/categories/:id",
         name: "factories by category",
         element: <ADfactoriesBycategory role='supplier'/>
+    },
+    {
+        path: "lead-factory",
+        name: "lead factory",
+        element: <UnverifiedFactories role='supplier'/>
     },
 ];
 export default supplierRoutes

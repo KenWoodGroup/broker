@@ -8,6 +8,7 @@ const links = [
   { label: "Bosh sahifa", to: "/supplier", icon: Home, end: true },
   { label: "Zavodlar", to: "/supplier/factories", icon: Factory },
   { label: "Mahsulotlar", to: "/supplier/products", icon: Boxes },
+  { label: "T-zavodlar", to: "/supplier/lead-factory", icon: Factory },
   {
     label: "Narxni yangilash",
     to: "/supplier/taskprice",
