@@ -7,6 +7,7 @@ import FactoryOptionsPage from "../../pages/ADfactoryOptions/ADfactoryOptions";
 import UsersPage from "../../pages/ADfacUsers/ADfacUsers";
 import WarehousesPage from "../../pages/ADfacWarehouses/ADfacWarehouses";
 import WarehouseStockPage from "../../pages/ADfacWarehouseStock/ADfacWarehouseStock";
+import FactoryInfo from "../../pages/FactoryInfo";
 
 const adminFacRoutes = [
     {
@@ -48,6 +49,11 @@ const adminFacRoutes = [
         name:'ad factory clients',
         path:'clients',
         element:<ClientsPage/>
+    },
+    {
+        name:'factory info',
+        path:'info',
+        element:<FactoryInfo/>
     },
     {
         name:'ad factory users',
