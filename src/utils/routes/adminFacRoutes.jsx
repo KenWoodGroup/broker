@@ -51,11 +51,6 @@ const adminFacRoutes = [
         element:<ClientsPage/>
     },
     {
-        name:'factory info',
-        path:'info',
-        element:<FactoryInfo/>
-    },
-    {
         name:'ad factory users',
         path:'users',
         element:<UsersPage role={'admin'}/>
