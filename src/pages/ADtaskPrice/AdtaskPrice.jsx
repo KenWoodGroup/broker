@@ -11,7 +11,6 @@ import {
   Skeleton,
   Button,
 } from "@chakra-ui/react";
-import { ChevronLeftIcon, ChevronRightIcon } from "@chakra-ui/icons";
 import { ClipboardCheck } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -27,6 +26,7 @@ import {
   ModalCloseButton,
   useDisclosure,
 } from "@chakra-ui/react";
+import PaginationBar from "../../components/common/PaginationBar";
 
 const TableSkeleton = ({ rows = 5, cols = 8 }) => (
   <Table>
@@ -52,40 +52,6 @@ const TableSkeleton = ({ rows = 5, cols = 8 }) => (
     </Tbody>
   </Table>
 );
-
-const PaginationButton = ({ children, onClick, isDisabled, variant }) => {
-  const base = {
-    height: "38px",
-    minWidth: "38px",
-    padding: "0 14px",
-    borderRadius: "20px",
-    fontSize: "14px",
-    fontWeight: "500",
-    border: "none",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    transition: "all 0.2s",
-    cursor: isDisabled ? "not-allowed" : "pointer",
-    opacity: isDisabled ? 0.4 : 1,
-  };
-  const styles = {
-    label: { ...base, backgroundColor: "#1764e8", color: "#e2e8f0" },
-    nav: { ...base, backgroundColor: "#0056eb", color: "#e2e8f0" },
-    page: {
-      ...base,
-      backgroundColor: "#1a202c",
-      color: "#e2e8f0",
-      minWidth: "80px",
-      cursor: "default",
-    },
-  };
-  return (
-    <button style={styles[variant]} onClick={onClick} disabled={isDisabled}>
-      {children}
-    </button>
-  );
-};
 
 const formatDate = (dateStr) => {
   if (!dateStr) return "—";
@@ -321,41 +287,13 @@ function AdtaskPrice({ status = "pending" }) {
             </Tbody>
           </Table>
 
-          <Flex justify="center" align="center" mt={8}>
-            <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
-              <PaginationButton
-                variant="label"
-                onClick={() => setCurrentPage(1)}
-                isDisabled={currentPage === 1 || loading}
-              >
-                First
-              </PaginationButton>
-              <PaginationButton
-                variant="nav"
-                onClick={() => setCurrentPage((p) => p - 1)}
-                isDisabled={currentPage === 1 || loading}
-              >
-                <ChevronLeftIcon boxSize={4} />
-              </PaginationButton>
-              <PaginationButton variant="page">
-                {loading ? "..." : `${currentPage} / ${totalPages}`}
-              </PaginationButton>
-              <PaginationButton
-                variant="nav"
-                onClick={() => setCurrentPage((p) => p + 1)}
-                isDisabled={currentPage === totalPages}
-              >
-                <ChevronRightIcon boxSize={4} />
-              </PaginationButton>
-              <PaginationButton
-                variant="label"
-                onClick={() => setCurrentPage(totalPages)}
-                isDisabled={currentPage === totalPages || loading}
-              >
-                Last
-              </PaginationButton>
-            </div>
-          </Flex>
+          <PaginationBar
+            mt={8}
+            page={currentPage}
+            totalPages={totalPages}
+            loading={loading}
+            onPageChange={(p) => setCurrentPage(p)}
+          />
         </>
       )}
 

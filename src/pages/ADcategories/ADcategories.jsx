@@ -10,13 +10,14 @@ import {
     Badge,
     Spinner
 } from "@chakra-ui/react";
-import React, { useCallback, useEffect, useRef, useState } from "react";
-import { ChevronLeft, ChevronRight, Search, X } from "lucide-react";
+import React, { useCallback, useEffect, useState } from "react";
+import { Search, X } from "lucide-react";
 import CategoryCard from "./_components/CategoryCard";
 import CategoryCardSkeleton from "./_components/CategoryCardSkeleton";
 import useDebounce from "../../hooks/useDebounce";
 import { apiCategories } from "../../utils/Controllers/Categories";
 import CategoriesHeader from "./_components/CategoriesHeader";
+import PaginationBar from "../../components/common/PaginationBar";
 import { useNavigate } from "react-router";
 
 const CATEGORY_PAGE_KEY = "categories_page";
@@ -73,30 +74,6 @@ export default function ADcategories({ reloadDependance, role = 'admin' }) {
     useEffect(() => {
         fetchCategories(page, debouncedSearch);
     }, [reloadDependance, page, debouncedSearch, fetchCategories]);
-
-    /* ---------------- holding pagination ---------------- */
-    const [holding, setHolding] = useState(false);
-    const [previewPage, setPreviewPage] = useState(page);
-    const holdRef = useRef(null);
-
-    const startHolding = (type) => {
-        setHolding(true);
-        setPreviewPage(type === "inc" ? page + 1 : page - 1);
-
-        holdRef.current = setInterval(() => {
-            setPreviewPage((prev) =>
-                type === "inc"
-                    ? Math.min(prev + 1, totalPage)
-                    : Math.max(prev - 1, 1)
-            );
-        }, 200);
-    };
-
-    const stopHolding = () => {
-        clearInterval(holdRef.current);
-        changePage(previewPage);
-        setHolding(false);
-    };
 
     /* ---------------- render ---------------- */
     return (
@@ -175,31 +152,13 @@ export default function ADcategories({ reloadDependance, role = 'admin' }) {
                     ))}
             </SimpleGrid>
 
-            {/* Pagination */}
-            <Flex justify="center" align="center" gap="20px" mt="30px">
-                <Button onClick={() => changePage(1)}>First</Button>
-
-                <Button
-                    isDisabled={page === 1}
-                    onMouseDown={() => startHolding("dec")}
-                    onMouseUp={stopHolding}
-                >
-                    <ChevronLeft />
-                </Button>
-
-                {(holding ? previewPage : page) + " / " + totalPage}
-
-                <Button
-                    isDisabled={page === totalPage}
-                    onMouseDown={() => startHolding("inc")}
-                    onMouseUp={stopHolding}
-                    onMouseLeave={stopHolding}
-                >
-                    <ChevronRight />
-                </Button>
-
-                <Button onClick={() => changePage(totalPage)}>Last</Button>
-            </Flex>
+            <PaginationBar
+                mt="30px"
+                page={page}
+                totalPages={totalPage}
+                loading={loading}
+                onPageChange={(p) => changePage(p)}
+            />
         </Box>
     );
 }

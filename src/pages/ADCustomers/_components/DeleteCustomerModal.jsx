@@ -1,17 +1,6 @@
-import {
-    Button,
-    Modal,
-    ModalBody,
-    ModalCloseButton,
-    ModalContent,
-    ModalFooter,
-    ModalHeader,
-    ModalOverlay,
-    Text,
-    VStack,
-} from "@chakra-ui/react";
 import { useState } from "react";
 import { apiLotLocations } from "../../../utils/Controllers/LotLocations";
+import ConfirmDelModal from "../../../components/common/ConfirmDelModal";
 
 export default function DeleteCustomerModal({ isOpen, onClose, customer, onDeleted }) {
     const [loading, setLoading] = useState(false);
@@ -29,30 +18,13 @@ export default function DeleteCustomerModal({ isOpen, onClose, customer, onDelet
     };
 
     return (
-        <Modal isOpen={isOpen} onClose={onClose} isCentered size="lg">
-            <ModalOverlay />
-            <ModalContent bg="surface" borderColor="border">
-                <ModalHeader>Buyurtmachini o‘chirish</ModalHeader>
-                <ModalCloseButton />
-                <ModalBody>
-                    <VStack align="stretch" spacing="10px">
-                        <Text>Haqiqatan ham ushbu buyurtmachini o‘chirmoqchimisiz?</Text>
-                        <Text fontWeight="600">{customer?.name ?? "Customer"}</Text>
-                        <Text fontSize="sm" color="textSub">
-                            Bu amalni ortga qaytarib bo‘lmaydi.
-                        </Text>
-                    </VStack>
-                </ModalBody>
-                <ModalFooter>
-                    <Button variant="ghost" mr={3} onClick={onClose}>
-                        Bekor qilish
-                    </Button>
-                    <Button colorScheme="red" onClick={handleDelete} isLoading={loading}>
-                        O‘chirish
-                    </Button>
-                </ModalFooter>
-            </ModalContent>
-        </Modal>
+        <ConfirmDelModal
+            isOpen={isOpen}
+            onClose={onClose}
+            onConfirm={handleDelete}
+            itemName={customer?.name ?? "—"}
+            loading={loading}
+            typeItem="buyurtmachi"
+        />
     );
 }
-

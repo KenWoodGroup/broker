@@ -1,23 +1,17 @@
 import {
   IconButton,
-  Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
-  ModalBody,
-  ModalFooter,
-  ModalCloseButton,
-  Input,
-  useDisclosure,
-  VStack,
   FormControl,
   FormLabel,
   FormErrorMessage,
+  Input,
+  useDisclosure,
+  VStack,
   Button,
 } from "@chakra-ui/react";
 import { Pencil } from "lucide-react";
 import { useState, useEffect } from "react";
 import { apiLocations } from "../../../utils/Controllers/Locations";
+import TaskModalShell from "../../../components/common/TaskModalShell";
 
 const EditFactoryButton = ({ factoryId, initialData, onReload }) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -29,7 +23,6 @@ const EditFactoryButton = ({ factoryId, initialData, onReload }) => {
 
   const [errors, setErrors] = useState({});
 
-  // Auto-fill inputs when modal opens
   useEffect(() => {
     if (isOpen && initialData) {
       setFactoryName(initialData.name || "");
@@ -55,13 +48,12 @@ const EditFactoryButton = ({ factoryId, initialData, onReload }) => {
     setLoading(true);
 
     try {
-      
       const payload = {
         name: factoryName,
         phone: tel,
         address
-      }
-      const res = await apiLocations.Update(payload, factoryId, "Factory")
+      };
+      await apiLocations.Update(payload, factoryId, "Factory");
       onClose();
       if (onReload) onReload();
     } catch (err) {
@@ -70,6 +62,8 @@ const EditFactoryButton = ({ factoryId, initialData, onReload }) => {
       setLoading(false);
     }
   };
+
+  const subtitle = factoryName?.trim() || "Zavod ma’lumotlari";
 
   return (
     <>
@@ -84,64 +78,72 @@ const EditFactoryButton = ({ factoryId, initialData, onReload }) => {
         aria-label="Edit"
       />
 
-      <Modal isOpen={isOpen} onClose={onClose} isCentered>
-        <ModalOverlay />
-        <ModalContent>
-          <ModalHeader>Edit Factory</ModalHeader>
-          <ModalCloseButton />
-
-          <ModalBody>
-            <VStack spacing={4}>
-              <FormControl isInvalid={!!errors.factoryName}>
-                <FormLabel>Factory Name</FormLabel>
-                <Input
-                  value={factoryName}
-                  onChange={(e) => {
-                    setFactoryName(e.target.value);
-                    if (errors.factoryName) setErrors(prev => ({ ...prev, factoryName: "" }));
-                  }}
-                />
-                <FormErrorMessage>{errors.factoryName}</FormErrorMessage>
-              </FormControl>
-
-              <FormControl isInvalid={!!errors.tel}>
-                <FormLabel>Tel</FormLabel>
-                <Input
-                  value={tel}
-                  onChange={(e) => {
-                    setTel(e.target.value);
-                    if (errors.tel) setErrors(prev => ({ ...prev, tel: "" }));
-                  }}
-                />
-                <FormErrorMessage>{errors.tel}</FormErrorMessage>
-              </FormControl>
-
-              <FormControl isInvalid={!!errors.address}>
-                <FormLabel>Address</FormLabel>
-                <Input
-                  value={address}
-                  onChange={(e) => {
-                    setAddress(e.target.value);
-                    if (errors.address) setErrors(prev => ({ ...prev, address: "" }));
-                  }}
-                />
-                <FormErrorMessage>{errors.address}</FormErrorMessage>
-              </FormControl>
-            </VStack>
-          </ModalBody>
-
-          <ModalFooter>
+      <TaskModalShell
+        isOpen={isOpen}
+        onClose={onClose}
+        size="lg"
+        title="Zavodni tahrirlash"
+        subtitle={subtitle}
+        headerIcon={Pencil}
+        footer={
+          <>
+            <Button variant="ghost" onClick={onClose} isDisabled={loading}>
+              Bekor qilish
+            </Button>
             <Button
-              _hover={{bg:"secondary"}}
-              variant="solidPrimary"
+              colorScheme="blue"
               onClick={handleEdit}
               isLoading={loading}
+              loadingText="Saqlanmoqda..."
+              borderRadius="xl"
+              px={8}
             >
-              Save
+              Saqlash
             </Button>
-          </ModalFooter>
-        </ModalContent>
-      </Modal>
+          </>
+        }
+      >
+        <VStack spacing={4} align="stretch">
+          <FormControl isInvalid={!!errors.factoryName}>
+            <FormLabel>Zavod nomi</FormLabel>
+            <Input
+              value={factoryName}
+              borderRadius="lg"
+              onChange={(e) => {
+                setFactoryName(e.target.value);
+                if (errors.factoryName) setErrors(prev => ({ ...prev, factoryName: "" }));
+              }}
+            />
+            <FormErrorMessage>{errors.factoryName}</FormErrorMessage>
+          </FormControl>
+
+          <FormControl isInvalid={!!errors.tel}>
+            <FormLabel>Telefon</FormLabel>
+            <Input
+              value={tel}
+              borderRadius="lg"
+              onChange={(e) => {
+                setTel(e.target.value);
+                if (errors.tel) setErrors(prev => ({ ...prev, tel: "" }));
+              }}
+            />
+            <FormErrorMessage>{errors.tel}</FormErrorMessage>
+          </FormControl>
+
+          <FormControl isInvalid={!!errors.address}>
+            <FormLabel>Manzil</FormLabel>
+            <Input
+              value={address}
+              borderRadius="lg"
+              onChange={(e) => {
+                setAddress(e.target.value);
+                if (errors.address) setErrors(prev => ({ ...prev, address: "" }));
+              }}
+            />
+            <FormErrorMessage>{errors.address}</FormErrorMessage>
+          </FormControl>
+        </VStack>
+      </TaskModalShell>
     </>
   );
 };

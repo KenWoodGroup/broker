@@ -1,21 +1,15 @@
-import {
-    Button,
-    Modal,
-    ModalOverlay,
-    ModalContent,
-    ModalHeader,
-    ModalBody,
-    ModalFooter,
-    ModalCloseButton,
-    Text,
-    useDisclosure,
-    useToast,
-} from "@chakra-ui/react";
-import { Trash } from "lucide-react";
+import { Button, useDisclosure, useToast } from "@chakra-ui/react";
+import { Trash2 } from "lucide-react";
 import { useState } from "react";
 import { apiLocationUsers } from "../../../utils/Controllers/apiLocationUsers";
+import ConfirmDelModal from "../../../components/common/ConfirmDelModal";
 
-export default function DeleteLotCreator({ id, refresh }) {
+export default function DeleteLotCreator({
+    id,
+    refresh,
+    itemName,
+    typeItem = "lot yaratuvchi",
+}) {
     const { isOpen, onOpen, onClose } = useDisclosure();
     const toast = useToast();
     const [loading, setLoading] = useState(false);
@@ -26,7 +20,7 @@ export default function DeleteLotCreator({ id, refresh }) {
             await apiLocationUsers.Delete(id);
             toast({
                 title: "O‘chirildi!",
-                description: "Lot creator muvaffaqiyatli o‘chirildi.",
+                description: "Lot yaratuvchi o‘chirildi.",
                 status: "success",
                 duration: 3000,
                 isClosable: true,
@@ -36,7 +30,7 @@ export default function DeleteLotCreator({ id, refresh }) {
         } catch (error) {
             toast({
                 title: "Xatolik!",
-                description: "Lot creatorni o‘chirishda xatolik yuz berdi.",
+                description: "O‘chirishda xatolik yuz berdi.",
                 status: "error",
                 duration: 3000,
                 isClosable: true,
@@ -49,32 +43,17 @@ export default function DeleteLotCreator({ id, refresh }) {
     return (
         <>
             <Button size="sm" colorScheme="red" variant="ghost" onClick={onOpen}>
-                <Trash size={18} />
+                <Trash2 size={18} />
             </Button>
 
-            <Modal isOpen={isOpen} onClose={onClose} isCentered>
-                <ModalOverlay />
-                <ModalContent>
-                    <ModalHeader>Lot creatorni o‘chirish</ModalHeader>
-                    <ModalCloseButton />
-
-                    <ModalBody>
-                        <Text>
-                            Haqiqatan ham ushbu lot creatorni o‘chirmoqchimisiz? Bu amalni ortga qaytarib bo‘lmaydi.
-                        </Text>
-                    </ModalBody>
-
-                    <ModalFooter>
-                        <Button variant="ghost" mr={3} onClick={onClose}>
-                            Bekor qilish
-                        </Button>
-                        <Button colorScheme="red" onClick={handleDelete} isLoading={loading}>
-                            O‘chirish
-                        </Button>
-                    </ModalFooter>
-                </ModalContent>
-            </Modal>
+            <ConfirmDelModal
+                isOpen={isOpen}
+                onClose={onClose}
+                onConfirm={handleDelete}
+                itemName={itemName ?? "—"}
+                loading={loading}
+                typeItem={typeItem}
+            />
         </>
     );
 }
-

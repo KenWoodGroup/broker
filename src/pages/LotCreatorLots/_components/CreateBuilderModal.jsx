@@ -1,20 +1,15 @@
 import {
-    Button,
     FormControl,
     FormLabel,
     Input,
-    Modal,
-    ModalBody,
-    ModalCloseButton,
-    ModalContent,
-    ModalFooter,
-    ModalHeader,
-    ModalOverlay,
     SimpleGrid,
     useToast,
+    Icon,
 } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
+import { Building2, Plus } from "lucide-react";
 import { apiLotLocations } from "../../../utils/Controllers/LotLocations";
+import GradientFormModal from "../../../components/common/GradientFormModal";
 
 export default function CreateBuilderModal({ isOpen, onClose, onCreated, initialName = "" }) {
     const toast = useToast();
@@ -62,14 +57,15 @@ export default function CreateBuilderModal({ isOpen, onClose, onCreated, initial
             toast({ title: "Username kerak", status: "warning", duration: 2500, isClosable: true });
             return;
         }
-    
+
         if (!form.password?.trim()) {
             toast({ title: "Password kerak", status: "warning", duration: 2500, isClosable: true });
             return;
         }
         try {
             setLoading(true);
-            const res = await apiLotLocations.createCompany({
+            const parentId = (form.parent_id ?? "").trim();
+            const payload = {
                 type: form.type,
                 name: form.name.trim(),
                 full_name: form.full_name.trim(),
@@ -77,9 +73,14 @@ export default function CreateBuilderModal({ isOpen, onClose, onCreated, initial
                 phone: form.phone.trim(),
                 email: form.email.trim(),
                 username: form.username.trim(),
-                parent_id: form.parent_id.trim(),
                 password: form.password.trim(),
-            });
+            };
+            // Bo'sh string UUID sifatida yuborilmasin (Postgres: invalid input syntax for type uuid)
+            if (parentId) {
+                payload.parent_id = parentId;
+            }
+
+            const res = await apiLotLocations.createCompany(payload);
 
             const created = res?.data?.data ?? res?.data;
             onCreated?.(created);
@@ -92,73 +93,72 @@ export default function CreateBuilderModal({ isOpen, onClose, onCreated, initial
     };
 
     return (
-        <Modal isOpen={isOpen} onClose={onClose} isCentered size="xl" scrollBehavior="inside">
-            <ModalOverlay />
-            <ModalContent bg="surface" borderColor="border">
-                <ModalHeader>Yangi quruvchi</ModalHeader>
-                <ModalCloseButton />
-                <ModalBody maxH="70vh">
-                    <SimpleGrid columns={{ base: 1, md: 2 }} spacing="12px">
-                        <FormControl isRequired>
-                            <FormLabel>Name</FormLabel>
-                            <Input name="name" value={form.name} onChange={handleChange} placeholder="Quruvchi nomi" bg="bg" />
-                        </FormControl>
-                        <FormControl isRequired>
-                            <FormLabel>Full name</FormLabel>
-                            <Input
-                                name="full_name"
-                                value={form.full_name}
-                                onChange={handleChange}
-                                placeholder="John Doe"
-                                bg="bg"
-                            />
-                        </FormControl>
-                        <FormControl>
-                            <FormLabel>Address</FormLabel>
-                            <Input name="address" value={form.address} onChange={handleChange} placeholder="address" bg="bg" />
-                        </FormControl>
-                        <FormControl isRequired>
-                            <FormLabel>Phone</FormLabel>
-                            <Input name="phone" value={form.phone} onChange={handleChange} placeholder="+998901234567" bg="bg" />
-                        </FormControl>
-                        <FormControl>
-                            <FormLabel>Email</FormLabel>
-                            <Input
-                                name="email"
-                                value={form.email}
-                                onChange={handleChange}
-                                placeholder="john@gmail.com"
-                                bg="bg"
-                            />
-                        </FormControl>
-                        <FormControl isRequired>
-                            <FormLabel>Username</FormLabel>
-                            <Input name="username" value={form.username} onChange={handleChange} placeholder="kenwood" bg="bg" />
-                        </FormControl>
-                  
-                        <FormControl isRequired>
-                            <FormLabel>Password</FormLabel>
-                            <Input
-                                type="password"
-                                name="password"
-                                value={form.password}
-                                onChange={handleChange}
-                                placeholder="password123"
-                                bg="bg"
-                            />
-                        </FormControl>
-                    </SimpleGrid>
-                </ModalBody>
-                <ModalFooter>
-                    <Button variant="ghost" mr={3} onClick={onClose}>
-                        Bekor qilish
-                    </Button>
-                    <Button colorScheme="green" onClick={handleSubmit} isLoading={loading}>
-                        Yaratish
-                    </Button>
-                </ModalFooter>
-            </ModalContent>
-        </Modal>
+        <GradientFormModal
+            isOpen={isOpen}
+            onClose={onClose}
+            size="xl"
+            title="Yangi quruvchi"
+            subtitle="Tashkilot va akkaunt ma’lumotlari"
+            headerIcon={Building2}
+            primaryLabel="Yaratish"
+            primaryLoading={loading}
+            primaryLoadingText="Yaratilmoqda..."
+            primaryLeftIcon={<Icon as={Plus} boxSize={4} />}
+            onPrimary={handleSubmit}
+        >
+            <SimpleGrid columns={{ base: 1, md: 2 }} spacing="12px">
+                <FormControl isRequired>
+                    <FormLabel>Name</FormLabel>
+                    <Input name="name" value={form.name} onChange={handleChange} placeholder="Quruvchi nomi" bg="bg" borderRadius="lg" />
+                </FormControl>
+                <FormControl isRequired>
+                    <FormLabel>Full name</FormLabel>
+                    <Input
+                        name="full_name"
+                        value={form.full_name}
+                        onChange={handleChange}
+                        placeholder="John Doe"
+                        bg="bg"
+                        borderRadius="lg"
+                    />
+                </FormControl>
+                <FormControl>
+                    <FormLabel>Address</FormLabel>
+                    <Input name="address" value={form.address} onChange={handleChange} placeholder="address" bg="bg" borderRadius="lg" />
+                </FormControl>
+                <FormControl isRequired>
+                    <FormLabel>Phone</FormLabel>
+                    <Input name="phone" value={form.phone} onChange={handleChange} placeholder="+998901234567" bg="bg" borderRadius="lg" />
+                </FormControl>
+                <FormControl>
+                    <FormLabel>Email</FormLabel>
+                    <Input
+                        name="email"
+                        value={form.email}
+                        onChange={handleChange}
+                        placeholder="john@gmail.com"
+                        bg="bg"
+                        borderRadius="lg"
+                    />
+                </FormControl>
+                <FormControl isRequired>
+                    <FormLabel>Username</FormLabel>
+                    <Input name="username" value={form.username} onChange={handleChange} placeholder="kenwood" bg="bg" borderRadius="lg" />
+                </FormControl>
+
+                <FormControl isRequired>
+                    <FormLabel>Password</FormLabel>
+                    <Input
+                        type="password"
+                        name="password"
+                        value={form.password}
+                        onChange={handleChange}
+                        placeholder="password123"
+                        bg="bg"
+                        borderRadius="lg"
+                    />
+                </FormControl>
+            </SimpleGrid>
+        </GradientFormModal>
     );
 }
-

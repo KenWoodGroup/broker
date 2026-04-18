@@ -10,8 +10,8 @@ import {
     Tooltip,
     Heading
 } from "@chakra-ui/react";
-import React, { useCallback, useEffect, useRef, useState } from "react";
-import { ChevronLeft, ChevronRight, FileSpreadsheet, FileUp, LayoutGrid, Search, Upload, X } from "lucide-react";
+import React, { useCallback, useEffect, useState } from "react";
+import { FileSpreadsheet, FileUp, LayoutGrid, Search, Upload, X } from "lucide-react";
 import useDebounce from "../../hooks/useDebounce";
 import { useNavigate, useParams } from "react-router";
 import { apiLocalCategories } from "../../utils/Controllers/apiLocalCategories";
@@ -19,6 +19,7 @@ import CategoryCardSkeleton from "../../components/ui/CategoryCardSkeleton";
 import CategoryCard from "./_components/CategoryCard";
 import { useSearchParams } from "react-router-dom";
 import UploadProductsByExcel from "./_components/UploadProductsByExcel";
+import PaginationBar from "../../components/common/PaginationBar";
 
 const CATEGORY_PAGE_KEY = "local_categories_page";
 
@@ -74,30 +75,6 @@ export default function ADfacLocalCats({ reloadDependance, role }) {
     useEffect(() => {
         fetchCategories(page, debouncedSearch);
     }, [reloadDependance, page, debouncedSearch, fetchCategories]);
-
-    /* ---------------- holding pagination ---------------- */
-    const [holding, setHolding] = useState(false);
-    const [previewPage, setPreviewPage] = useState(page);
-    const holdRef = useRef(null);
-
-    const startHolding = (type) => {
-        setHolding(true);
-        setPreviewPage(type === "inc" ? page + 1 : page - 1);
-
-        holdRef.current = setInterval(() => {
-            setPreviewPage((prev) =>
-                type === "inc"
-                    ? Math.min(prev + 1, totalPage)
-                    : Math.max(prev - 1, 1)
-            );
-        }, 200);
-    };
-
-    const stopHolding = () => {
-        clearInterval(holdRef.current);
-        changePage(previewPage);
-        setHolding(false);
-    };
 
     /* ---------------- render ---------------- */
     return (
@@ -162,31 +139,13 @@ export default function ADfacLocalCats({ reloadDependance, role }) {
                     ))}
             </SimpleGrid>
 
-            {/* Pagination */}
-            <Flex justify="center" align="center" gap="20px" mt="30px">
-                <Button onClick={() => changePage(1)}>First</Button>
-
-                <Button
-                    isDisabled={page === 1}
-                    onMouseDown={() => startHolding("dec")}
-                    onMouseUp={stopHolding}
-                >
-                    <ChevronLeft />
-                </Button>
-
-                {(holding ? previewPage : page) + " / " + totalPage}
-
-                <Button
-                    isDisabled={page === totalPage}
-                    onMouseDown={() => startHolding("inc")}
-                    onMouseUp={stopHolding}
-                    onMouseLeave={stopHolding}
-                >
-                    <ChevronRight />
-                </Button>
-
-                <Button onClick={() => changePage(totalPage)}>Last</Button>
-            </Flex>
+            <PaginationBar
+                mt="30px"
+                page={page}
+                totalPages={totalPage}
+                loading={loading}
+                onPageChange={(p) => changePage(p)}
+            />
         </Box>
     );
 }

@@ -25,8 +25,6 @@ import {
     Divider,
 } from "@chakra-ui/react";
 import {
-    ChevronLeft,
-    ChevronRight,
     ClipboardList,
     Calendar,
     Flag,
@@ -39,6 +37,7 @@ import {
 } from "lucide-react";
 import { useAuthStore } from "../../store/authStore";
 import { apiTasks } from "../../utils/Controllers/apiTasks";
+import PaginationBar from "../../components/common/PaginationBar";
 
 function normalizeListResponse(res) {
     const root = res?.data;
@@ -511,8 +510,6 @@ export default function AllTasks() {
     }
 
     const totalPages = Math.max(1, Number(pagination.totalPages) || 1);
-    const canPrev = page > 1;
-    const canNext = page < totalPages;
 
     return (
         <Box p={6}>
@@ -578,34 +575,12 @@ export default function AllTasks() {
                 </SimpleGrid>
             )}
 
-            <HStack justify="space-between" mt={4} flexWrap="wrap" gap={2}>
-                <Text fontSize="sm" color="gray.600">
-                    Sahifa {page} / {totalPages}
-                    {pagination.totalCount != null
-                        ? ` · Jami: ${pagination.totalCount}`
-                        : ""}
-                </Text>
-                <HStack>
-                    <Button
-                        size="sm"
-                        leftIcon={<ChevronLeft size={16} />}
-                        isDisabled={!canPrev || loading}
-                        onClick={() => setPage((p) => Math.max(1, p - 1))}
-                    >
-                        Oldingi
-                    </Button>
-                    <Button
-                        size="sm"
-                        rightIcon={<ChevronRight size={16} />}
-                        isDisabled={!canNext || loading}
-                        onClick={() =>
-                            setPage((p) => Math.min(totalPages, p + 1))
-                        }
-                    >
-                        Keyingi
-                    </Button>
-                </HStack>
-            </HStack>
+            <PaginationBar
+                page={page}
+                totalPages={totalPages}
+                loading={loading}
+                onPageChange={(p) => setPage(p)}
+            />
         </Box>
     );
 }

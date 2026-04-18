@@ -1,12 +1,5 @@
 import {
     Button,
-    Modal,
-    ModalOverlay,
-    ModalContent,
-    ModalHeader,
-    ModalCloseButton,
-    ModalBody,
-    ModalFooter,
     FormControl,
     FormLabel,
     Input,
@@ -16,8 +9,8 @@ import {
 } from "@chakra-ui/react"
 import { PencilLine } from "lucide-react"
 import { useEffect, useState } from "react"
-import { apiUsers } from "../../../utils/Controllers/Users"
 import { apiLocationUsers } from "../../../utils/Controllers/apiLocationUsers"
+import TaskModalShell from "../../../components/common/TaskModalShell"
 
 export default function EditOperators({ data, refresh }) {
     const { isOpen, onOpen, onClose } = useDisclosure()
@@ -30,7 +23,6 @@ export default function EditOperators({ data, refresh }) {
         email: ""
     })
 
-    // Modal ochilganda eski ma'lumotlarni yuklaymiz
     useEffect(() => {
         if (data && isOpen) {
             setFormData({
@@ -79,9 +71,10 @@ export default function EditOperators({ data, refresh }) {
         }
     }
 
+    const subtitle = formData.full_name?.trim() || data?.full_name || "Profil"
+
     return (
         <>
-            {/* Edit Button */}
             <Button
                 size="sm"
                 colorScheme="blue"
@@ -91,59 +84,63 @@ export default function EditOperators({ data, refresh }) {
                 <PencilLine size={18} />
             </Button>
 
-            {/* Modal */}
-            <Modal isOpen={isOpen} onClose={onClose} isCentered>
-                <ModalOverlay />
-                <ModalContent>
-                    <ModalHeader>Operatorni tahrirlash</ModalHeader>
-                    <ModalCloseButton />
-
-                    <ModalBody>
-                        <VStack spacing={4}>
-                            <FormControl isRequired>
-                                <FormLabel>To'liq ism</FormLabel>
-                                <Input
-                                    name="full_name"
-                                    value={formData.full_name}
-                                    onChange={handleChange}
-                                />
-                            </FormControl>
-
-                            <FormControl isRequired>
-                                <FormLabel>Username</FormLabel>
-                                <Input
-                                    name="username"
-                                    value={formData.username}
-                                    onChange={handleChange}
-                                />
-                            </FormControl>
-
-                            <FormControl>
-                                <FormLabel>Email</FormLabel>
-                                <Input
-                                    type="email"
-                                    name="email"
-                                    value={formData.email}
-                                    onChange={handleChange}
-                                />
-                            </FormControl>
-                        </VStack>
-                    </ModalBody>
-
-                    <ModalFooter>
-                        <Button variant="ghost" mr={3} onClick={onClose}>
+            <TaskModalShell
+                isOpen={isOpen}
+                onClose={onClose}
+                title="Call-operatorni tahrirlash"
+                subtitle={subtitle}
+                headerIcon={PencilLine}
+                footer={
+                    <>
+                        <Button variant="ghost" onClick={onClose} isDisabled={loading}>
                             Bekor qilish
                         </Button>
                         <Button
                             colorScheme="blue"
                             onClick={handleUpdate}
                             isLoading={loading}
+                            loadingText="Saqlanmoqda..."
+                            borderRadius="xl"
+                            px={8}
                         >
                             Saqlash
                         </Button>
-                    </ModalFooter>
-                </ModalContent>
-            </Modal>
+                    </>
+                }
+            >
+                <VStack spacing={4} align="stretch">
+                    <FormControl isRequired>
+                        <FormLabel>To'liq ism</FormLabel>
+                        <Input
+                            name="full_name"
+                            value={formData.full_name}
+                            onChange={handleChange}
+                            borderRadius="lg"
+                        />
+                    </FormControl>
+
+                    <FormControl isRequired>
+                        <FormLabel>Username</FormLabel>
+                        <Input
+                            name="username"
+                            value={formData.username}
+                            onChange={handleChange}
+                            borderRadius="lg"
+                        />
+                    </FormControl>
+
+                    <FormControl>
+                        <FormLabel>Email</FormLabel>
+                        <Input
+                            type="email"
+                            name="email"
+                            value={formData.email}
+                            onChange={handleChange}
+                            borderRadius="lg"
+                        />
+                    </FormControl>
+                </VStack>
+            </TaskModalShell>
         </>
     )
 }

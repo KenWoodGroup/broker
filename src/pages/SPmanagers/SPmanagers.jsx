@@ -1,4 +1,5 @@
 import { Box, Button, Code, Heading, Spinner, Table, Tbody, Td, Th, Thead, Tr, useDisclosure } from "@chakra-ui/react";
+import { Plus } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import TableSkeleton from "../../components/ui/TableSkeleton";
 import { apiManagers } from "../../utils/Controllers/Managers";
@@ -94,13 +95,14 @@ export default function SPmanagers() {
                 <Heading size="lg">Managers</Heading>
 
                 <Button
-                    variant={"solidPrimary"}
+                    colorScheme="blue"
+                    leftIcon={<Plus size={15} />}
                     onClick={() => {
                         setEditingManager(null);
                         formModal.onOpen();
                     }}
                 >
-                    + Create manager
+                    Create manager
                 </Button>
             </Box>
             {/* TABLE */}

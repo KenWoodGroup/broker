@@ -22,7 +22,8 @@ import { apiUsers } from "../../utils/Controllers/Users";
 import CreateLotCreator from "./__components/CreateLotCreator";
 import DeleteLotCreator from "./__components/DeleteLotCreator";
 import EditLotCreator from "./__components/EditLotCreator";
-import LoginPermissionSwitch from "../ClcompanyDetail/__components/LoginPermissionSwitch";
+import LoginPermissionSwitch from "../ClcompanyDetail/__components/LoginPermissionSwitch"
+import PaginationBar from "../../components/common/PaginationBar";
 
 export default function ADLotCreators() {
     const navigate = useNavigate();
@@ -48,7 +49,7 @@ export default function ADLotCreators() {
     }, [page]);
 
     return (
-        <Box py="20px" pr="20px">
+        <Box pr="20px" pb="20px">
             <Flex justifyContent="space-between" mb="20px">
                 <HStack>
                     <IconButton
@@ -108,7 +109,12 @@ export default function ADLotCreators() {
                                         </Td>
                                         <Td>
                                             <Flex gap="10px">
-                                                <DeleteLotCreator id={item?.id} refresh={() => getAll(page)} />
+                                                <DeleteLotCreator
+                                                    id={item?.id}
+                                                    itemName={item?.full_name}
+                                                    typeItem="lot yaratuvchi"
+                                                    refresh={() => getAll(page)}
+                                                />
                                                 <EditLotCreator data={item} refresh={() => getAll(page)} />
                                             </Flex>
                                         </Td>
@@ -119,27 +125,13 @@ export default function ADLotCreators() {
                     </TableContainer>
 
                     {pagination && (
-                        <Flex mt="20px" justifyContent="space-between" alignItems="center">
-                            <Text fontSize="sm">Jami: {pagination.total_count}</Text>
-
-                            <HStack>
-                                <Button size="sm" onClick={() => setPage((prev) => prev - 1)} isDisabled={page === 1}>
-                                    Oldingi
-                                </Button>
-
-                                <Text fontWeight="bold">
-                                    {pagination.currentPage} / {pagination.total_pages}
-                                </Text>
-
-                                <Button
-                                    size="sm"
-                                    onClick={() => setPage((prev) => prev + 1)}
-                                    isDisabled={page === pagination.total_pages}
-                                >
-                                    Keyingi
-                                </Button>
-                            </HStack>
-                        </Flex>
+                        <PaginationBar
+                            mt={5}
+                            page={pagination.currentPage ?? page}
+                            totalPages={pagination.total_pages ?? 1}
+                            loading={loading}
+                            onPageChange={(p) => setPage(p)}
+                        />
                     )}
                 </>
             )}

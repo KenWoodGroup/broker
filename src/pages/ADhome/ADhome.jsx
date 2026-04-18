@@ -340,6 +340,7 @@ export default function ADhome() {
         display="flex"
         justifyContent="center"
         alignItems="center"
+         pr="20px" pb="20px" pt="20px"
       >
         <Spinner size="xl" color="primary" thickness="3px" />
       </Box>
@@ -347,7 +348,7 @@ export default function ADhome() {
   }
 
   return (
-    <Box bg="bg" minH="100vh" p={6}>
+    <Box  pr="20px" pb="20px" pt="20px" bg="bg" minH="100vh" p={6}>
       {/* ── Stat Cards ──────────────────────────────────────────── */}
       <SimpleGrid columns={{ base: 2, md: 3, xl: 6 }} gap={4} mb={5}>
         <StatCard

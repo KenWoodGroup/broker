@@ -16,16 +16,15 @@ import {
     Divider,
 } from "@chakra-ui/react";
 import React, { useEffect, useState, useCallback, useRef } from "react";
-import { ChevronLeft, ChevronRight, Search, X, Link2, Save } from "lucide-react";
+import { Search, X, Link2, Save } from "lucide-react";
 import CategoryCard from "./_components/CategoryCard";
 import { useParams } from "react-router";
 import CategoryCardSkeleton from "../../components/ui/CategoryCardSkeleton";
 import { apiLocationCategories } from "../../utils/Controllers/apiLocationCategory";
+import PaginationBar from "../../components/common/PaginationBar";
 
 const PAGE_KEY = "factory_categories_page";
 const SEARCH_DEBOUNCE = 500;
-const HOLD_DELAY = 300;
-
 export default function ADcategoriesByFactory({ reloadDependance }) {
     const { factoryId } = useParams();
 
@@ -49,12 +48,6 @@ export default function ADcategoriesByFactory({ reloadDependance }) {
     const [search, setSearch] = useState("");
     const [debouncedSearch, setDebouncedSearch] = useState("all");
     const isFirstRender = useRef(true);
-
-    /* ---------------- holding pagination ---------------- */
-    const [number, setNumber] = useState(page);
-    const [holding, setHolding] = useState(false);
-    const holdTimeoutRef = useRef(null);
-    const holdIntervalRef = useRef(null);
 
     /* ---------------- pagination change ---------------- */
     const changePagination = useCallback(
@@ -150,41 +143,6 @@ export default function ADcategoriesByFactory({ reloadDependance }) {
             setSaveLoading(false)
         }
 
-    };
-
-    /* ---------------- pagination click ---------------- */
-    const handleClick = (type) => {
-        if (holding) return;
-
-        const next =
-            type === "inc"
-                ? Math.min(page + 1, totalPage)
-                : Math.max(page - 1, 1);
-
-        changePagination(next);
-    };
-
-    const startHolding = (type) => {
-        holdTimeoutRef.current = setTimeout(() => {
-            setHolding(true);
-            setNumber(page);
-
-            holdIntervalRef.current = setInterval(() => {
-                setNumber((prev) =>
-                    type === "inc"
-                        ? Math.min(prev + 1, totalPage)
-                        : Math.max(prev - 1, 1)
-                );
-            }, 200);
-        }, HOLD_DELAY);
-    };
-
-    const stopHolding = () => {
-        clearTimeout(holdTimeoutRef.current);
-        clearInterval(holdIntervalRef.current);
-
-        if (holding) changePagination(number);
-        setHolding(false);
     };
 
     /* ---------------- render ---------------- */
@@ -283,34 +241,13 @@ export default function ADcategoriesByFactory({ reloadDependance }) {
                     ))}
             </SimpleGrid>
 
-            {/* Pagination */}
-            <Flex justify="center" align="center" gap="20px" mt="30px">
-                <Button onClick={() => changePagination(1)}>First</Button>
-
-                <Button
-                    isDisabled={page === 1}
-                    onClick={() => handleClick("dec")}
-                    onMouseDown={() => startHolding("dec")}
-                    onMouseUp={stopHolding}
-                    onMouseLeave={stopHolding}
-                >
-                    <ChevronLeft />
-                </Button>
-
-                {(holding ? number : page) + " / " + totalPage}
-
-                <Button
-                    isDisabled={page === totalPage}
-                    onClick={() => handleClick("inc")}
-                    onMouseDown={() => startHolding("inc")}
-                    onMouseUp={stopHolding}
-                    onMouseLeave={stopHolding}
-                >
-                    <ChevronRight />
-                </Button>
-
-                <Button onClick={() => changePagination(totalPage)}>Last</Button>
-            </Flex>
+            <PaginationBar
+                mt="30px"
+                page={page}
+                totalPages={totalPage}
+                loading={loading}
+                onPageChange={(p) => changePagination(p)}
+            />
         </Box>
     );
 }

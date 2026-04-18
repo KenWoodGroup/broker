@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import PaginationBar from '../../components/common/PaginationBar';
 import {
     Box,
     Container,
@@ -537,26 +538,14 @@ const WarehousesPage = ({ role = 'admin' }) => {
                         </SimpleGrid>
 
                         {/* Pagination */}
-                        {pagination && pagination.total_pages > 1 && (
-                            <HStack justify="center" mt={8}>
-                                <Button
-                                    size="sm"
-                                    onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
-                                    isDisabled={currentPage === 1}
-                                >
-                                    Oldingi
-                                </Button>
-                                <Text fontSize="sm" color="text">
-                                    {currentPage} / {pagination.total_pages}
-                                </Text>
-                                <Button
-                                    size="sm"
-                                    onClick={() => setCurrentPage(p => p + 1)}
-                                    isDisabled={currentPage >= pagination.total_pages}
-                                >
-                                    Keyingi
-                                </Button>
-                            </HStack>
+                        {pagination && (
+                            <PaginationBar
+                                mt={8}
+                                page={currentPage}
+                                totalPages={pagination.total_pages ?? 1}
+                                loading={loading}
+                                onPageChange={(p) => setCurrentPage(p)}
+                            />
                         )}
                     </>
                 )}

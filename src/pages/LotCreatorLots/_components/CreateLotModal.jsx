@@ -7,16 +7,9 @@ import {
     FormControl,
     FormLabel,
     Grid,
-    Heading,
     HStack,
+    Icon,
     Input,
-    Modal,
-    ModalBody,
-    ModalCloseButton,
-    ModalContent,
-    ModalFooter,
-    ModalHeader,
-    ModalOverlay,
     NumberInput,
     NumberInputField,
     Select,
@@ -27,8 +20,9 @@ import {
     useDisclosure,
     useToast,
 } from "@chakra-ui/react";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Plus } from "lucide-react";
+import GradientFormModal from "../../../components/common/GradientFormModal";
 import { apiLots } from "../../../utils/Controllers/Lots";
 import { apiLotLocations } from "../../../utils/Controllers/LotLocations";
 import CreateCustomerModal from "./CreateCustomerModal";
@@ -257,27 +251,22 @@ export default function CreateLotModal({ isOpen, onClose, onCreated, typeOptions
         }
     };
 
-    const customerLabel = useMemo(() => {
-        if (!form.customer_id) return "Tanlanmagan";
-        const name = selectedCustomer?.name ?? selectedCustomer?.title ?? selectedCustomer?.company_name;
-        return name ? `${name} (ID: ${form.customer_id})` : `ID: ${form.customer_id}`;
-    }, [form.customer_id, selectedCustomer]);
-
-    const builderLabel = useMemo(() => {
-        if (!form.builder_id) return "Tanlanmagan";
-        const name = selectedBuilder?.name ?? selectedBuilder?.title ?? selectedBuilder?.company_name;
-        return name ? `${name} (ID: ${form.builder_id})` : `ID: ${form.builder_id}`;
-    }, [form.builder_id, selectedBuilder]);
-
     return (
         <>
-            <Modal isOpen={isOpen} onClose={onClose} isCentered size="6xl" scrollBehavior="inside">
-                <ModalOverlay />
-                <ModalContent bg="surface" borderColor="border">
-                    <ModalHeader>Yaratish</ModalHeader>
-                    <ModalCloseButton />
-                    <ModalBody>
-                        <Grid templateColumns={{ base: "1fr", lg: "1.2fr 0.8fr" }} gap="16px">
+            <GradientFormModal
+                isOpen={isOpen}
+                onClose={onClose}
+                size="6xl"
+                title="Yangi lot"
+                subtitle="Lot rekvizitlari, buyurtmachi va quruvchini tanlang"
+                headerIcon={Plus}
+                primaryLabel="Yaratish"
+                primaryLoading={saving}
+                primaryLoadingText="Yaratilmoqda..."
+                primaryLeftIcon={<Icon as={Plus} boxSize={4} />}
+                onPrimary={handleSubmit}
+            >
+                <Grid templateColumns={{ base: "1fr", lg: "1.2fr 0.8fr" }} gap="16px">
                             <Box>
 
                                 <Grid templateColumns={{ base: "1fr", md: "1fr 1fr" }} gap="12px">
@@ -568,18 +557,7 @@ export default function CreateLotModal({ isOpen, onClose, onCreated, typeOptions
                                 </Box>
                             </Box>
                         </Grid>
-                    </ModalBody>
-
-                    <ModalFooter>
-                        <Button variant="ghost" mr={3} onClick={onClose}>
-                            Bekor qilish
-                        </Button>
-                        <Button colorScheme="green" onClick={handleSubmit} isLoading={saving}>
-                            Saqlash
-                        </Button>
-                    </ModalFooter>
-                </ModalContent>
-            </Modal>
+            </GradientFormModal>
 
             <CreateCustomerModal
                 isOpen={createCustomer.isOpen}

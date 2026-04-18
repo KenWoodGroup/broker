@@ -32,6 +32,7 @@ import {
 } from "lucide-react";
 import { apiStock } from "../../../utils/Controllers/apiStock";
 import { apiTasks } from "../../../utils/Controllers/apiTasks";
+import PaginationBar from "../../../components/common/PaginationBar";
 
 const UUID_RE =
     /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -592,35 +593,15 @@ export default function CreateTaskModal({ isOpen, onClose, onCreated }) {
                             </VStack>
                         )}
 
-                        {totalPages > 1 && (
-                            <HStack justify="center" spacing={3}>
-                                <Button
-                                    size="sm"
-                                    variant="outline"
-                                    borderRadius="lg"
-                                    onClick={() =>
-                                        fetchStock(currentPage - 1, searchTerm.trim())
-                                    }
-                                    isDisabled={currentPage <= 1 || loading}
-                                >
-                                    Oldingi
-                                </Button>
-                                <Text fontSize="sm">
-                                    {currentPage} / {totalPages}
-                                </Text>
-                                <Button
-                                    size="sm"
-                                    variant="outline"
-                                    borderRadius="lg"
-                                    onClick={() =>
-                                        fetchStock(currentPage + 1, searchTerm.trim())
-                                    }
-                                    isDisabled={currentPage >= totalPages || loading}
-                                >
-                                    Keyingi
-                                </Button>
-                            </HStack>
-                        )}
+                        <PaginationBar
+                            mt={3}
+                            page={currentPage}
+                            totalPages={totalPages}
+                            loading={loading}
+                            onPageChange={(p) =>
+                                fetchStock(p, searchTerm.trim())
+                            }
+                        />
 
                         <Flex wrap="wrap" gap={4} align="flex-end">
                             <Box>

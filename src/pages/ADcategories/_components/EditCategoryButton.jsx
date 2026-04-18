@@ -74,12 +74,7 @@ const EditCategoryButton = ({
                     </ModalBody>
 
                     <ModalFooter>
-                        <Button
-                            _hover={{ bg: "secondary" }}
-                            variant="solidPrimary"
-                            onClick={handleEdit}
-                            isLoading={loading}
-                        >
+                        <Button colorScheme="blue" onClick={handleEdit} isLoading={loading}>
                             Save
                         </Button>
                     </ModalFooter>
