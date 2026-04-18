@@ -1,4 +1,3 @@
-import { Center } from "@chakra-ui/react";
 import ADcategories from "../../pages/ADcategories/ADcategories";
 import ADfactories from "../../pages/ADfactories/ADfactories";
 import ADfactoriesBycategory from "../../pages/ADfactoriesBycategory/ADfactoriesBycategory";
@@ -17,6 +16,7 @@ import LeadFactory from "../../pages/LeadFactory";
 import ADtasks from "../../pages/ADtasks/ADtasks";
 import ADCustomers from "../../pages/ADCustomers/ADCustomers.jsx";
 import ADCustomerDetail from "../../pages/ADCustomerDetail/ADCustomerDetail.jsx";
+import LotCreatorLots from "../../pages/LotCreatorLots/LotCreatorLots";
 
 const adminRoutes = [
     {
@@ -58,6 +58,11 @@ const adminRoutes = [
         path: "customers/:id",
         name: "customer detail",
         element: <ADCustomerDetail />,
+    },
+    {
+        path: "lots",
+        name: "admin lots",
+        element: <LotCreatorLots />,
     },
     {
         path: '/company-detail/:id',

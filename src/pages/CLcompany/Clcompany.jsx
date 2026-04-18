@@ -196,7 +196,7 @@ export default function Clcompany({ role }) {
 
     // ─── Render ───────────────────────────────────────────────────────────────
     return (
-        <Box py="20px" pr="20px" pl="20px"   pr="20px" pb="20px"  pt="20px">
+        <Box py="20px" pr="20px" pl="10px" >
             {/* Заголовок */}
             <Flex justifyContent="space-between" mb="20px">
                 <Heading size="lg">Kompaniyalar</Heading>

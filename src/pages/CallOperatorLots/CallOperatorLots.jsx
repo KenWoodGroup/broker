@@ -15,13 +15,11 @@ import {
 } from "@chakra-ui/react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Search, X } from "lucide-react";
-import { useNavigate } from "react-router-dom";
 import { apiLots } from "../../utils/Controllers/Lots";
 import PaginationBar from "../../components/common/PaginationBar";
 import { LotCardIconRows } from "../../components/common/EntityCardDetailRows";
 
 export default function CallOperatorLots() {
-    const navigate = useNavigate();
 
     const TYPE_OPTIONS = useMemo(
         () => [
@@ -243,11 +241,6 @@ export default function CallOperatorLots() {
                                     p="16px"
                                     transition="all .2s"
                                     _hover={{ shadow: "md" }}
-                                    cursor="pointer"
-                                    onClick={() => {
-                                        if (!lot?.id) return;
-                                        navigate(`/call-operator/lots/${lot.id}`);
-                                    }}
                                 >
                                     <Text fontWeight="600" fontSize="lg" mb="4px" noOfLines={2}>
                                         {title}
