@@ -1,22 +1,10 @@
-import {
-    Button,
-    Modal,
-    ModalOverlay,
-    ModalContent,
-    ModalHeader,
-    ModalBody,
-    ModalFooter,
-    ModalCloseButton,
-    Text,
-    useDisclosure,
-    useToast
-} from "@chakra-ui/react"
-import { Trash } from "lucide-react"
+import { Button, useDisclosure, useToast } from "@chakra-ui/react"
+import { Trash2 } from "lucide-react"
 import { useState } from "react"
-import { apiUsers } from "../../../utils/Controllers/Users"
 import { apiLocationUsers } from "../../../utils/Controllers/apiLocationUsers"
+import ConfirmDelModal from "../../../components/common/ConfirmDelModal"
 
-export default function DeleteOperator({ id, refresh }) {
+export default function DeleteOperator({ id, refresh, itemName, typeItem = "ta'minotchi" }) {
     const { isOpen, onOpen, onClose } = useDisclosure()
     const toast = useToast()
     const [loading, setLoading] = useState(false)
@@ -24,55 +12,48 @@ export default function DeleteOperator({ id, refresh }) {
     const handleDelete = async () => {
         try {
             setLoading(true)
-            await apiLocationUsers.Delete(id);
+            await apiLocationUsers.Delete(id)
+            toast({
+                title: "O‘chirildi!",
+                status: "success",
+                duration: 3000,
+                isClosable: true,
+            })
             onClose()
             if (refresh) refresh()
 
-        }finally {
+        } catch (e) {
+            toast({
+                title: "Xatolik!",
+                description: "O‘chirishda xatolik.",
+                status: "error",
+                duration: 3000,
+                isClosable: true,
+            })
+        } finally {
             setLoading(false)
         }
     }
 
     return (
         <>
-            {/* Delete Button */}
             <Button
                 size="sm"
                 colorScheme="red"
                 variant="ghost"
                 onClick={onOpen}
             >
-                <Trash size={18} />
+                <Trash2 size={18} />
             </Button>
 
-            {/* Modal */}
-            <Modal isOpen={isOpen} onClose={onClose} isCentered>
-                <ModalOverlay />
-                <ModalContent>
-                    <ModalHeader>Operatorni o‘chirish</ModalHeader>
-                    <ModalCloseButton />
-
-                    <ModalBody>
-                        <Text>
-                            Haqiqatan ham ushbu operatorni o‘chirmoqchimisiz?
-                            Bu amalni ortga qaytarib bo‘lmaydi.
-                        </Text>
-                    </ModalBody>
-
-                    <ModalFooter>
-                        <Button variant="ghost" mr={3} onClick={onClose}>
-                            Bekor qilish
-                        </Button>
-                        <Button
-                            colorScheme="red"
-                            onClick={handleDelete}
-                            isLoading={loading}
-                        >
-                            O‘chirish
-                        </Button>
-                    </ModalFooter>
-                </ModalContent>
-            </Modal>
+            <ConfirmDelModal
+                isOpen={isOpen}
+                onClose={onClose}
+                onConfirm={handleDelete}
+                itemName={itemName ?? "—"}
+                loading={loading}
+                typeItem={typeItem}
+            />
         </>
     )
 }

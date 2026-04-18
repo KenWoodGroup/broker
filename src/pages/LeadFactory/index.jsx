@@ -1,3 +1,4 @@
+
 import {
   Box, Flex, Text, Input, InputGroup, InputRightElement, IconButton,
   Button, Spinner, Select, SimpleGrid,
@@ -876,3 +877,6 @@ export default function UnverifiedFactories({ role = "admin" }) {
     </Box>
   );
 }
+
+export { default } from "./LeadFactoryPage";
+

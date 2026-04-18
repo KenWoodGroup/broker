@@ -23,6 +23,10 @@ class apiLots {
         const response = await $api.post(`/lots`, data, { showSuccessToast: "Lot created" });
         return response;
     };
+    static createExel = async (data) => {
+        const response = await $api.post(`/lots/upload-excel`, data, { showSuccessToast: "Lot created" });
+        return response;
+    };
 
     static getById = async (id) => {
         const response = await $api.get(`/lots/${id}`);

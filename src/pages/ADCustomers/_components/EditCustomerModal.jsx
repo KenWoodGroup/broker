@@ -1,20 +1,8 @@
-import {
-    Button,
-    FormControl,
-    FormLabel,
-    Input,
-    Modal,
-    ModalBody,
-    ModalCloseButton,
-    ModalContent,
-    ModalFooter,
-    ModalHeader,
-    ModalOverlay,
-    Spinner,
-    VStack,
-} from "@chakra-ui/react";
+import { Button, FormControl, FormLabel, Input, Spinner, VStack } from "@chakra-ui/react";
+import { Pencil } from "lucide-react";
 import { useEffect, useState } from "react";
 import { apiLotLocations } from "../../../utils/Controllers/LotLocations";
+import TaskModalShell from "../../../components/common/TaskModalShell";
 
 export default function EditCustomerModal({ isOpen, onClose, customerId, onUpdated }) {
     const [loading, setLoading] = useState(false);
@@ -23,6 +11,7 @@ export default function EditCustomerModal({ isOpen, onClose, customerId, onUpdat
         name: "",
         address: "",
         phone: "",
+        inn: "",
     });
 
     const extractData = (res) => res?.data?.data ?? res?.data ?? null;
@@ -38,6 +27,7 @@ export default function EditCustomerModal({ isOpen, onClose, customerId, onUpdat
                     name: c.name ?? "",
                     address: c.address ?? "",
                     phone: c.phone ?? "",
+                    inn: c.inn ?? c.INN ?? "",
                 });
             } finally {
                 setLoading(false);
@@ -59,6 +49,7 @@ export default function EditCustomerModal({ isOpen, onClose, customerId, onUpdat
                 name: form.name.trim(),
                 address: form.address.trim(),
                 phone: form.phone.trim(),
+                inn: form.inn.trim(),
             });
             onUpdated?.();
             onClose?.();
@@ -67,44 +58,59 @@ export default function EditCustomerModal({ isOpen, onClose, customerId, onUpdat
         }
     };
 
+    const titleLine = form.name?.trim() || "Buyurtmachi";
+
     return (
-        <Modal isOpen={isOpen} onClose={onClose} isCentered size="lg">
-            <ModalOverlay />
-            <ModalContent bg="surface" borderColor="border">
-                <ModalHeader>Buyurtmachini tahrirlash</ModalHeader>
-                <ModalCloseButton />
-                <ModalBody>
-                    {loading ? (
-                        <VStack py="30px">
-                            <Spinner size="lg" />
-                        </VStack>
-                    ) : (
-                        <VStack spacing="12px" align="stretch">
-                            <FormControl isRequired>
-                                <FormLabel>Nomi</FormLabel>
-                                <Input name="name" value={form.name} onChange={handleChange} bg="bg" />
-                            </FormControl>
-                            <FormControl isRequired>
-                                <FormLabel>Manzil</FormLabel>
-                                <Input name="address" value={form.address} onChange={handleChange} bg="bg" />
-                            </FormControl>
-                            <FormControl isRequired>
-                                <FormLabel>Telefon</FormLabel>
-                                <Input name="phone" value={form.phone} onChange={handleChange} bg="bg" />
-                            </FormControl>
-                        </VStack>
-                    )}
-                </ModalBody>
-                <ModalFooter>
-                    <Button variant="ghost" mr={3} onClick={onClose}>
+        <TaskModalShell
+            isOpen={isOpen}
+            onClose={onClose}
+            size="lg"
+            title="Buyurtmachini tahrirlash"
+            subtitle={titleLine}
+            headerIcon={Pencil}
+            footer={
+                <>
+                    <Button variant="ghost" onClick={onClose} isDisabled={saving || loading}>
                         Bekor qilish
                     </Button>
-                    <Button colorScheme="green" onClick={handleSave} isLoading={saving} isDisabled={loading}>
+                    <Button
+                        colorScheme="blue"
+                        onClick={handleSave}
+                        isLoading={saving}
+                        loadingText="Saqlanmoqda..."
+                        isDisabled={loading}
+                        borderRadius="xl"
+                        px={8}
+                    >
                         Saqlash
                     </Button>
-                </ModalFooter>
-            </ModalContent>
-        </Modal>
+                </>
+            }
+        >
+            {loading ? (
+                <VStack py={8}>
+                    <Spinner size="lg" color="blue.500" />
+                </VStack>
+            ) : (
+                <VStack spacing={3} align="stretch">
+                    <FormControl isRequired>
+                        <FormLabel>Nomi</FormLabel>
+                        <Input name="name" value={form.name} onChange={handleChange} bg="bg" borderRadius="lg" />
+                    </FormControl>
+                    <FormControl isRequired>
+                        <FormLabel>Manzil</FormLabel>
+                        <Input name="address" value={form.address} onChange={handleChange} bg="bg" borderRadius="lg" />
+                    </FormControl>
+                    <FormControl isRequired>
+                        <FormLabel>Telefon</FormLabel>
+                        <Input name="phone" value={form.phone} onChange={handleChange} bg="bg" borderRadius="lg" />
+                    </FormControl>
+                    <FormControl>
+                        <FormLabel>INN</FormLabel>
+                        <Input name="inn" value={form.inn} onChange={handleChange} bg="bg" borderRadius="lg" />
+                    </FormControl>
+                </VStack>
+            )}
+        </TaskModalShell>
     );
 }
-

@@ -1,22 +1,16 @@
 import {
     Button,
-    Modal,
-    ModalOverlay,
-    ModalContent,
-    ModalHeader,
-    ModalCloseButton,
-    ModalBody,
-    ModalFooter,
     FormControl,
     FormLabel,
     Input,
-    Select,
     VStack,
     useDisclosure,
     useToast
 } from "@chakra-ui/react"
+import { UserPlus } from "lucide-react"
 import { useState } from "react"
 import { apiUsers } from "../../../utils/Controllers/Users"
+import TaskModalShell from "../../../components/common/TaskModalShell"
 
 export default function CreateOperators({refresh}) {
     const { isOpen, onOpen, onClose } = useDisclosure()
@@ -43,6 +37,13 @@ export default function CreateOperators({refresh}) {
         try {
             setLoading(true)
             await apiUsers.CreateOperator(formData)
+            toast({
+                title: "Muvaffaqiyatli!",
+                description: "Ta'minotchi yaratildi.",
+                status: "success",
+                duration: 3000,
+                isClosable: true,
+            })
             refresh()
             setFormData({
                 full_name: "",
@@ -52,6 +53,14 @@ export default function CreateOperators({refresh}) {
             })
 
             onClose()
+        } catch (e) {
+            toast({
+                title: "Xatolik!",
+                description: "Yaratishda xatolik yuz berdi.",
+                status: "error",
+                duration: 3000,
+                isClosable: true,
+            })
         } finally {
             setLoading(false)
         }
@@ -59,69 +68,70 @@ export default function CreateOperators({refresh}) {
 
     return (
         <>
-            {/* Open Button */}
             <Button colorScheme="blue" onClick={onOpen}>
                 Ta'minotchi yaratish
             </Button>
 
-            {/* Modal */}
-            <Modal isOpen={isOpen} onClose={onClose} isCentered>
-                <ModalOverlay />
-                <ModalContent>
-                    <ModalHeader>Yangi ta'minotchi</ModalHeader>
-                    <ModalCloseButton />
-
-                    <ModalBody>
-                        <VStack spacing={4}>
-
-                            <FormControl isRequired>
-                                <FormLabel>To'liq ism</FormLabel>
-                                <Input
-                                    name="full_name"
-                                    placeholder="John Doe"
-                                    value={formData.full_name}
-                                    onChange={handleChange}
-                                />
-                            </FormControl>
-
-                            <FormControl isRequired>
-                                <FormLabel>Username</FormLabel>
-                                <Input
-                                    name="username"
-                                    placeholder="john"
-                                    value={formData.username}
-                                    onChange={handleChange}
-                                />
-                            </FormControl>
-
-                            <FormControl isRequired>
-                                <FormLabel>Parol</FormLabel>
-                                <Input
-                                    type="password"
-                                    name="password"
-                                    placeholder="password123"
-                                    value={formData.password}
-                                    onChange={handleChange}
-                                />
-                            </FormControl>
-
-                        </VStack>
-                    </ModalBody>
-
-                    <ModalFooter>
-                        <Button variant="ghost" mr={3} onClick={onClose}>
+            <TaskModalShell
+                isOpen={isOpen}
+                onClose={onClose}
+                title="Yangi ta'minotchi"
+                subtitle="To'liq ism, username va parol"
+                headerIcon={UserPlus}
+                footer={
+                    <>
+                        <Button variant="ghost" onClick={onClose} isDisabled={loading}>
                             Bekor qilish
                         </Button>
                         <Button
                             colorScheme="blue"
                             onClick={handleSubmit}
                             isLoading={loading}
+                            loadingText="Saqlanmoqda..."
+                            borderRadius="xl"
+                            px={8}
                         >
-                            Saqlash
+                            Yaratish
                         </Button>
-                    </ModalFooter>
-                </ModalContent>
-            </Modal>
+                    </>
+                }
+            >
+                <VStack spacing={4} align="stretch">
+                    <FormControl isRequired>
+                        <FormLabel>To'liq ism</FormLabel>
+                        <Input
+                            name="full_name"
+                            placeholder="John Doe"
+                            value={formData.full_name}
+                            onChange={handleChange}
+                            borderRadius="lg"
+                        />
+                    </FormControl>
+
+                    <FormControl isRequired>
+                        <FormLabel>Username</FormLabel>
+                        <Input
+                            name="username"
+                            placeholder="john"
+                            value={formData.username}
+                            onChange={handleChange}
+                            borderRadius="lg"
+                        />
+                    </FormControl>
+
+                    <FormControl isRequired>
+                        <FormLabel>Parol</FormLabel>
+                        <Input
+                            type="password"
+                            name="password"
+                            placeholder="password123"
+                            value={formData.password}
+                            onChange={handleChange}
+                            borderRadius="lg"
+                        />
+                    </FormControl>
+                </VStack>
+            </TaskModalShell>
         </>
     )
 }

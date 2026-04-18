@@ -81,7 +81,7 @@ const roles = [
 export default function RolesPage() {
     const navigate = useNavigate();
     return (
-        <Box p="20px">
+        <Box  pr="20px" pb="20px" pt="20px">
             {/* HEADER */}
             <Box mb="20px">
                 <Text fontSize="2xl" fontWeight="700">

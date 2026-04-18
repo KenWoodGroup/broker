@@ -8,15 +8,8 @@ import {
     FormLabel,
     Grid,
     HStack,
-    Heading,
+    Icon,
     Input,
-    Modal,
-    ModalBody,
-    ModalCloseButton,
-    ModalContent,
-    ModalFooter,
-    ModalHeader,
-    ModalOverlay,
     NumberInput,
     NumberInputField,
     Select,
@@ -27,14 +20,18 @@ import {
     useDisclosure,
     useToast,
 } from "@chakra-ui/react";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { Pencil, Plus } from "lucide-react";
 import { apiLots } from "../../../utils/Controllers/Lots";
 import { apiLotLocations } from "../../../utils/Controllers/LotLocations";
+import GradientFormModal from "../../../components/common/GradientFormModal";
 import CreateCustomerModal from "./CreateCustomerModal";
+import CreateBuilderModal from "./CreateBuilderModal";
 
 export default function EditLotModal({ isOpen, onClose, lotId, typeOptions = [], categoryOptions = [], onUpdated }) {
     const toast = useToast();
     const createCustomer = useDisclosure();
+    const createBuilder = useDisclosure();
 
     const [loading, setLoading] = useState(false);
     const [saving, setSaving] = useState(false);
@@ -47,6 +44,7 @@ export default function EditLotModal({ isOpen, onClose, lotId, typeOptions = [],
         lot_name: "",
         customer_id: null,
         builder_id: null,
+        customer_inn: "",
         amount: "",
         note: "",
         start_date: "",
@@ -106,6 +104,12 @@ export default function EditLotModal({ isOpen, onClose, lotId, typeOptions = [],
         return null;
     };
 
+    const pickCustomerInn = (c) => {
+        if (!c) return "";
+        const v = c.inn ?? c.INN;
+        return v != null ? String(v).trim() : "";
+    };
+
     // Load lot details
     useEffect(() => {
         if (!isOpen || !lotId) return;
@@ -117,6 +121,7 @@ export default function EditLotModal({ isOpen, onClose, lotId, typeOptions = [],
                 const customerId = lot.customer_id ?? lot.customerId ?? null;
                 const builderId = lot.builder_id ?? lot.builderId ?? null;
 
+                const lotInn = lot.inn ?? lot.customer_inn ?? "";
                 setForm({
                     address: lot.address ?? "",
                     type: lot.type ?? "",
@@ -125,6 +130,7 @@ export default function EditLotModal({ isOpen, onClose, lotId, typeOptions = [],
                     lot_name: lot.lot_name ?? lot.lotName ?? lot.name ?? "",
                     customer_id: customerId,
                     builder_id: builderId,
+                    customer_inn: lotInn != null ? String(lotInn) : "",
                     amount: lot.amount ?? "",
                     note: lot.note ?? "",
                     start_date: (lot.start_date ?? lot.startDate ?? "").slice(0, 10),
@@ -189,23 +195,15 @@ export default function EditLotModal({ isOpen, onClose, lotId, typeOptions = [],
         return () => clearTimeout(t);
     }, [builderQuery, isOpen, form.builder_id]);
 
-    const customerLabel = useMemo(() => {
-        if (!form.customer_id) return "Tanlanmagan";
-        const name = selectedCustomer?.name ?? selectedCustomer?.title ?? selectedCustomer?.company_name;
-        return name ? `${name} (ID: ${form.customer_id})` : `ID: ${form.customer_id}`;
-    }, [form.customer_id, selectedCustomer]);
-
-    const builderLabel = useMemo(() => {
-        if (!form.builder_id) return "Tanlanmagan";
-        const name = selectedBuilder?.name ?? selectedBuilder?.title ?? selectedBuilder?.company_name;
-        return name ? `${name} (ID: ${form.builder_id})` : `ID: ${form.builder_id}`;
-    }, [form.builder_id, selectedBuilder]);
-
     const onPickCustomer = (c) => {
         const id = extractId(c);
         if (!id) return;
         setSelectedCustomer(c);
-        setForm((p) => ({ ...p, customer_id: id }));
+        setForm((p) => ({
+            ...p,
+            customer_id: id,
+            customer_inn: pickCustomerInn(c) || p.customer_inn,
+        }));
         setCustomerQuery(c?.name ?? c?.title ?? c?.company_name ?? customerQuery);
         setCustomerResults([]);
     };
@@ -257,6 +255,7 @@ export default function EditLotModal({ isOpen, onClose, lotId, typeOptions = [],
                 lot_name: form.lot_name.trim(),
                 customer_id: form.customer_id,
                 builder_id: form.builder_id,
+                inn: form.customer_inn?.trim() || undefined,
                 amount: Number(form.amount),
                 note: form.note?.trim() || undefined,
                 start_date: form.start_date,
@@ -269,20 +268,33 @@ export default function EditLotModal({ isOpen, onClose, lotId, typeOptions = [],
         }
     };
 
+    const lotTitleSubtitle =
+        form.lot_name?.trim() || form.lot_number?.trim()
+            ? [form.lot_name, form.lot_number].filter(Boolean).join(" · ")
+            : "Lot ma’lumotlarini yangilang";
+
     return (
         <>
-            <Modal isOpen={isOpen} onClose={onClose} isCentered size="6xl" scrollBehavior="inside">
-                <ModalOverlay />
-                <ModalContent bg="surface" borderColor="border">
-                    <ModalHeader>Lotni tahrirlash</ModalHeader>
-                    <ModalCloseButton />
-                    <ModalBody>
-                        {loading ? (
-                            <Flex justify="center" py="50px">
-                                <Spinner size="xl" />
-                            </Flex>
-                        ) : (
-                            <Grid templateColumns={{ base: "1fr", lg: "1.2fr 0.8fr" }} gap="16px">
+            <GradientFormModal
+                isOpen={isOpen}
+                onClose={onClose}
+                size="6xl"
+                title="Lotni tahrirlash"
+                subtitle={lotTitleSubtitle}
+                headerIcon={Pencil}
+                primaryLabel="Saqlash"
+                primaryLoading={saving}
+                primaryDisabled={loading}
+                primaryLoadingText="Saqlanmoqda..."
+                primaryLeftIcon={<Icon as={Pencil} boxSize={4} />}
+                onPrimary={handleSave}
+            >
+                {loading ? (
+                    <Flex justify="center" py="50px">
+                        <Spinner size="xl" />
+                    </Flex>
+                ) : (
+                    <Grid templateColumns={{ base: "1fr", lg: "1.2fr 0.8fr" }} gap="16px">
                                 <Box>
                                     <Grid templateColumns={{ base: "1fr", md: "1fr 1fr" }} gap="12px">
                                         <FormControl isRequired>
@@ -418,7 +430,11 @@ export default function EditLotModal({ isOpen, onClose, lotId, typeOptions = [],
                                                 <Button
                                                     variant="ghost"
                                                     onClick={() => {
-                                                        setForm((p) => ({ ...p, customer_id: null }));
+                                                        setForm((p) => ({
+                                                            ...p,
+                                                            customer_id: null,
+                                                            customer_inn: "",
+                                                        }));
                                                         setSelectedCustomer(null);
                                                         setCustomerQuery("");
                                                         setCustomerResults([]);
@@ -519,13 +535,26 @@ export default function EditLotModal({ isOpen, onClose, lotId, typeOptions = [],
                                                 </Button>
                                             </Flex>
                                         ) : (
-                                            <Input
-                                                value={builderQuery}
-                                                onChange={(e) => setBuilderQuery(e.target.value)}
-                                                placeholder="Quruvchi izlash..."
-                                                bg="surface"
-                                                mb="10px"
-                                            />
+                                            <HStack mb="10px" align="start">
+                                                <Input
+                                                    value={builderQuery}
+                                                    onChange={(e) => setBuilderQuery(e.target.value)}
+                                                    placeholder="Quruvchi izlash..."
+                                                    bg="surface"
+                                                />
+                                                <Button
+                                                    display="flex"
+                                                    alignItems="center"
+                                                    justifyContent="center"
+                                                    onClick={createBuilder.onOpen}
+                                                    flexShrink={0}
+                                                    minW="44px"
+                                                    px={0}
+                                                    aria-label="Quruvchi yaratish"
+                                                >
+                                                    <Plus size={20} />
+                                                </Button>
+                                            </HStack>
                                         )}
 
                                         {!form.builder_id && builderLoading ? (
@@ -568,19 +597,8 @@ export default function EditLotModal({ isOpen, onClose, lotId, typeOptions = [],
                                     </Box>
                                 </Box>
                             </Grid>
-                        )}
-                    </ModalBody>
-
-                    <ModalFooter>
-                        <Button variant="ghost" mr={3} onClick={onClose}>
-                            Bekor qilish
-                        </Button>
-                        <Button colorScheme="green" onClick={handleSave} isLoading={saving} isDisabled={loading}>
-                            Saqlash
-                        </Button>
-                    </ModalFooter>
-                </ModalContent>
-            </Modal>
+                )}
+            </GradientFormModal>
 
             <CreateCustomerModal
                 isOpen={createCustomer.isOpen}
@@ -589,6 +607,16 @@ export default function EditLotModal({ isOpen, onClose, lotId, typeOptions = [],
                 onCreated={(created) => {
                     if (!created) return;
                     onPickCustomer(created);
+                }}
+            />
+
+            <CreateBuilderModal
+                isOpen={createBuilder.isOpen}
+                onClose={createBuilder.onClose}
+                initialName={builderQuery}
+                onCreated={(created) => {
+                    if (!created) return;
+                    onPickBuilder(created);
                 }}
             />
         </>

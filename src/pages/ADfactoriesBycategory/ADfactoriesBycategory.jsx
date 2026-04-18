@@ -19,7 +19,7 @@ import {
     Badge,
 } from "@chakra-ui/react";
 import React, { useEffect, useState, useCallback, useRef } from "react";
-import { ChevronLeft, ChevronRight, Search, X, Link2, Save } from "lucide-react";
+import { Search, X, Link2, Save } from "lucide-react";
 import FactoryCard from "./_components/FactoryCard";
 import FactoryCardSkeleton from "./_components/FactoryCardSkeleton";
 import { useParams } from "react-router";
@@ -29,12 +29,11 @@ import { apiLocalCategories } from "../../utils/Controllers/apiLocalCategories";
 import { apiLocationCategories } from "../../utils/Controllers/apiLocationCategory";
 import regions from '../../constants/regions/regions.json'
 import districts from '../../constants/regions/districts.json'
+import PaginationBar from "../../components/common/PaginationBar";
 
 
 const FACTORY_PAGE_KEY = "factories_page_by_category";
 const SEARCH_DEBOUNCE = 500;
-const HOLD_DELAY = 300;
-
 export default function ADfactoriesBycategory({ reloadDependance, role = 'admin' }) {
     const searchRef = useRef(null)
     const { id } = useParams();
@@ -66,12 +65,6 @@ export default function ADfactoriesBycategory({ reloadDependance, role = 'admin'
     /* ---------------- filter regions ---------------*/
     const [selectedRegion, setSelectedRegion] = useState('');
     const [selectedDistrict, setSelectedDistrict] = useState('');
-
-    /* ---------------- holding pagination ---------------- */
-    const [number, setNumber] = useState(factoryPage);
-    const [holding, setHolding] = useState(false);
-    const holdTimeoutRef = useRef(null);
-    const holdIntervalRef = useRef(null);
 
     /* ---------------- pagination change ---------------- */
     const changePagination = useCallback(
@@ -124,42 +117,6 @@ export default function ADfactoriesBycategory({ reloadDependance, role = 'admin'
         },
         [id, joinMode]
     );
-
-    /* ---------------- pagination click ---------------- */
-    const handleClick = (type) => {
-        if (holding) return;
-
-        const next =
-            type === "inc"
-                ? Math.min(factoryPage + 1, totalPage)
-                : Math.max(factoryPage - 1, 1);
-
-        changePagination(next);
-    };
-
-    /* ---------------- long press ---------------- */
-    const startHolding = (type) => {
-        holdTimeoutRef.current = setTimeout(() => {
-            setHolding(true);
-            setNumber(factoryPage);
-
-            holdIntervalRef.current = setInterval(() => {
-                setNumber((prev) =>
-                    type === "inc"
-                        ? Math.min(prev + 1, totalPage)
-                        : Math.max(prev - 1, 1)
-                );
-            }, 200);
-        }, HOLD_DELAY);
-    };
-
-    const stopHolding = () => {
-        clearTimeout(holdTimeoutRef.current);
-        clearInterval(holdIntervalRef.current);
-
-        if (holding) changePagination(number);
-        setHolding(false);
-    };
 
     /* ---------------- effects ---------------- */
     // useEffect(() => {
@@ -398,34 +355,13 @@ export default function ADfactoriesBycategory({ reloadDependance, role = 'admin'
                     ))}
             </SimpleGrid>
 
-            {/* Pagination */}
-            <Flex justify="center" align="center" gap="20px" mt="30px">
-                <Button onClick={() => changePagination(1)}>First</Button>
-
-                <Button
-                    isDisabled={factoryPage === 1}
-                    onClick={() => handleClick("dec")}
-                    onMouseDown={() => startHolding("dec")}
-                    onMouseUp={stopHolding}
-                    onMouseLeave={stopHolding}
-                >
-                    <ChevronLeft />
-                </Button>
-
-                {(holding ? number : factoryPage) + " / " + totalPage}
-
-                <Button
-                    isDisabled={factoryPage === totalPage}
-                    onClick={() => handleClick("inc")}
-                    onMouseDown={() => startHolding("inc")}
-                    onMouseUp={stopHolding}
-                    onMouseLeave={stopHolding}
-                >
-                    <ChevronRight />
-                </Button>
-
-                <Button onClick={() => changePagination(totalPage)}>Last</Button>
-            </Flex>
+            <PaginationBar
+                mt="30px"
+                page={factoryPage}
+                totalPages={totalPage}
+                loading={loading}
+                onPageChange={(p) => changePagination(p)}
+            />
         </Box>
     );
 }

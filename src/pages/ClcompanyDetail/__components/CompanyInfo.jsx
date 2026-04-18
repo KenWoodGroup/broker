@@ -27,31 +27,30 @@ import {
 
 import CompanyDetailEditModal from "./CompanyDetailEditModal"
 
-export default function CompanyInfo({ data, onSuccess }) {
-    const detail = data?.company_detail || {}
-    const editModal = useDisclosure()
+export default function CompanyInfo({ data, onSuccess, canEdit, onOpenLocationEdit }) {
+    const detail = data?.company_detail
+    const detailEditModal = useDisclosure()
 
     const mainInfo = [
         { icon: MapPin, label: "Manzil", value: data?.address },
         { icon: Phone, label: "Telefon", value: data?.phone },
-        { icon: User, label: "Direktor nomi", value: detail.director_name },
-        { icon: Calendar, label: "Tashkil etilgan yil", value: detail.founded_year },
-        { icon: Briefcase, label: "Faoliyat yo'nalishi", value: detail.direction },
-        { icon: Hash, label: "INN", value: detail.inn }
+        { icon: User, label: "Direktor nomi", value: data?.director_name },
+        { icon: Calendar, label: "Tashkil etilgan yil", value: detail?.founded_year },
+        { icon: Briefcase, label: "Faoliyat yo'nalishi", value: detail?.direction },
+        { icon: Hash, label: "INN", value: data?.inn }
     ]
 
     const bankInfo = [
-        { icon: Building2, label: "Bank nomi", value: detail.bank_name },
-        { icon: MapPin, label: "Bank manzili", value: detail.bank_address },
-        { icon: CreditCard, label: "Hisob raqami", value: detail.account_number },
-        { icon: Hash, label: "MFO", value: detail.mfo },
-        { icon: Hash, label: "STIR", value: detail.stir },
-        { icon: Hash, label: "OKED", value: detail.oked }
+        { icon: Building2, label: "Bank nomi", value: detail?.bank_name },
+        { icon: MapPin, label: "Bank manzili", value: detail?.bank_address },
+        { icon: CreditCard, label: "Hisob raqami", value: detail?.account_number },
+        { icon: Hash, label: "MFO", value: detail?.mfo },
+        { icon: Hash, label: "OKED", value: detail?.oked }
     ]
 
     const extraInfo = [
-        { icon: MapPin, label: "Yuridik manzil", value: detail.legal_address },
-        { icon: Clock, label: "Yaratilgan vaqt", value: formatDate(detail.createdAt) }
+        { icon: MapPin, label: "Yuridik manzil", value: detail?.legal_address },
+        { icon: Clock, label: "Yaratilgan vaqt", value: formatDate(detail?.createdAt) }
     ]
 
     return (
@@ -59,7 +58,7 @@ export default function CompanyInfo({ data, onSuccess }) {
             {/* Asosiy */}
             <Section
                 title="Asosiy ma'lumotlar"
-                onEdit={editModal.onOpen}
+                onEdit={canEdit && onOpenLocationEdit ? onOpenLocationEdit : undefined}
                 fields={mainInfo}
             />
 
@@ -68,7 +67,7 @@ export default function CompanyInfo({ data, onSuccess }) {
             {/* Bank */}
             <Section
                 title="Bank ma'lumotlari"
-                onEdit={editModal.onOpen}
+                onEdit={canEdit ? detailEditModal.onOpen : undefined}
                 fields={bankInfo}
             />
 
@@ -77,13 +76,13 @@ export default function CompanyInfo({ data, onSuccess }) {
             {/* Qo‘shimcha */}
             <Section
                 title="Qo'shimcha ma'lumotlar"
-                onEdit={editModal.onOpen}
+                onEdit={canEdit ? detailEditModal.onOpen : undefined}
                 fields={extraInfo}
             />
 
             <CompanyDetailEditModal
-                isOpen={editModal.isOpen}
-                onClose={editModal.onClose}
+                isOpen={detailEditModal.isOpen}
+                onClose={detailEditModal.onClose}
                 data={data}
                 companyId={data?.id}
                 onSuccess={onSuccess}

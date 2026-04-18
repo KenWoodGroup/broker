@@ -16,17 +16,16 @@ import {
     Heading,
 } from "@chakra-ui/react";
 import React, { useEffect, useState, useCallback, useRef } from "react";
-import { ChevronLeft, ChevronRight, LayoutGrid, Search, X } from "lucide-react";
+import { LayoutGrid, Search, X } from "lucide-react";
 import { apiLocalProducts } from "../../utils/Controllers/apiLocalProducts";
 import { useNavigate, useParams } from "react-router";
 import TableSkeleton from "../../components/ui/TableSkeleton";
 import { formatDateTime } from "../../utils/tools/formatDateTime";
 import UploadProductsByExcel from "../ADfacLocalCats/_components/UploadProductsByExcel";
+import PaginationBar from "../../components/common/PaginationBar";
 
 const FACTORY_PAGE_KEY = "products_page";
 const SEARCH_DEBOUNCE = 500;
-const HOLD_DELAY = 300;
-
 export default function ADfacProducts({ reloadDependance, role='admin'}) {
     const navigate = useNavigate()
     const { factoryId } = useParams()
@@ -44,13 +43,6 @@ export default function ADfacProducts({ reloadDependance, role='admin'}) {
     const [search, setSearch] = useState("");
     const [debouncedSearch, setDebouncedSearch] = useState("all");
     const isFirstRender = useRef(true);
-
-    /* ---------------- holding pagination ---------------- */
-    const [number, setNumber] = useState(factoryPage);
-    const [holding, setHolding] = useState(false);
-
-    const holdTimeoutRef = useRef(null);
-    const holdIntervalRef = useRef(null);
 
     /* ---------------- pagination change ---------------- */
     const changePagination = useCallback((page) => {
@@ -92,45 +84,6 @@ export default function ADfacProducts({ reloadDependance, role='admin'}) {
             setLoading(false);
         }
     }, []);
-
-    /* ---------------- pagination click ---------------- */
-    const handleClick = (type) => {
-        if (holding) return;
-
-        const next =
-            type === "inc"
-                ? Math.min(factoryPage + 1, totalPage)
-                : Math.max(factoryPage - 1, 1);
-
-        changePagination(next);
-    };
-
-    /* ---------------- long press ---------------- */
-    const startHolding = (type) => {
-        holdTimeoutRef.current = setTimeout(() => {
-            setHolding(true);
-            setNumber(factoryPage);
-
-            holdIntervalRef.current = setInterval(() => {
-                setNumber((prev) =>
-                    type === "inc"
-                        ? Math.min(prev + 1, totalPage)
-                        : Math.max(prev - 1, 1)
-                );
-            }, 200);
-        }, HOLD_DELAY);
-    };
-
-    const stopHolding = () => {
-        clearTimeout(holdTimeoutRef.current);
-        clearInterval(holdIntervalRef.current);
-
-        if (holding) {
-            changePagination(number);
-        }
-
-        setHolding(false);
-    };
 
     /* ---------------- effects ---------------- */
     // useEffect(() => {
@@ -254,32 +207,13 @@ export default function ADfacProducts({ reloadDependance, role='admin'}) {
                 )}
             </Box>
 
-            {/* Pagination */}
-            <Flex justify="center" align="center" gap="20px" mt="30px">
-                <Button onClick={() => changePagination(1)}>First</Button>
-
-                <Button
-                    isDisabled={factoryPage === 1}
-                    onClick={() => handleClick("dec")}
-                    onMouseDown={() => startHolding("dec")}
-                    onMouseUp={stopHolding}
-                    onMouseLeave={stopHolding}
-                >
-                    <ChevronLeft />
-                </Button>
-
-                {(holding ? number : factoryPage) + " / " + totalPage}
-                <Button
-                    isDisabled={factoryPage === totalPage}
-                    onClick={() => handleClick("inc")}
-                    onMouseDown={() => startHolding("inc")}
-                    onMouseUp={stopHolding}
-                    onMouseLeave={stopHolding}
-                >
-                    <ChevronRight />
-                </Button>
-                <Button onClick={() => changePagination(totalPage)}>Last</Button>
-            </Flex>
+            <PaginationBar
+                mt="30px"
+                page={factoryPage}
+                totalPages={totalPage}
+                loading={loading}
+                onPageChange={(p) => changePagination(p)}
+            />
         </Box>
     );
 }

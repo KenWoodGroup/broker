@@ -7,16 +7,9 @@ import {
     FormControl,
     FormLabel,
     Grid,
-    Heading,
     HStack,
+    Icon,
     Input,
-    Modal,
-    ModalBody,
-    ModalCloseButton,
-    ModalContent,
-    ModalFooter,
-    ModalHeader,
-    ModalOverlay,
     NumberInput,
     NumberInputField,
     Select,
@@ -27,8 +20,9 @@ import {
     useDisclosure,
     useToast,
 } from "@chakra-ui/react";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Plus } from "lucide-react";
+import GradientFormModal from "../../../components/common/GradientFormModal";
 import { apiLots } from "../../../utils/Controllers/Lots";
 import { apiLotLocations } from "../../../utils/Controllers/LotLocations";
 import CreateCustomerModal from "./CreateCustomerModal";
@@ -48,6 +42,7 @@ export default function CreateLotModal({ isOpen, onClose, onCreated, typeOptions
         lot_name: "",
         customer_id: null,
         builder_id: null,
+        customer_inn: "",
         amount: "",
         note: "",
         start_date: "",
@@ -75,6 +70,7 @@ export default function CreateLotModal({ isOpen, onClose, onCreated, typeOptions
                 lot_name: "",
                 customer_id: null,
                 builder_id: null,
+                customer_inn: "",
                 amount: "",
                 note: "",
                 start_date: "",
@@ -128,6 +124,12 @@ export default function CreateLotModal({ isOpen, onClose, onCreated, typeOptions
             if (Number.isInteger(n) && n > 0) return String(n);
         }
         return null;
+    };
+
+    const pickCustomerInn = (c) => {
+        if (!c) return "";
+        const v = c.inn ?? c.INN;
+        return v != null ? String(v).trim() : "";
     };
 
     useEffect(() => {
@@ -184,7 +186,11 @@ export default function CreateLotModal({ isOpen, onClose, onCreated, typeOptions
             return;
         }
         setSelectedCustomer(c);
-        setForm((p) => ({ ...p, customer_id: id }));
+        setForm((p) => ({
+            ...p,
+            customer_id: id,
+            customer_inn: pickCustomerInn(c) || p.customer_inn,
+        }));
         setCustomerQuery(c?.name ?? c?.title ?? c?.company_name ?? customerQuery);
         setCustomerResults([]);
     };
@@ -243,6 +249,7 @@ export default function CreateLotModal({ isOpen, onClose, onCreated, typeOptions
                 lot_name: form.lot_name.trim(),
                 customer_id: form.customer_id,
                 builder_id: form.builder_id,
+                inn: form.customer_inn?.trim() || undefined,
                 amount: Number(form.amount),
                 note: form.note?.trim() || undefined,
                 start_date: form.start_date,
@@ -257,27 +264,22 @@ export default function CreateLotModal({ isOpen, onClose, onCreated, typeOptions
         }
     };
 
-    const customerLabel = useMemo(() => {
-        if (!form.customer_id) return "Tanlanmagan";
-        const name = selectedCustomer?.name ?? selectedCustomer?.title ?? selectedCustomer?.company_name;
-        return name ? `${name} (ID: ${form.customer_id})` : `ID: ${form.customer_id}`;
-    }, [form.customer_id, selectedCustomer]);
-
-    const builderLabel = useMemo(() => {
-        if (!form.builder_id) return "Tanlanmagan";
-        const name = selectedBuilder?.name ?? selectedBuilder?.title ?? selectedBuilder?.company_name;
-        return name ? `${name} (ID: ${form.builder_id})` : `ID: ${form.builder_id}`;
-    }, [form.builder_id, selectedBuilder]);
-
     return (
         <>
-            <Modal isOpen={isOpen} onClose={onClose} isCentered size="6xl" scrollBehavior="inside">
-                <ModalOverlay />
-                <ModalContent bg="surface" borderColor="border">
-                    <ModalHeader>Yaratish</ModalHeader>
-                    <ModalCloseButton />
-                    <ModalBody>
-                        <Grid templateColumns={{ base: "1fr", lg: "1.2fr 0.8fr" }} gap="16px">
+            <GradientFormModal
+                isOpen={isOpen}
+                onClose={onClose}
+                size="6xl"
+                title="Yangi lot"
+                subtitle="Lot rekvizitlari, buyurtmachi va quruvchini tanlang"
+                headerIcon={Plus}
+                primaryLabel="Yaratish"
+                primaryLoading={saving}
+                primaryLoadingText="Yaratilmoqda..."
+                primaryLeftIcon={<Icon as={Plus} boxSize={4} />}
+                onPrimary={handleSubmit}
+            >
+                <Grid templateColumns={{ base: "1fr", lg: "1.2fr 0.8fr" }} gap="16px">
                             <Box>
 
                                 <Grid templateColumns={{ base: "1fr", md: "1fr 1fr" }} gap="12px">
@@ -390,6 +392,7 @@ export default function CreateLotModal({ isOpen, onClose, onCreated, typeOptions
                                         Foydalanuvchi
                                     </Text>
                                     {form.customer_id ? (
+                                        <>
                                         <Flex
                                             mb="10px"
                                             p="10px"
@@ -412,7 +415,11 @@ export default function CreateLotModal({ isOpen, onClose, onCreated, typeOptions
                                             <Button
                                                 variant="ghost"
                                                 onClick={() => {
-                                                    setForm((p) => ({ ...p, customer_id: null }));
+                                                    setForm((p) => ({
+                                                        ...p,
+                                                        customer_id: null,
+                                                        customer_inn: "",
+                                                    }));
                                                     setSelectedCustomer(null);
                                                     setCustomerQuery("");
                                                     setCustomerResults([]);
@@ -421,6 +428,24 @@ export default function CreateLotModal({ isOpen, onClose, onCreated, typeOptions
                                                 O'zgartirish
                                             </Button>
                                         </Flex>
+                                        <FormControl mb="10px">
+                                            <FormLabel fontSize="xs" color="textSub">
+                                                Buyurtmachi INN
+                                            </FormLabel>
+                                            <Input
+                                                value={form.customer_inn}
+                                                onChange={(e) =>
+                                                    setForm((p) => ({
+                                                        ...p,
+                                                        customer_inn: e.target.value,
+                                                    }))
+                                                }
+                                                placeholder="STIR / INN"
+                                                bg="surface"
+                                                size="sm"
+                                            />
+                                        </FormControl>
+                                        </>
                                     ) : (
                                         <HStack mb="10px" align="start">
                                             <Input
@@ -568,18 +593,7 @@ export default function CreateLotModal({ isOpen, onClose, onCreated, typeOptions
                                 </Box>
                             </Box>
                         </Grid>
-                    </ModalBody>
-
-                    <ModalFooter>
-                        <Button variant="ghost" mr={3} onClick={onClose}>
-                            Bekor qilish
-                        </Button>
-                        <Button colorScheme="green" onClick={handleSubmit} isLoading={saving}>
-                            Saqlash
-                        </Button>
-                    </ModalFooter>
-                </ModalContent>
-            </Modal>
+            </GradientFormModal>
 
             <CreateCustomerModal
                 isOpen={createCustomer.isOpen}

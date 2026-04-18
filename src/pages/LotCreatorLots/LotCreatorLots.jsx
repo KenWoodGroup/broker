@@ -3,35 +3,37 @@ import {
     Box,
     Button,
     Flex,
-    Grid,
     Heading,
     IconButton,
     Input,
     InputGroup,
     InputRightElement,
     Select,
+    SimpleGrid,
     Spinner,
     Text,
     useColorModeValue,
     useDisclosure,
-    HStack,
-    VStack,
+    useToast,
 } from "@chakra-ui/react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { apiLots } from "../../utils/Controllers/Lots";
 import CreateLotModal from "./_components/CreateLotModal";
 import EditLotModal from "./_components/EditLotModal";
-import DeleteLotModal from "./_components/DeleteLotModal";
-import { PencilLine, Search, Trash2, X } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import ConfirmDelModal from "../../components/common/ConfirmDelModal";
+import { PencilLine, Plus, Search, Trash2, X } from "lucide-react";
+import PaginationBar from "../../components/common/PaginationBar";
+import { LotCardIconRows } from "../../components/common/EntityCardDetailRows";
+import CreateExel from "./_components/CreateExel";
 
 export default function LotCreatorLots() {
-    const navigate = useNavigate();
+    const toast = useToast();
     const createLotModal = useDisclosure();
     const editLotModal = useDisclosure();
     const deleteLotModal = useDisclosure();
     const [activeLotId, setActiveLotId] = useState(null);
     const [activeLot, setActiveLot] = useState(null);
+    const [deletingLot, setDeletingLot] = useState(false);
     const TYPE_OPTIONS = useMemo(
         () => [
             "Mukamal qurilish",
@@ -139,13 +141,49 @@ export default function LotCreatorLots() {
         return d.toLocaleDateString("uz-UZ", { year: "numeric", month: "short", day: "2-digit" });
     };
 
+    const deleteLotItemName =
+        activeLot?.lot_name ??
+        activeLot?.lotName ??
+        activeLot?.name ??
+        activeLot?.title ??
+        (activeLot?.id != null ? `Lot #${activeLot.id}` : "");
+
+    const handleConfirmDeleteLot = async () => {
+        if (!activeLot?.id) return;
+        setDeletingLot(true);
+        try {
+            await apiLots.delete(activeLot.id);
+            toast({
+                title: "O‘chirildi",
+                description: "Lot o‘chirildi",
+                status: "success",
+                duration: 2500,
+                isClosable: true,
+            });
+            fetchLots();
+            deleteLotModal.onClose();
+            setActiveLot(null);
+        } catch (e) {
+            const msg = e?.response?.data?.message;
+            toast({
+                title: "Xatolik",
+                description: Array.isArray(msg) ? msg.join(". ") : msg || "O‘chirib bo‘lmadi",
+                status: "error",
+                duration: 6000,
+                isClosable: true,
+            });
+        } finally {
+            setDeletingLot(false);
+        }
+    };
+
     const inputBg = useColorModeValue("white", "gray.800");
     const borderCol = useColorModeValue("gray.200", "gray.600");
-    const countBg = useColorModeValue("blue.50", "blue.900");
-    const countText = useColorModeValue("blue.700", "blue.200");
+    const cardBg = useColorModeValue("white", "gray.800");
+    const cardBorder = useColorModeValue("gray.200", "gray.700");
 
     return (
-        <Box py="20px" pr="20px">
+        <Box pl="20px" pr="20px" pb="20px" pt="20px">
             <Flex justify="space-between" align="center" mb="16px" gap="12px" flexWrap="wrap">
                 <Box>
                     <Heading size="lg" mb="6px">
@@ -153,9 +191,12 @@ export default function LotCreatorLots() {
                     </Heading>
                 </Box>
 
-                <Button variant="solidPrimary" onClick={createLotModal.onOpen}>
-                    + Yaratish
-                </Button>
+                <Flex alignItems={'center'} gap={3}>
+                    <CreateExel onCreated={() => fetchLots({ page: 1 })} />
+                    <Button leftIcon={<Plus size={15} />} colorScheme="blue" onClick={createLotModal.onOpen}>
+                        Yaratish
+                    </Button>
+                </Flex>
             </Flex>
 
             <Flex gap={3} mb="20px" flexWrap="wrap" align="center">
@@ -219,20 +260,15 @@ export default function LotCreatorLots() {
                     ))}
                 </Select>
 
-                <Box px={3} py="7px" bg={countBg} borderRadius="full" >
+                <Badge colorScheme="blue" px={3} py={1} borderRadius="full" fontSize="sm" fontWeight="semibold">
                     {loading ? (
-                        <Flex align="center" gap={2}>
-                            <Spinner size="xs" color="blue.500" />
-                            <Text fontSize="12px" color={countText} fontWeight="700">
-                                Yuklanmoqda
-                            </Text>
+                        <Flex align="center" gap={1}>
+                            <Spinner size="xs" /> <span>Yuklanmoqda...</span>
                         </Flex>
                     ) : (
-                        <Text fontSize="12px" color={countText} fontWeight="700">
-                            JAMI: {(pagination?.total_count ?? lots.length) || 0} TA
-                        </Text>
+                        `Jami: ${(pagination?.total_count ?? lots.length) || 0} ta`
                     )}
-                </Box>
+                </Badge>
             </Flex>
 
             {/* LIST */}
@@ -246,7 +282,7 @@ export default function LotCreatorLots() {
                         <Text color="textSub">Lot topilmadi</Text>
                     </Box>
                 ) : (
-                    <Grid templateColumns={{ base: "1fr", lg: "repeat(2, 1fr)", xl: "repeat(3, 1fr)" }} gap="14px">
+                    <SimpleGrid columns={{ base: 1, md: 2, xl: 3 }} spacing="20px">
                         {lots.map((lot) => {
                             const title =
                                 lot?.name ??
@@ -266,32 +302,18 @@ export default function LotCreatorLots() {
                             return (
                                 <Box
                                     key={lot?.id ?? `${title}-${Math.random()}`}
-                                    bg="surface"
-                                    borderWidth="1px"
-                                    borderColor="border"
-                                    borderRadius="16px"
-                                    p="14px"
-                                    _hover={{ borderColor: "blue.400", boxShadow: "md", transform: "translateY(-2px)" }}
-                                    transition="0.15s ease"
-                                    cursor="pointer"
-                                    onClick={() => {
-                                        if (!lot?.id) return;
-                                        navigate(`/lotcreator/lots/${lot.id}`);
-                                    }}
+                                    bg={cardBg}
+                                    border="1px solid"
+                                    borderColor={cardBorder}
+                                    borderRadius="12px"
+                                    p="16px"
+                                    position="relative"
+                                    transition="all .2s"
+                                    _hover={{ shadow: "md" }}
+                                    role="group"
                                 >
-                                    <Flex justify="space-between" align="start" gap="10px">
-                                        <Box>
-                                            <Heading size="sm" mb="6px" noOfLines={2}>
-                                                {title}
-                                            </Heading>
-                                            <Text fontSize="xs" color="textSub" noOfLines={1}>
-                                                Lot raqami:{" "}
-                                                <Text as="span" fontWeight="600" color="inherit">
-                                                    {lotNumber}
-                                                </Text>
-                                            </Text>
-                                        </Box>
-                                        <Flex gap="6px" onClick={(e) => e.stopPropagation()}>
+                                    <Box position="absolute" top="8px" right="8px" zIndex={1} onClick={(e) => e.stopPropagation()}>
+                                        <Flex gap="6px">
                                             <IconButton
                                                 size="sm"
                                                 aria-label="Edit lot"
@@ -315,36 +337,21 @@ export default function LotCreatorLots() {
                                                 }}
                                             />
                                         </Flex>
-                                    </Flex>
+                                    </Box>
 
-                                    <VStack align="stretch" spacing="6px" mt="10px">
-                                        <Text fontSize="sm" color="textSub" noOfLines={2}>
-                                            <Text as="span" fontWeight="600" color="inherit">
-                                                Summa:
-                                            </Text>{" "}
-                                            {amount}
+                                    <Box pr={{ base: "72px", md: "80px" }}>
+                                        <Text fontWeight="600" fontSize="lg" mb="4px" noOfLines={2}>
+                                            {title}
                                         </Text>
-                                        <Text fontSize="sm" color="textSub" noOfLines={2}>
-                                            <Text as="span" fontWeight="600" color="inherit">
-                                                Manzil:
-                                            </Text>{" "}
-                                            {address}
+                                        <Text fontSize="xs" color="gray.500" noOfLines={1} mb="10px">
+                                            #{lotNumber}
                                         </Text>
-                                        <Flex gap="10px" flexWrap="wrap">
-                                            <Text fontSize="sm" color="textSub">
-                                                <Text as="span" fontWeight="600" color="inherit">
-                                                    Boshlanish:
-                                                </Text>{" "}
-                                                {start}
-                                            </Text>
-                                            <Text fontSize="sm" color="textSub">
-                                                <Text as="span" fontWeight="600" color="inherit">
-                                                    Tugash:
-                                                </Text>{" "}
-                                                {end}
-                                            </Text>
-                                        </Flex>
-                                    </VStack>
+                                        <LotCardIconRows
+                                            amount={amount}
+                                            address={address}
+                                            periodLabel={`${start} — ${end}`}
+                                        />
+                                    </Box>
 
                                     <Flex gap="8px" mt="10px" flexWrap="wrap">
                                         {type ? (
@@ -361,43 +368,19 @@ export default function LotCreatorLots() {
                                 </Box>
                             );
                         })}
-                    </Grid>
+                    </SimpleGrid>
                 )}
             </Box>
 
             {/* PAGINATION (bottom) */}
             {pagination ? (
-                <Flex mt="16px" justify="space-between" align="center" flexWrap="wrap" gap="10px">
-                    <Text fontSize="sm" color="textSub">
-                        Sahifa: {pagination.currentPage ?? 1} / {pagination.total_pages ?? 1}
-                    </Text>
-                    <HStack>
-                        <Button
-                            size="sm"
-                            onClick={() => {
-                                const prev = (pagination.currentPage ?? 1) - 1;
-                                if (prev < 1) return;
-                                setFilters((p) => ({ ...p, page: prev }));
-                            }}
-                            isDisabled={(pagination.currentPage ?? 1) <= 1 || loading}
-                        >
-                            Oldingi
-                        </Button>
-                        <Button
-                            size="sm"
-                            onClick={() => {
-                                const curr = pagination.currentPage ?? 1;
-                                const total = pagination.total_pages ?? curr;
-                                const nextPage = curr + 1;
-                                if (nextPage > total) return;
-                                setFilters((p) => ({ ...p, page: nextPage }));
-                            }}
-                            isDisabled={(pagination.currentPage ?? 1) >= (pagination.total_pages ?? 1) || loading}
-                        >
-                            Keyingi
-                        </Button>
-                    </HStack>
-                </Flex>
+                <PaginationBar
+                    mt="30px"
+                    page={pagination.currentPage ?? 1}
+                    totalPages={pagination.total_pages ?? 1}
+                    loading={loading}
+                    onPageChange={(p) => setFilters((prev) => ({ ...prev, page: p }))}
+                />
             ) : null}
             <CreateLotModal
                 isOpen={createLotModal.isOpen}
@@ -423,16 +406,16 @@ export default function LotCreatorLots() {
                 }}
             />
 
-            <DeleteLotModal
+            <ConfirmDelModal
                 isOpen={deleteLotModal.isOpen}
                 onClose={() => {
                     deleteLotModal.onClose();
                     setActiveLot(null);
                 }}
-                lot={activeLot}
-                onDeleted={() => {
-                    fetchLots();
-                }}
+                onConfirm={handleConfirmDeleteLot}
+                itemName={deleteLotItemName}
+                loading={deletingLot}
+                typeItem="lot"
             />
         </Box>
     );
