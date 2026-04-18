@@ -17,6 +17,7 @@ import ADtasks from "../../pages/ADtasks/ADtasks";
 import ADCustomers from "../../pages/ADCustomers/ADCustomers.jsx";
 import ADCustomerDetail from "../../pages/ADCustomerDetail/ADCustomerDetail.jsx";
 import LotCreatorLots from "../../pages/LotCreatorLots/LotCreatorLots";
+import LotDetailPage from "../../pages/LotDetail/LotDetailPage";
 
 const adminRoutes = [
     {
@@ -63,6 +64,11 @@ const adminRoutes = [
         path: "lots",
         name: "admin lots",
         element: <LotCreatorLots />,
+    },
+    {
+        path: "lots/:id",
+        name: "admin lot detail",
+        element: <LotDetailPage />,
     },
     {
         path: '/company-detail/:id',

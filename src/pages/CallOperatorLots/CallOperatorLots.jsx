@@ -14,12 +14,14 @@ import {
     useColorModeValue,
 } from "@chakra-ui/react";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useNavigate } from "react-router";
 import { Search, X } from "lucide-react";
 import { apiLots } from "../../utils/Controllers/Lots";
 import PaginationBar from "../../components/common/PaginationBar";
 import { LotCardIconRows } from "../../components/common/EntityCardDetailRows";
 
 export default function CallOperatorLots() {
+    const navigate = useNavigate();
 
     const TYPE_OPTIONS = useMemo(
         () => [
@@ -115,7 +117,7 @@ export default function CallOperatorLots() {
     const cardBorder = useColorModeValue("gray.200", "gray.700");
 
     return (
-        <Box pr="20px" pb="20px" pl="20px"   pr="20px" pb="20px"  pt="20px">
+        <Box pl="20px" pr="20px" pb="20px" pt="20px">
             <Flex justify="space-between" align="center" mb="16px" gap="12px" flexWrap="wrap">
                 <Box>
                     <Heading size="lg" mb="6px">
@@ -240,7 +242,13 @@ export default function CallOperatorLots() {
                                     borderRadius="12px"
                                     p="16px"
                                     transition="all .2s"
-                                    _hover={{ shadow: "md" }}
+                                    cursor="pointer"
+                                    _hover={{ shadow: "md", borderColor: "blue.300" }}
+                                    onClick={() => {
+                                        if (lot?.id != null && lot?.id !== "") {
+                                            navigate(`/call-operator/lots/${lot.id}`);
+                                        }
+                                    }}
                                 >
                                     <Text fontWeight="600" fontSize="lg" mb="4px" noOfLines={2}>
                                         {title}

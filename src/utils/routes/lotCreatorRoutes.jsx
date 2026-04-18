@@ -1,5 +1,6 @@
 import LotCreatorHome from "../../pages/LotCreatorHome/LotCreatorHome";
 import LotCreatorLots from "../../pages/LotCreatorLots/LotCreatorLots";
+import LotDetailPage from "../../pages/LotDetail/LotDetailPage";
 
 const lotCreatorRoutes = [
     {
@@ -11,6 +12,11 @@ const lotCreatorRoutes = [
         name: "lots",
         path: "lots",
         element: <LotCreatorLots />,
+    },
+    {
+        name: "lot detail",
+        path: "lots/:id",
+        element: <LotDetailPage />,
     },
 ];
 
