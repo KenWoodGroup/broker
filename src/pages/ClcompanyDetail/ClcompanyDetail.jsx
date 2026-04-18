@@ -75,7 +75,14 @@ export default function ClcompanyDetail({ role }) {
         {
             label: "Batafsil",
             icon: <Info size={18} />,
-            component: <CompanyInfo role={role} data={data} onSuccess={GetLocation} />
+            component: (
+                <CompanyInfo
+                    data={data}
+                    onSuccess={GetLocation}
+                    canEdit={isAdmin}
+                    onOpenLocationEdit={editModal.onOpen}
+                />
+            )
         },
         ...(isAdmin
             ? [

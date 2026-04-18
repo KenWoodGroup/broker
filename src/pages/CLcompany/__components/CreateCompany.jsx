@@ -21,18 +21,15 @@ export default function CreateCompany({ refresh }) {
     const toast = useToast()
     const [loading, setLoading] = useState(false)
     const [detail, setDetail] = useState({
-        "location_id": "",
-        "founded_year": null,
-        "inn": "",
-        "direction": "",
-        "director_name": "",
-        "legal_address": "",
-        "bank_name": "",
-        "bank_address": "",
-        "account_number": "",
-        "mfo": "",
-        "stir": "",
-        "oked": ""
+        location_id: "",
+        founded_year: null,
+        direction: "",
+        legal_address: "",
+        bank_name: "",
+        bank_address: "",
+        account_number: "",
+        mfo: "",
+        oked: ""
     })
     const [formData, setFormData] = useState({
         type: "company",
@@ -42,7 +39,9 @@ export default function CreateCompany({ refresh }) {
         phone: "",
         email: "",
         username: "",
-        password: ""
+        password: "",
+        director_name: "",
+        inn: ""
     })
 
     const handleChange = (e) => {
@@ -172,6 +171,21 @@ export default function CreateCompany({ refresh }) {
                         <Input name="address" value={formData.address} onChange={handleChange} borderRadius="lg" />
                     </FormControl>
 
+                    <FormControl>
+                        <FormLabel>Direktor nomi</FormLabel>
+                        <Input
+                            name="director_name"
+                            value={formData.director_name}
+                            onChange={handleChange}
+                            borderRadius="lg"
+                        />
+                    </FormControl>
+
+                    <FormControl>
+                        <FormLabel>INN</FormLabel>
+                        <Input name="inn" value={formData.inn} onChange={handleChange} borderRadius="lg" />
+                    </FormControl>
+
                     <FormControl isRequired>
                         <FormLabel>Username</FormLabel>
                         <Input name="username" value={formData.username} onChange={handleChange} borderRadius="lg" />
@@ -196,11 +210,6 @@ export default function CreateCompany({ refresh }) {
 
                 <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4}>
                     <FormControl>
-                        <FormLabel>Direktor nomi</FormLabel>
-                        <Input name="director_name" value={detail.director_name} onChange={handleChangeDetail} borderRadius="lg" />
-                    </FormControl>
-
-                    <FormControl>
                         <FormLabel>Tashkil etilgan yil</FormLabel>
                         <Input type="number" name="founded_year" value={detail.founded_year} onChange={handleChangeDetail} borderRadius="lg" />
                     </FormControl>
@@ -213,16 +222,6 @@ export default function CreateCompany({ refresh }) {
                     <FormControl>
                         <FormLabel>Yuridik manzil</FormLabel>
                         <Input name="legal_address" value={detail.legal_address} onChange={handleChangeDetail} borderRadius="lg" />
-                    </FormControl>
-
-                    <FormControl>
-                        <FormLabel>INN</FormLabel>
-                        <Input name="inn" value={detail.inn} onChange={handleChangeDetail} borderRadius="lg" />
-                    </FormControl>
-
-                    <FormControl>
-                        <FormLabel>STIR</FormLabel>
-                        <Input name="stir" value={detail.stir} onChange={handleChangeDetail} borderRadius="lg" />
                     </FormControl>
 
                     <FormControl>

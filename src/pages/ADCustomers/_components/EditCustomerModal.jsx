@@ -11,6 +11,7 @@ export default function EditCustomerModal({ isOpen, onClose, customerId, onUpdat
         name: "",
         address: "",
         phone: "",
+        inn: "",
     });
 
     const extractData = (res) => res?.data?.data ?? res?.data ?? null;
@@ -26,6 +27,7 @@ export default function EditCustomerModal({ isOpen, onClose, customerId, onUpdat
                     name: c.name ?? "",
                     address: c.address ?? "",
                     phone: c.phone ?? "",
+                    inn: c.inn ?? c.INN ?? "",
                 });
             } finally {
                 setLoading(false);
@@ -47,6 +49,7 @@ export default function EditCustomerModal({ isOpen, onClose, customerId, onUpdat
                 name: form.name.trim(),
                 address: form.address.trim(),
                 phone: form.phone.trim(),
+                inn: form.inn.trim(),
             });
             onUpdated?.();
             onClose?.();
@@ -101,6 +104,10 @@ export default function EditCustomerModal({ isOpen, onClose, customerId, onUpdat
                     <FormControl isRequired>
                         <FormLabel>Telefon</FormLabel>
                         <Input name="phone" value={form.phone} onChange={handleChange} bg="bg" borderRadius="lg" />
+                    </FormControl>
+                    <FormControl>
+                        <FormLabel>INN</FormLabel>
+                        <Input name="inn" value={form.inn} onChange={handleChange} bg="bg" borderRadius="lg" />
                     </FormControl>
                 </VStack>
             )}

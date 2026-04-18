@@ -42,6 +42,7 @@ export default function CreateLotModal({ isOpen, onClose, onCreated, typeOptions
         lot_name: "",
         customer_id: null,
         builder_id: null,
+        customer_inn: "",
         amount: "",
         note: "",
         start_date: "",
@@ -69,6 +70,7 @@ export default function CreateLotModal({ isOpen, onClose, onCreated, typeOptions
                 lot_name: "",
                 customer_id: null,
                 builder_id: null,
+                customer_inn: "",
                 amount: "",
                 note: "",
                 start_date: "",
@@ -122,6 +124,12 @@ export default function CreateLotModal({ isOpen, onClose, onCreated, typeOptions
             if (Number.isInteger(n) && n > 0) return String(n);
         }
         return null;
+    };
+
+    const pickCustomerInn = (c) => {
+        if (!c) return "";
+        const v = c.inn ?? c.INN;
+        return v != null ? String(v).trim() : "";
     };
 
     useEffect(() => {
@@ -178,7 +186,11 @@ export default function CreateLotModal({ isOpen, onClose, onCreated, typeOptions
             return;
         }
         setSelectedCustomer(c);
-        setForm((p) => ({ ...p, customer_id: id }));
+        setForm((p) => ({
+            ...p,
+            customer_id: id,
+            customer_inn: pickCustomerInn(c) || p.customer_inn,
+        }));
         setCustomerQuery(c?.name ?? c?.title ?? c?.company_name ?? customerQuery);
         setCustomerResults([]);
     };
@@ -237,6 +249,7 @@ export default function CreateLotModal({ isOpen, onClose, onCreated, typeOptions
                 lot_name: form.lot_name.trim(),
                 customer_id: form.customer_id,
                 builder_id: form.builder_id,
+                inn: form.customer_inn?.trim() || undefined,
                 amount: Number(form.amount),
                 note: form.note?.trim() || undefined,
                 start_date: form.start_date,
@@ -379,6 +392,7 @@ export default function CreateLotModal({ isOpen, onClose, onCreated, typeOptions
                                         Foydalanuvchi
                                     </Text>
                                     {form.customer_id ? (
+                                        <>
                                         <Flex
                                             mb="10px"
                                             p="10px"
@@ -401,7 +415,11 @@ export default function CreateLotModal({ isOpen, onClose, onCreated, typeOptions
                                             <Button
                                                 variant="ghost"
                                                 onClick={() => {
-                                                    setForm((p) => ({ ...p, customer_id: null }));
+                                                    setForm((p) => ({
+                                                        ...p,
+                                                        customer_id: null,
+                                                        customer_inn: "",
+                                                    }));
                                                     setSelectedCustomer(null);
                                                     setCustomerQuery("");
                                                     setCustomerResults([]);
@@ -410,6 +428,24 @@ export default function CreateLotModal({ isOpen, onClose, onCreated, typeOptions
                                                 O'zgartirish
                                             </Button>
                                         </Flex>
+                                        <FormControl mb="10px">
+                                            <FormLabel fontSize="xs" color="textSub">
+                                                Buyurtmachi INN
+                                            </FormLabel>
+                                            <Input
+                                                value={form.customer_inn}
+                                                onChange={(e) =>
+                                                    setForm((p) => ({
+                                                        ...p,
+                                                        customer_inn: e.target.value,
+                                                    }))
+                                                }
+                                                placeholder="STIR / INN"
+                                                bg="surface"
+                                                size="sm"
+                                            />
+                                        </FormControl>
+                                        </>
                                     ) : (
                                         <HStack mb="10px" align="start">
                                             <Input
