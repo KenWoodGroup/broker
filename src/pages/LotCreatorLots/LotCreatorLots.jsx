@@ -17,6 +17,7 @@ import {
     useToast,
 } from "@chakra-ui/react";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useNavigate, useLocation } from "react-router";
 import { apiLots } from "../../utils/Controllers/Lots";
 import CreateLotModal from "./_components/CreateLotModal";
 import EditLotModal from "./_components/EditLotModal";
@@ -27,6 +28,8 @@ import { LotCardIconRows } from "../../components/common/EntityCardDetailRows";
 import CreateExel from "./_components/CreateExel";
 
 export default function LotCreatorLots() {
+    const navigate = useNavigate();
+    const { pathname } = useLocation();
     const toast = useToast();
     const createLotModal = useDisclosure();
     const editLotModal = useDisclosure();
@@ -139,6 +142,12 @@ export default function LotCreatorLots() {
         const d = new Date(v);
         if (Number.isNaN(d.getTime())) return String(v);
         return d.toLocaleDateString("uz-UZ", { year: "numeric", month: "short", day: "2-digit" });
+    };
+
+    const goToLotDetail = (lotId) => {
+        if (lotId == null || lotId === "") return;
+        const base = pathname.startsWith("/lotcreator") ? "/lotcreator/lots" : "/lots";
+        navigate(`${base}/${lotId}`);
     };
 
     const deleteLotItemName =
@@ -309,8 +318,10 @@ export default function LotCreatorLots() {
                                     p="16px"
                                     position="relative"
                                     transition="all .2s"
-                                    _hover={{ shadow: "md" }}
+                                    cursor="pointer"
+                                    _hover={{ shadow: "md", borderColor: "blue.300" }}
                                     role="group"
+                                    onClick={() => goToLotDetail(lot?.id)}
                                 >
                                     <Box position="absolute" top="8px" right="8px" zIndex={1} onClick={(e) => e.stopPropagation()}>
                                         <Flex gap="6px">
