@@ -1,24 +1,32 @@
 import {
+    Badge,
     Box,
     Button,
     Flex,
-    Grid,
     Heading,
     HStack,
     IconButton,
     Input,
+    InputGroup,
+    InputRightElement,
+    SimpleGrid,
     Spinner,
     Text,
+    useColorModeValue,
     useDisclosure,
 } from "@chakra-ui/react";
 import { useEffect, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { apiLotLocations } from "../../utils/Controllers/LotLocations";
 import CreateCustomerModal from "../LotCreatorLots/_components/CreateCustomerModal";
 import EditCustomerModal from "./_components/EditCustomerModal";
 import DeleteCustomerModal from "./_components/DeleteCustomerModal";
-import { PencilLine, Trash2 } from "lucide-react";
+import { PencilLine, Plus, Search, Trash2, X } from "lucide-react";
+import PaginationBar from "../../components/common/PaginationBar";
+import EntityCardDetailRows from "../../components/common/EntityCardDetailRows";
 
 export default function ADCustomers() {
+    const navigate = useNavigate();
     const createModal = useDisclosure();
     const editModal = useDisclosure();
     const deleteModal = useDisclosure();
@@ -31,6 +39,8 @@ export default function ADCustomers() {
     const [activeCustomerId, setActiveCustomerId] = useState(null);
     const [activeCustomer, setActiveCustomer] = useState(null);
     const seqRef = useRef(0);
+    const cardBg = useColorModeValue("white", "gray.800");
+    const cardBorder = useColorModeValue("gray.200", "gray.700");
 
     const extractList = (res) => {
         const data = res?.data;
@@ -70,53 +80,60 @@ export default function ADCustomers() {
     }, [searchInput]);
 
     return (
-        <Box py="20px" pr="20px">
+        <Box pr="20px" pb="20px" pt="20px">
             <Flex justifyContent="space-between" align="center" mb="16px" gap="12px" flexWrap="wrap">
                 <Box>
                     <Heading size="lg" mb="6px">
                         Buyurtmachilar
                     </Heading>
                 </Box>
-                <Button variant="solidPrimary" onClick={createModal.onOpen}>
-                    + Yaratish
+                <Button leftIcon={<Plus size={15} />} colorScheme="blue" onClick={createModal.onOpen}>
+                    Yaratish
                 </Button>
             </Flex>
 
-            <Flex
-                mb="14px"
-                gap="10px"
-                flexWrap="wrap"
-                align="center"
-                bg="surface"
-                borderWidth="1px"
-                borderColor="border"
-                borderRadius="16px"
-                p="12px"
-            >
-                     <Box flex="1" minW={{ base: "100%", md: "280px" }}>
-                    <Input
-                        value={searchInput}
-                        onChange={(e) => setSearchInput(e.target.value)}
-                        placeholder="Buyurtmachi qidirish..."
-                        bg="bg"
-                        borderColor="border"
-                    />
+            <Flex mb="14px" align="center" gap={4} flexWrap="wrap">
+                <Box flex={1} maxW="400px" minW="200px">
+                    <InputGroup>
+                        <Input
+                            placeholder="Buyurtmachi qidirish..."
+                            value={searchInput}
+                            onChange={(e) => setSearchInput(e.target.value)}
+                        />
+                        <InputRightElement>
+                            {searchInput ? (
+                                <IconButton
+                                    size="sm"
+                                    variant="ghost"
+                                    aria-label="Tozalash"
+                                    icon={<X size={16} />}
+                                    onClick={() => setSearchInput("")}
+                                />
+                            ) : (
+                                <Search size={16} color="gray" />
+                            )}
+                        </InputRightElement>
+                    </InputGroup>
                 </Box>
-                {pagination ? (
-                    <Box
-                        bg="bg"
-                        borderWidth="1px"
-                        borderColor="border"
-                        borderRadius="999px"
-                        px="14px"
-                        py="10px"
+
+                <Flex align="center" gap={2}>
+                    <Badge
+                        colorScheme="blue"
+                        px={3}
+                        py={1}
+                        borderRadius="full"
+                        fontSize="sm"
+                        fontWeight="semibold"
                     >
-                        <Text fontSize="sm" fontWeight="600">
-                            Jami: {pagination.total_count ?? "-"}
-                        </Text>
-                    </Box>
-                ) : null}
-           
+                        {loading ? (
+                            <Flex align="center" gap={1}>
+                                <Spinner size="xs" /> <span>Yuklanmoqda...</span>
+                            </Flex>
+                        ) : (
+                            `Jami: ${pagination?.total_count ?? 0} ta `
+                        )}
+                    </Badge>
+                </Flex>
             </Flex>
 
 
@@ -129,24 +146,26 @@ export default function ADCustomers() {
                     <Text color="textSub">Natija topilmadi</Text>
                 </Box>
             ) : (
-                <Grid templateColumns={{ base: "1fr", md: "repeat(2, 1fr)", xl: "repeat(3, 1fr)" }} gap="14px">
+                <SimpleGrid columns={{ base: 1, md: 2, xl: 3 }} spacing="20px">
                     {customers.map((c) => (
                         <Box
                             key={c?.id ?? `${c?.name}-${Math.random()}`}
-                            bg="surface"
-                            borderWidth="1px"
-                            borderColor="border"
-                            borderRadius="16px"
-                            p="14px"
-                            _hover={{ borderColor: "blue.400", boxShadow: "md", transform: "translateY(-2px)" }}
-                            transition="0.15s ease"
+                            bg={cardBg}
+                            border="1px solid"
+                            borderColor={cardBorder}
+                            borderRadius="12px"
+                            p="16px"
+                            position="relative"
+                            transition="all .2s"
+                            _hover={{ shadow: "md" }}
+                            cursor="pointer"
+                            role="group"
+                            onClick={() => {
+                                if (!c?.id) return;
+                                navigate(`/customers/${c.id}`);
+                            }}
                         >
-                            <Flex justify="space-between" align="start" gap="10px">
-                                <Box>
-                                    <Heading size="sm" mb="6px" noOfLines={2}>
-                                        {c?.name ?? "Customer"}
-                                    </Heading>
-                                </Box>
+                            <Box position="absolute" top="8px" right="8px" zIndex={1} onClick={(e) => e.stopPropagation()}>
                                 <HStack spacing="6px">
                                     <IconButton
                                         size="sm"
@@ -171,22 +190,21 @@ export default function ADCustomers() {
                                         }}
                                     />
                                 </HStack>
-                            </Flex>
+                            </Box>
 
-                            <Box mt="10px">
-                                <Text fontSize="sm" color="textSub">
-                                    Manzil: {c?.address ?? "-"}
+                            <Box pr={{ base: "72px", md: "80px" }}>
+                                <Text fontWeight="600" fontSize="lg" mb="10px" noOfLines={2}>
+                                    {c?.name ?? "Customer"}
                                 </Text>
-                                <Text fontSize="sm" color="textSub">
-                                    Telefon: {c?.phone ?? "-"}
-                                </Text>
-                                <Text fontSize="sm" color="textSub">
-                                    Direktor: {c?.director_name ?? "-"}
-                                </Text>
+                                <EntityCardDetailRows
+                                    address={c?.address}
+                                    phone={c?.phone}
+                                    directorName={c?.director_name}
+                                />
                             </Box>
                         </Box>
                     ))}
-                </Grid>
+                </SimpleGrid>
             )}
 
             <CreateCustomerModal
@@ -228,23 +246,13 @@ export default function ADCustomers() {
             />
             
             {pagination ? (
-                <Flex mb="12px" marginTop={30} justify="space-between" align="center" flexWrap="wrap" gap="10px">
-                    <HStack>
-                        <Button size="sm" onClick={() => setPage((p) => Math.max(1, p - 1))} isDisabled={(pagination.currentPage ?? page) <= 1 || loading}>
-                            Oldingi
-                        </Button>
-                        <Text fontSize="sm" fontWeight="600">
-                            {pagination.currentPage ?? page} / {pagination.total_pages ?? 1}
-                        </Text>
-                        <Button
-                            size="sm"
-                            onClick={() => setPage((p) => p + 1)}
-                            isDisabled={(pagination.currentPage ?? page) >= (pagination.total_pages ?? 1) || loading}
-                        >
-                            Keyingi
-                        </Button>
-                    </HStack>
-                </Flex>
+                <PaginationBar
+                    mt="30px"
+                    page={pagination.currentPage ?? page}
+                    totalPages={pagination.total_pages ?? 1}
+                    loading={loading}
+                    onPageChange={(p) => setPage(p)}
+                />
             ) : null}
         </Box>
     );

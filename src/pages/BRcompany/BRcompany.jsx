@@ -14,7 +14,6 @@ import {
     Spinner,
     Text,
     Badge,
-    HStack,
     Button,
     useColorMode,
     Card,
@@ -24,9 +23,10 @@ import {
     Alert,
     AlertIcon,
 } from "@chakra-ui/react";
-import { PhoneIcon, TimeIcon, ChevronLeftIcon, ChevronRightIcon } from "@chakra-ui/icons";
+import { PhoneIcon, TimeIcon } from "@chakra-ui/icons";
 import { MapPinIcon } from "lucide-react";
 import CreateCompany from "./_components/CreateCompany";
+import PaginationBar from "../../components/common/PaginationBar";
 
 export default function BRcompany() {
     const [page, setPage] = useState(1);
@@ -78,14 +78,6 @@ export default function BRcompany() {
             hour: "2-digit",
             minute: "2-digit",
         });
-    };
-
-    const handlePreviousPage = () => {
-        if (pagination && page > 1) setPage(page - 1);
-    };
-
-    const handleNextPage = () => {
-        if (pagination && page < pagination.total_pages) setPage(page + 1);
     };
 
     if (loading && companies.length === 0) {
@@ -216,62 +208,14 @@ export default function BRcompany() {
                     </CardBody>
                 </Card>
 
-                {/* Pagination */}
-                {pagination && pagination.total_pages > 1 && (
-                    <Card bg={tableBg} border="1px" borderColor={borderColor}>
-                        <CardBody>
-                            <Flex justify="space-between" align="center">
-                                <Box>
-                                    <Text color="gray.500" fontSize="sm">
-                                        Показано {companies.length} из {pagination.total_count} компаний
-                                    </Text>
-                                </Box>
-
-                                <HStack spacing={4}>
-                                    <Button
-                                        leftIcon={<ChevronLeftIcon />}
-                                        onClick={handlePreviousPage}
-                                        isDisabled={page === 1}
-                                        variant="outline"
-                                        colorScheme="blue"
-                                    >
-                                        Назад
-                                    </Button>
-
-                                    <HStack spacing={2}>
-                                        {[...Array(pagination.total_pages)].map((_, i) => (
-                                            <Button
-                                                key={i + 1}
-                                                size="sm"
-                                                colorScheme={page === i + 1 ? "blue" : "gray"}
-                                                variant={page === i + 1 ? "solid" : "outline"}
-                                                onClick={() => setPage(i + 1)}
-                                                minW="40px"
-                                            >
-                                                {i + 1}
-                                            </Button>
-                                        ))}
-                                    </HStack>
-
-                                    <Button
-                                        rightIcon={<ChevronRightIcon />}
-                                        onClick={handleNextPage}
-                                        isDisabled={page === pagination.total_pages}
-                                        variant="outline"
-                                        colorScheme="blue"
-                                    >
-                                        Вперед
-                                    </Button>
-                                </HStack>
-
-                                <Box>
-                                    <Badge colorScheme="blue" fontSize="md" px={3} py={1}>
-                                        Страница {page} из {pagination.total_pages}
-                                    </Badge>
-                                </Box>
-                            </Flex>
-                        </CardBody>
-                    </Card>
+                {pagination && (
+                    <PaginationBar
+                        mt={4}
+                        page={page}
+                        totalPages={pagination.total_pages ?? 1}
+                        loading={loading}
+                        onPageChange={(p) => setPage(p)}
+                    />
                 )}
             </Container>
         </Box>

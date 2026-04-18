@@ -16,6 +16,7 @@ import ADsuppliers from "../../pages/ADsuplliers/ADsuppliers";
 import LeadFactory from "../../pages/LeadFactory";
 import ADtasks from "../../pages/ADtasks/ADtasks";
 import ADCustomers from "../../pages/ADCustomers/ADCustomers.jsx";
+import ADCustomerDetail from "../../pages/ADCustomerDetail/ADCustomerDetail.jsx";
 
 const adminRoutes = [
     {
@@ -52,6 +53,11 @@ const adminRoutes = [
         path: "customers",
         name: "customers",
         element: <ADCustomers />,
+    },
+    {
+        path: "customers/:id",
+        name: "customer detail",
+        element: <ADCustomerDetail />,
     },
     {
         path: '/company-detail/:id',

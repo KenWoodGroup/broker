@@ -29,6 +29,7 @@ import {
 } from "react-icons/fa6";
 import { NavLink } from "react-router-dom";
 import { Package } from "lucide-react";
+import PaginationBar from "../../components/common/PaginationBar";
 
 export default function Offers({ status, link }) {
     const [offers, setOffers] = useState([]);
@@ -135,7 +136,7 @@ export default function Offers({ status, link }) {
     );
 
     return (
-        <Box py={'20px'} minH="100vh">
+        <Box py={'20px'} pl="20px"   pr="20px" pb="20px"  pt="20px"  minH="100vh">
             <Box maxW="1400px" mx="auto">
                 {/* Header */}
                 <Box mb={6}>
@@ -241,62 +242,14 @@ export default function Offers({ status, link }) {
                             ))}
                         </VStack>
 
-                        {/* Pagination */}
-                        {pagination && pagination.total_pages > 1 && (
-                            <Flex justify="center" mt={8} direction="column" align="center">
-                                <HStack spacing={2} mb={3}>
-                                    <Button
-                                        onClick={() => handlePageChange(currentPage - 1)}
-                                        isDisabled={currentPage === 1}
-                                        variant="outline"
-                                    >
-                                        Oldingi
-                                    </Button>
-                                    <HStack spacing={2}>
-                                        {[...Array(Math.min(pagination.total_pages, 7))].map((_, idx) => {
-                                            let pageNum;
-                                            if (pagination.total_pages <= 7) {
-                                                pageNum = idx + 1;
-                                            } else if (currentPage <= 4) {
-                                                pageNum = idx + 1;
-                                                if (idx === 6) pageNum = pagination.total_pages;
-                                            } else if (currentPage >= pagination.total_pages - 3) {
-                                                pageNum = pagination.total_pages - 6 + idx;
-                                            } else {
-                                                pageNum = currentPage - 3 + idx;
-                                            }
-
-                                            if (pageNum === currentPage) {
-                                                return (
-                                                    <Button key={idx} variant="solid">
-                                                        {pageNum}
-                                                    </Button>
-                                                );
-                                            }
-                                            return (
-                                                <Button
-                                                    key={idx}
-                                                    onClick={() => handlePageChange(pageNum)}
-                                                    variant="ghost"
-                                                >
-                                                    {pageNum}
-                                                </Button>
-                                            );
-                                        })}
-                                    </HStack>
-                                    <Button
-                                        onClick={() => handlePageChange(currentPage + 1)}
-                                        isDisabled={currentPage === pagination.total_pages}
-                                        variant="outline"
-                                    >
-                                        Keyingi
-                                    </Button>
-                                </HStack>
-                                <Text fontSize="sm" color="gray.600">
-                                    {pagination.total_count} ta taklifdan {((currentPage - 1) * pagination.limit) + 1}-
-                                    {Math.min(currentPage * pagination.limit, pagination.total_count)} ko'rsatilmoqda
-                                </Text>
-                            </Flex>
+                        {pagination && (
+                            <PaginationBar
+                                mt={8}
+                                page={currentPage}
+                                totalPages={pagination.total_pages ?? 1}
+                                loading={loading}
+                                onPageChange={handlePageChange}
+                            />
                         )}
                     </>
                 )}

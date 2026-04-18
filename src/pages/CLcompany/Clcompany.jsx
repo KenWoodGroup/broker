@@ -28,6 +28,7 @@ import CreateCompanyByExcell from "./__components/CreateCompanyByExcell"
 import DeleteCompany from "./__components/DeleteCompany"
 import StatusEdit from "./__components/StatusEdit"
 import ContactPhone from "./__components/ContactPhone"
+import PaginationBar from "../../components/common/PaginationBar"
 
 const REGIONS = [
     { id: 2, name: "Andijon viloyati" },
@@ -195,7 +196,7 @@ export default function Clcompany({ role }) {
 
     // ─── Render ───────────────────────────────────────────────────────────────
     return (
-        <Box py="20px" pr="20px">
+        <Box py="20px" pr="20px" pl="20px"   pr="20px" pb="20px"  pt="20px">
             {/* Заголовок */}
             <Flex justifyContent="space-between" mb="20px">
                 <Heading size="lg">Kompaniyalar</Heading>
@@ -397,30 +398,13 @@ export default function Clcompany({ role }) {
 
                     {/* Пагинация */}
                     {pagination && (
-                        <Flex mt="20px" justifyContent="space-between" alignItems="center">
-                            <Text fontSize="sm" color="gray.600">
-                                Jami: {pagination.total_count}
-                            </Text>
-                            <HStack>
-                                <Button
-                                    size="sm"
-                                    onClick={() => setPage((p) => p - 1)}
-                                    isDisabled={page === 1}
-                                >
-                                    Oldingi
-                                </Button>
-                                <Text fontWeight="bold" fontSize="sm">
-                                    {pagination.currentPage} / {pagination.total_pages}
-                                </Text>
-                                <Button
-                                    size="sm"
-                                    onClick={() => setPage((p) => p + 1)}
-                                    isDisabled={page === pagination.total_pages}
-                                >
-                                    Keyingi
-                                </Button>
-                            </HStack>
-                        </Flex>
+                        <PaginationBar
+                            mt={5}
+                            page={pagination.currentPage ?? page}
+                            totalPages={pagination.total_pages ?? 1}
+                            loading={loading}
+                            onPageChange={(p) => setPage(p)}
+                        />
                     )}
                 </>
             )}

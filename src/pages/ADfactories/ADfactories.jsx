@@ -20,7 +20,7 @@ import {
     Divider,
 } from "@chakra-ui/react";
 import React, { useEffect, useState, useCallback, useRef } from "react";
-import { ChevronLeft, ChevronRight, Search, X, Plus, ChevronDown } from "lucide-react";
+import { Search, X, Plus, ChevronDown } from "lucide-react";
 import FactoryCard from "./_components/FactoryCard";
 import FactoryCardSkeleton from "./_components/FactoryCardSkeleton";
 import FactoriesHeader from "./_components/FactoriesHeader";
@@ -29,13 +29,13 @@ import { $api, BASE_URL } from "../../utils/api/axios";             // adjust pa
 import regions from "../../constants/regions/regions.json";
 import districts from "../../constants/regions/districts.json";
 import { apiLocations } from "../../utils/Controllers/Locations";
+import PaginationBar from "../../components/common/PaginationBar";
 
 /* ─────────────────────────────────────────────────────────────────────────────
    Constants
 ───────────────────────────────────────────────────────────────────────────── */
 const FACTORY_PAGE_KEY = "factories_page";
 const SEARCH_DEBOUNCE = 500;
-const HOLD_DELAY = 300;
 const CAT_DEBOUNCE = 400;
 
 /* ─────────────────────────────────────────────────────────────────────────────
@@ -314,12 +314,6 @@ export default function ADfactories({ reloadDependance, role = "admin" }) {
     /* ── Category filter ── */
     const [selectedCategories, setSelectedCategories] = useState([]); // [{id, name}]
 
-    /* ── Long-press pagination ── */
-    const [number, setNumber] = useState(factoryPage);
-    const [holding, setHolding] = useState(false);
-    const holdTimeoutRef = useRef(null);
-    const holdIntervalRef = useRef(null);
-
     /* ─── Pagination helpers ─── */
     const changePagination = useCallback(
         (page) => {
@@ -430,35 +424,6 @@ export default function ADfactories({ reloadDependance, role = "admin" }) {
         resetPage();
     };
 
-    /* ─── Long press ─── */
-    const handleClick = (type) => {
-        if (holding) return;
-        const next =
-            type === "inc"
-                ? Math.min(factoryPage + 1, totalPage)
-                : Math.max(factoryPage - 1, 1);
-        changePagination(next);
-    };
-
-    const startHolding = (type) => {
-        holdTimeoutRef.current = setTimeout(() => {
-            setHolding(true);
-            setNumber(factoryPage);
-            holdIntervalRef.current = setInterval(() => {
-                setNumber((prev) =>
-                    type === "inc" ? Math.min(prev + 1, totalPage) : Math.max(prev - 1, 1)
-                );
-            }, 200);
-        }, HOLD_DELAY);
-    };
-
-    const stopHolding = () => {
-        clearTimeout(holdTimeoutRef.current);
-        clearInterval(holdIntervalRef.current);
-        if (holding) changePagination(number);
-        setHolding(false);
-    };
-
     /* ─── Hotkeys ─── */
     useEffect(() => { searchRef.current?.focus(); }, []);
     useEffect(() => {
@@ -470,7 +435,6 @@ export default function ADfactories({ reloadDependance, role = "admin" }) {
     /* ─── Derived ─── */
     const hasFilters = selectedAddresses.length > 0 || selectedCategories.length > 0;
     const hasAnyFilter = hasFilters || search;
-    const currentPage = holding ? number : factoryPage;
 
     const doReload = () =>
         fetchFactories(
@@ -661,42 +625,13 @@ export default function ADfactories({ reloadDependance, role = "admin" }) {
                     ))}
             </SimpleGrid>
 
-            {/* ══ Pagination ══ */}
-            <Flex justify="center" align="center" gap="16px" mt="30px">
-                <Button size="sm" onClick={() => changePagination(1)}>
-                    First
-                </Button>
-
-                <Button
-                    size="sm"
-                    isDisabled={factoryPage === 1}
-                    onClick={() => handleClick("dec")}
-                    onMouseDown={() => startHolding("dec")}
-                    onMouseUp={stopHolding}
-                    onMouseLeave={stopHolding}
-                >
-                    <ChevronLeft size={16} />
-                </Button>
-
-                <Text fontWeight="semibold" fontSize="sm" minW="70px" textAlign="center">
-                    {currentPage} / {totalPage}
-                </Text>
-
-                <Button
-                    size="sm"
-                    isDisabled={factoryPage === totalPage}
-                    onClick={() => handleClick("inc")}
-                    onMouseDown={() => startHolding("inc")}
-                    onMouseUp={stopHolding}
-                    onMouseLeave={stopHolding}
-                >
-                    <ChevronRight size={16} />
-                </Button>
-
-                <Button size="sm" onClick={() => changePagination(totalPage)}>
-                    Last
-                </Button>
-            </Flex>
+            <PaginationBar
+                mt="30px"
+                page={factoryPage}
+                totalPages={totalPage}
+                loading={loading}
+                onPageChange={(p) => changePagination(p)}
+            />
         </Box>
     );
 }
