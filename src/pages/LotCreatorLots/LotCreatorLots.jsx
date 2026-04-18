@@ -25,6 +25,7 @@ import { PencilLine, Plus, Search, Trash2, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import PaginationBar from "../../components/common/PaginationBar";
 import { LotCardIconRows } from "../../components/common/EntityCardDetailRows";
+import CreateExel from "./_components/CreateExel";
 
 export default function LotCreatorLots() {
     const navigate = useNavigate();
@@ -184,7 +185,7 @@ export default function LotCreatorLots() {
     const cardBorder = useColorModeValue("gray.200", "gray.700");
 
     return (
-        <Box pl="20px"   pr="20px" pb="20px"  pt="20px">
+        <Box pl="20px" pr="20px" pb="20px" pt="20px">
             <Flex justify="space-between" align="center" mb="16px" gap="12px" flexWrap="wrap">
                 <Box>
                     <Heading size="lg" mb="6px">
@@ -192,9 +193,12 @@ export default function LotCreatorLots() {
                     </Heading>
                 </Box>
 
-                <Button leftIcon={<Plus size={15} />} colorScheme="blue" onClick={createLotModal.onOpen}>
-                    Yaratish
-                </Button>
+                <Flex alignItems={'center'} gap={3}>
+                    <CreateExel onCreated={() => fetchLots({ page: 1 })} />
+                    <Button leftIcon={<Plus size={15} />} colorScheme="blue" onClick={createLotModal.onOpen}>
+                        Yaratish
+                    </Button>
+                </Flex>
             </Flex>
 
             <Flex gap={3} mb="20px" flexWrap="wrap" align="center">
