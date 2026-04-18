@@ -23,7 +23,7 @@ export function formatUnverifiedFactoriesError(err) {
 }
 
 export const apiUnverifiedFactories = {
-    list: (params) => $api.get(BASE, { params }),
+    list: (params,role) => $api.get(BASE, { params }),
 
     create: (body) => $api.post(BASE, body),
 

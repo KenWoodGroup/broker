@@ -407,7 +407,7 @@ export default function UnverifiedFactories({ role = "admin" }) {
       const params = { page };
       if (debSearch) params.search = debSearch;
       if (statusFilter) params.status = statusFilter;
-      const res = await apiUnverifiedFactories.list(params);
+      const res = await apiUnverifiedFactories.list(params,role);
       const d = res.data;
       setData(d.data ?? []);
       setTotal(d.total ?? 0);
