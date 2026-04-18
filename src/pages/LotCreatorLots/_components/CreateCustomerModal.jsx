@@ -12,6 +12,7 @@ export default function CreateCustomerModal({ isOpen, onClose, onCreated, initia
         address: "",
         phone: "",
         director_name: "",
+        inn: "",
     });
 
     useEffect(() => {
@@ -35,12 +36,15 @@ export default function CreateCustomerModal({ isOpen, onClose, onCreated, initia
         }
         try {
             setLoading(true);
-            const res = await apiLotLocations.createCustomer({
+            const body = {
                 name: form.name.trim(),
                 address: form.address.trim(),
                 phone: form.phone.trim(),
                 director_name: form.director_name.trim(),
-            });
+            };
+            const innTrim = form.inn?.trim();
+            if (innTrim) body.inn = innTrim;
+            const res = await apiLotLocations.createCustomer(body);
 
             const created = res?.data?.data ?? res?.data;
             onCreated?.(created);
@@ -93,6 +97,17 @@ export default function CreateCustomerModal({ isOpen, onClose, onCreated, initia
                         value={form.director_name}
                         onChange={handleChange}
                         placeholder="F.I.Sh."
+                        bg="bg"
+                        borderRadius="lg"
+                    />
+                </FormControl>
+                <FormControl>
+                    <FormLabel>INN</FormLabel>
+                    <Input
+                        name="inn"
+                        value={form.inn}
+                        onChange={handleChange}
+                        placeholder="STIR / INN"
                         bg="bg"
                         borderRadius="lg"
                     />

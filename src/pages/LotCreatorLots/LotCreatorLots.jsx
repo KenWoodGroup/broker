@@ -22,13 +22,11 @@ import CreateLotModal from "./_components/CreateLotModal";
 import EditLotModal from "./_components/EditLotModal";
 import ConfirmDelModal from "../../components/common/ConfirmDelModal";
 import { PencilLine, Plus, Search, Trash2, X } from "lucide-react";
-import { useNavigate } from "react-router-dom";
 import PaginationBar from "../../components/common/PaginationBar";
 import { LotCardIconRows } from "../../components/common/EntityCardDetailRows";
 import CreateExel from "./_components/CreateExel";
 
 export default function LotCreatorLots() {
-    const navigate = useNavigate();
     const toast = useToast();
     const createLotModal = useDisclosure();
     const editLotModal = useDisclosure();
@@ -312,12 +310,7 @@ export default function LotCreatorLots() {
                                     position="relative"
                                     transition="all .2s"
                                     _hover={{ shadow: "md" }}
-                                    cursor="pointer"
                                     role="group"
-                                    onClick={() => {
-                                        if (!lot?.id) return;
-                                        navigate(`/lotcreator/lots/${lot.id}`);
-                                    }}
                                 >
                                     <Box position="absolute" top="8px" right="8px" zIndex={1} onClick={(e) => e.stopPropagation()}>
                                         <Flex gap="6px">

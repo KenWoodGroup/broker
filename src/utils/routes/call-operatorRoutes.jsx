@@ -2,7 +2,6 @@ import Clcompany from "../../pages/CLcompany/Clcompany";
 import ClcompanyDetail from "../../pages/ClcompanyDetail/ClcompanyDetail";
 import CLOffersCreate from "../../pages/CLOffersCreate/CLOffersCreate";
 import CallOperatorLots from "../../pages/CallOperatorLots/CallOperatorLots";
-import CallOperatorLotDetailRoute from "../../pages/CallOperatorLots/CallOperatorLotDetailRoute";
 import Offers from "../../pages/Offers/Offers";
 import OffersDetail from "../../pages/OffersDetail/OffersDetail";
 import OPOfferCreate from "../../pages/OPOfferCreate/OPOfferCreate";
@@ -39,11 +38,6 @@ const CallOperRoutes = [
         name: "lots",
         path: "lots",
         element: <CallOperatorLots />
-    },
-    {
-        name: "lot detail",
-        path: "lots/:id",
-        element: <CallOperatorLotDetailRoute />
     },
 
 ];

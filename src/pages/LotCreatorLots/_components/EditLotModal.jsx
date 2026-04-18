@@ -44,6 +44,7 @@ export default function EditLotModal({ isOpen, onClose, lotId, typeOptions = [],
         lot_name: "",
         customer_id: null,
         builder_id: null,
+        customer_inn: "",
         amount: "",
         note: "",
         start_date: "",
@@ -103,6 +104,12 @@ export default function EditLotModal({ isOpen, onClose, lotId, typeOptions = [],
         return null;
     };
 
+    const pickCustomerInn = (c) => {
+        if (!c) return "";
+        const v = c.inn ?? c.INN;
+        return v != null ? String(v).trim() : "";
+    };
+
     // Load lot details
     useEffect(() => {
         if (!isOpen || !lotId) return;
@@ -114,6 +121,7 @@ export default function EditLotModal({ isOpen, onClose, lotId, typeOptions = [],
                 const customerId = lot.customer_id ?? lot.customerId ?? null;
                 const builderId = lot.builder_id ?? lot.builderId ?? null;
 
+                const lotInn = lot.inn ?? lot.customer_inn ?? "";
                 setForm({
                     address: lot.address ?? "",
                     type: lot.type ?? "",
@@ -122,6 +130,7 @@ export default function EditLotModal({ isOpen, onClose, lotId, typeOptions = [],
                     lot_name: lot.lot_name ?? lot.lotName ?? lot.name ?? "",
                     customer_id: customerId,
                     builder_id: builderId,
+                    customer_inn: lotInn != null ? String(lotInn) : "",
                     amount: lot.amount ?? "",
                     note: lot.note ?? "",
                     start_date: (lot.start_date ?? lot.startDate ?? "").slice(0, 10),
@@ -190,7 +199,11 @@ export default function EditLotModal({ isOpen, onClose, lotId, typeOptions = [],
         const id = extractId(c);
         if (!id) return;
         setSelectedCustomer(c);
-        setForm((p) => ({ ...p, customer_id: id }));
+        setForm((p) => ({
+            ...p,
+            customer_id: id,
+            customer_inn: pickCustomerInn(c) || p.customer_inn,
+        }));
         setCustomerQuery(c?.name ?? c?.title ?? c?.company_name ?? customerQuery);
         setCustomerResults([]);
     };
@@ -242,6 +255,7 @@ export default function EditLotModal({ isOpen, onClose, lotId, typeOptions = [],
                 lot_name: form.lot_name.trim(),
                 customer_id: form.customer_id,
                 builder_id: form.builder_id,
+                inn: form.customer_inn?.trim() || undefined,
                 amount: Number(form.amount),
                 note: form.note?.trim() || undefined,
                 start_date: form.start_date,
@@ -416,7 +430,11 @@ export default function EditLotModal({ isOpen, onClose, lotId, typeOptions = [],
                                                 <Button
                                                     variant="ghost"
                                                     onClick={() => {
-                                                        setForm((p) => ({ ...p, customer_id: null }));
+                                                        setForm((p) => ({
+                                                            ...p,
+                                                            customer_id: null,
+                                                            customer_inn: "",
+                                                        }));
                                                         setSelectedCustomer(null);
                                                         setCustomerQuery("");
                                                         setCustomerResults([]);

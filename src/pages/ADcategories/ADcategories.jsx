@@ -77,7 +77,7 @@ export default function ADcategories({ reloadDependance, role = 'admin' }) {
 
     /* ---------------- render ---------------- */
     return (
-        <Box pr={"20px"} pb={"20px"}>
+        <Box pr={"20px"} pb={"20px"} pl={"10px"}>
             {/* Header */}
             <CategoriesHeader onReload={() => fetchCategories(page, debouncedSearch)} role={role} />
 

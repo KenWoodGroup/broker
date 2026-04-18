@@ -1,19 +1,26 @@
 import {
     Box,
+    FormControl,
+    FormLabel,
     HStack,
     Icon,
+    Input,
     Modal,
     ModalBody,
     ModalCloseButton,
     ModalContent,
     ModalFooter,
     ModalOverlay,
+    SimpleGrid,
     Text,
+    VStack,
     useColorModeValue,
 } from "@chakra-ui/react";
+import { User } from "lucide-react";
 
 /**
  * ADtasks (EditTaskModal) bilan bir xil modal “chrome”: blur overlay, gradient header, icon, footer strip.
+ * Ixtiyoriy: joylashuvdagi direktor nomi va INN (location update uchun).
  */
 export default function TaskModalShell({
     isOpen,
@@ -27,6 +34,10 @@ export default function TaskModalShell({
     footer,
     scrollBehavior = "inside",
     maxH = "90vh",
+    locationDirectorName = "",
+    locationInn = "",
+    onLocationDirectorNameChange,
+    onLocationInnChange,
 }) {
     const headerBorder = useColorModeValue("gray.200", "whiteAlpha.200");
     const footerBg = useColorModeValue("gray.50", "whiteAlpha.50");
@@ -42,6 +53,12 @@ export default function TaskModalShell({
     const iconBoxBg = useColorModeValue("white", "whiteAlpha.200");
     const headerBg = tone === "danger" ? heroDangerBg : heroBg;
     const iconColor = tone === "danger" ? "red.500" : "blue.600";
+    const panelBg = useColorModeValue("gray.50", "whiteAlpha.50");
+    const panelBorder = useColorModeValue("gray.200", "whiteAlpha.200");
+
+    const showLocationRequisites =
+        typeof onLocationDirectorNameChange === "function" &&
+        typeof onLocationInnChange === "function";
 
     return (
         <Modal
@@ -102,7 +119,45 @@ export default function TaskModalShell({
                 </Box>
 
                 <ModalBody px={6} py={5}>
-                    {children}
+                    <VStack align="stretch" spacing={4}>
+                        {showLocationRequisites ? (
+                            <Box
+                                p={4}
+                                bg={panelBg}
+                                borderRadius="xl"
+                                borderWidth="1px"
+                                borderColor={panelBorder}
+                            >
+                                <HStack spacing={2} mb={3}>
+                                    <Icon as={User} boxSize={4} color="blue.500" />
+                                    <Text fontSize="sm" fontWeight="semibold">
+                                        Joylashuv — direktor va INN
+                                    </Text>
+                                </HStack>
+                                <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4}>
+                                    <FormControl>
+                                        <FormLabel>Direktor nomi</FormLabel>
+                                        <Input
+                                            value={locationDirectorName}
+                                            onChange={(e) =>
+                                                onLocationDirectorNameChange(e.target.value)
+                                            }
+                                            borderRadius="lg"
+                                        />
+                                    </FormControl>
+                                    <FormControl>
+                                        <FormLabel>INN</FormLabel>
+                                        <Input
+                                            value={locationInn}
+                                            onChange={(e) => onLocationInnChange(e.target.value)}
+                                            borderRadius="lg"
+                                        />
+                                    </FormControl>
+                                </SimpleGrid>
+                            </Box>
+                        ) : null}
+                        {children}
+                    </VStack>
                 </ModalBody>
 
                 {footer ? (
