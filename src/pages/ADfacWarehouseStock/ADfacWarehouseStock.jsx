@@ -339,6 +339,7 @@ const WarehouseStockPage = () => {
         >
           <SalePriceEditButton
             salePriceTypes={stock?.sale_price_type}
+            stockId={stock?.id}
             onSave={() => fetchStocks()}
           />
         </VStack>
@@ -469,6 +470,7 @@ const WarehouseStockPage = () => {
         >
           <SalePriceEditButton
             salePriceTypes={stock?.sale_price_type ?? []}
+            stockId={stock?.id}
             onSave={() => fetchStocks()}
           />
         </Box>
@@ -610,9 +612,15 @@ const WarehouseStockPage = () => {
         size="lg"
         closeOnOverlayClick={false}
       >
-        <ModalOverlay />
-        <ModalContent bg="surface">
-          <ModalHeader color="text">
+        <ModalOverlay backdropFilter="blur(4px)" />
+        <ModalContent
+          bg="surface"
+          borderWidth="1px"
+          borderColor="border"
+          borderRadius="2xl"
+          boxShadow="xl"
+        >
+          <ModalHeader color="text" pb={2}>
             {actionType === "update"
               ? "Narxni yangilash"
               : uploadStep === 1
@@ -806,6 +814,7 @@ const WarehouseStockPage = () => {
                   mr={3}
                   onClick={onUploadClose}
                   isDisabled={uploadLoading}
+                  borderRadius="xl"
                 >
                   Bekor qilish
                 </Button>
@@ -814,6 +823,7 @@ const WarehouseStockPage = () => {
                   onClick={handleUploadExcel}
                   isDisabled={!selectedFile}
                   isLoading={uploadLoading}
+                  borderRadius="xl"
                 >
                   Yuklash
                 </Button>
@@ -829,6 +839,7 @@ const WarehouseStockPage = () => {
                       colorScheme="blue"
                       onClick={handleCreateInvoice}
                       isLoading={uploadLoading}
+                      borderRadius="xl"
                     >
                       Invoice tayyorlash
                     </Button>
@@ -841,6 +852,7 @@ const WarehouseStockPage = () => {
                       mr={3}
                       onClick={onUploadClose}
                       isDisabled={uploadLoading}
+                      borderRadius="xl"
                     >
                       Bekor qilish
                     </Button>
@@ -849,6 +861,7 @@ const WarehouseStockPage = () => {
                       onClick={handleUploadExcel}
                       isDisabled={!selectedFile}
                       isLoading={uploadLoading}
+                      borderRadius="xl"
                     >
                       Invoice yaratish
                     </Button>
@@ -859,6 +872,7 @@ const WarehouseStockPage = () => {
                     colorScheme="blue"
                     onClick={handleCloseUpload}
                     width="100%"
+                    borderRadius="xl"
                   >
                     Yopish
                   </Button>

@@ -24,10 +24,14 @@ class apiStock {
     return response;
   };
   
-  static UpdateSalePrice = async (id, data) => {
-    const response = await $api.put(`/erp/stock-sale-type/${id}`, data, {
+  static UpdateSalePrice = async (saleTypeId, stockId, data) => {
+    const response = await $api.put(
+      `/erp/stock-sale-type/${saleTypeId}/${stockId}`,
+      data,
+      {
       showSuccessToast: "Sotuv narxi yangilandi",
-    });
+      },
+    );
     return response;
   };
   static GetByAdress = async (data) => {

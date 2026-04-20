@@ -21,7 +21,7 @@ import { apiStock } from "../../../utils/Controllers/apiStock";
 
 // Props:
 // salePriceTypes: array, onSave(newPrice, typeId)
-export default function SalePriceEditButton({ salePriceTypes = [], onSave }) {
+export default function SalePriceEditButton({ salePriceTypes = [], stockId, onSave }) {
   const toast = useToast();
 
   const [isOpen, setIsOpen] = useState(false);
@@ -66,13 +66,23 @@ export default function SalePriceEditButton({ salePriceTypes = [], onSave }) {
 
     setSaving(true);
     try {
-      const id = salePriceTypes?.find(
+      const saleTypeId = salePriceTypes?.find(
         (item) => item?.price_type?.id === selectedTypeId,
       )?.id;
+      if (!saleTypeId || !stockId) {
+        toast({
+          title: "Xatolik",
+          description: "saleTypeId yoki stockId topilmadi",
+          status: "error",
+          duration: 3000,
+          isClosable: true,
+        });
+        return;
+      }
       const payload = {
         sale_price: +newPrice,
       };
-      await apiStock.UpdateSalePrice(id, payload);
+      await apiStock.UpdateSalePrice(saleTypeId, stockId, payload);
       onSave();
     } finally {
       setSaving(false);
@@ -92,9 +102,15 @@ export default function SalePriceEditButton({ salePriceTypes = [], onSave }) {
       />
 
       <Modal isOpen={isOpen} onClose={closeModal} isCentered>
-        <ModalOverlay />
-        <ModalContent borderRadius="12px" p="4">
-          <ModalHeader>Sotuv narxini tahrirlash</ModalHeader>
+        <ModalOverlay backdropFilter="blur(4px)" />
+        <ModalContent
+          bg="surface"
+          borderWidth="1px"
+          borderColor="border"
+          borderRadius="2xl"
+          boxShadow="xl"
+        >
+          <ModalHeader pb={2}>Sotuv narxini tahrirlash</ModalHeader>
           <ModalCloseButton />
           <ModalBody>
             <FormControl mb={4}>
@@ -140,6 +156,7 @@ export default function SalePriceEditButton({ salePriceTypes = [], onSave }) {
                 loadingText="Saqlanmoqda..."
                 colorScheme="blue"
                 onClick={handleSave}
+                borderRadius="xl"
               >
                 Saqlash
               </Button>
