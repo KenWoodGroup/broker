@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams, useLocation } from "react-router";
 import {
     Badge,
@@ -16,6 +16,7 @@ import {
     Text,
     VStack,
     useColorModeValue,
+    useDisclosure,
     useToast,
     Button,
 } from "@chakra-ui/react";
@@ -32,8 +33,10 @@ import {
     User,
     Wallet,
     ExternalLink,
+    Edit2,
 } from "lucide-react";
 import { apiLots } from "../../utils/Controllers/Lots";
+import EditLotModal from "../LotCreatorLots/_components/EditLotModal";
 
 function extractLot(res) {
     const raw = res?.data?.data ?? res?.data;
@@ -319,6 +322,24 @@ export default function LotDetailPage() {
     const listPath = useLotsListPath();
     const [lot, setLot] = useState(null);
     const [loading, setLoading] = useState(true);
+    const editModal = useDisclosure();
+
+    const TYPE_OPTIONS = useMemo(
+        () => [
+            "Mukammal ta'mirlash",
+            "Rekonstruksiya qilish",
+            "Qurilish",
+            "Landshaft dizayn va obodanlashtirish",
+            "Joriy tamirlash",
+            "Modernizatsiya",
+            "Tamirlash",
+        ],
+        []
+    );
+    const CATEGORY_OPTIONS = useMemo(
+        () => ["Umumqurilish", "Melioratsiya va irrigatsiya", "Avtomobil yo'llari, ko'priklar"],
+        []
+    );
 
     const border = useColorModeValue("border", "border");
     const heroMuted = useColorModeValue("gray.600", "gray.400");
@@ -383,13 +404,12 @@ export default function LotDetailPage() {
     ) : null;
 
     const handleNavigateToParty = (partyId, partyType) => {
-        // Agar kompaniya detallari uchun maxsus route mavjud bo‘lsa, shu yerga yozing
-        // Misol uchun: /company/:id yoki /customer/:id
         if (partyType === "customer") {
             navigate(`/customers/${partyId}`);
-        } else {
-            navigate(`/company-detail//${partyId}`);
+            return;
         }
+        // builder/company detail
+        navigate(`/company-detail/${partyId}`);
     };
 
     return (
@@ -424,6 +444,15 @@ export default function LotDetailPage() {
                             </>
                         )}
                     </Box>
+                    {!loading && lot?.id ? (
+                        <IconButton
+                            variant="ghost"
+                            aria-label="Lotni tahrirlash"
+                            icon={<Edit2 size={18} />}
+                            onClick={editModal.onOpen}
+                            borderRadius="full"
+                        />
+                    ) : null}
                 </Flex>
             </Box>
 
@@ -473,7 +502,7 @@ export default function LotDetailPage() {
                             title="Quruvchi"
                             party={lot?.builder}
                             headerIcon={Building2}
-                            onNavigate={(partyId) => handleNavigateToParty(partyId, "builder")}
+                            onNavigate={(partyId) => handleNavigateToParty(partyId, "company")}
                         />
                     </VStack>
 
@@ -497,6 +526,24 @@ export default function LotDetailPage() {
                     <Divider />
                 </VStack>
             )}
+
+            <EditLotModal
+                isOpen={editModal.isOpen}
+                onClose={editModal.onClose}
+                lotId={id}
+                typeOptions={TYPE_OPTIONS}
+                categoryOptions={CATEGORY_OPTIONS}
+                onUpdated={async () => {
+                    try {
+                        if (!id) return;
+                        setLoading(true);
+                        const res = await apiLots.getById(id);
+                        setLot(extractLot(res));
+                    } finally {
+                        setLoading(false);
+                    }
+                }}
+            />
         </Box>
     );
 }

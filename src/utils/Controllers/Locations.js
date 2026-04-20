@@ -31,6 +31,12 @@ class apiLocations {
         const response = await $api.get(`${BASE_URL}/api/locations/${id}`);
         return response
     }
+    static updateRating = async (id, data) => {
+        const response = await $api.put(`${BASE_URL}/api/locations/rating/${id}`, data, {
+            showSuccessToast: "Rating yangilandi",
+        })
+        return response
+    }
     static getFactory = async (name, location_id) => {
         const response = await $api.get(`${BASE_URL}/api/erp/locations/by-name/factory/${name}?location_id=${location_id}`);
         return response
