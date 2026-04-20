@@ -25,16 +25,20 @@ import {
     Th,
     Thead,
     Tr,
+    Tooltip,
+    useDisclosure,
     useColorModeValue,
 } from "@chakra-ui/react";
-import { ArrowLeft, Building2, FileText, Info, MapPin } from "lucide-react";
+import { ArrowLeft, Building2, Edit2, FileText, Info, MapPin } from "lucide-react";
 import { apiLocations } from "../../utils/Controllers/Locations";
 import CustomerConstructionSites from "./__components/CustomerConstructionSites";
 import CompanyNoteCard from "../ClcompanyDetail/__components/CompanyNoteCard";
+import LocationEditModal from "../ClcompanyDetail/__components/LocationEditModal";
 
 export default function ADCustomerDetail() {
     const { id } = useParams();
     const navigate = useNavigate();
+    const editModal = useDisclosure();
 
     const bg = useColorModeValue("white", "gray.800");
     const headerBg = useColorModeValue("gray.50", "gray.700");
@@ -43,22 +47,18 @@ export default function ADCustomerDetail() {
     const [loading, setLoading] = useState(true);
     const [customer, setCustomer] = useState(null);
 
+    const GetCustomer = async () => {
+        setLoading(true);
+        try {
+            const res = await apiLocations.getLocation(id);
+            setCustomer(res?.data ?? null);
+        } finally {
+            setLoading(false);
+        }
+    };
+
     useEffect(() => {
-        let alive = true;
-        const run = async () => {
-            try {
-                setLoading(true);
-                const res = await apiLocations.getLocation(id);
-                if (!alive) return;
-                setCustomer(res?.data ?? null);
-            } finally {
-                if (alive) setLoading(false);
-            }
-        };
-        if (id) run();
-        return () => {
-            alive = false;
-        };
+        if (id) GetCustomer();
     }, [id]);
 
     const createdAt = customer?.createdAt ?? customer?.created_at;
@@ -101,6 +101,16 @@ export default function ADCustomerDetail() {
                                         </Box>
                                     </Flex>
                                 </HStack>
+                                {customer?.id && (
+                                    <Tooltip label="Tahrirlash">
+                                        <IconButton
+                                            icon={<Edit2 size={16} />}
+                                            onClick={editModal.onOpen}
+                                            variant="ghost"
+                                            aria-label="Tahrirlash"
+                                        />
+                                    </Tooltip>
+                                )}
                             </Flex>
                         </CardHeader>
                     </Card>
@@ -206,6 +216,15 @@ export default function ADCustomerDetail() {
                         </TabPanels>
                     </Tabs>
                 </>
+            )}
+
+            {customer && (
+                <LocationEditModal
+                    isOpen={editModal.isOpen}
+                    onClose={editModal.onClose}
+                    data={customer}
+                    onSuccess={GetCustomer}
+                />
             )}
         </Box>
     );

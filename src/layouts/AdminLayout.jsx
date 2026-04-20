@@ -11,7 +11,7 @@ const links = [
     { label: "Xodimlar", to: "/roles", icon: Users2, end: false },
     { label: "T-zavodlar", to: "/lead-factory", icon: Factory },
     { label: "Zavodlar", to: "/factories", icon: Factory },
-    { label: "Qurilish kompaniyalar", to: "/companies", icon: Building2 },
+    { label: "Qurilish kompaniyalar", to: "/companies", icon: Building2, activePrefixes: ["/companies", "/company-detail"] },
     { label: "Buyurtmachilar", to: "/customers", icon: Building2 },
     { label: "Lotlar", to: "/lots", icon: PackageSearch },
     { label: "Vazifalar", to: "/tasks", icon: ClipboardPen },
