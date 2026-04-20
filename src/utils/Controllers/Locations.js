@@ -13,6 +13,12 @@ class apiLocations {
         const response = await $api.get(`${BASE_URL}/api/locations/by-name/customer/${name}`)
         return response;
     }
+    static getCustomersPage = async (page = 1, searchText = "all") => {
+        const response = await $api.get(
+            `${BASE_URL}/api/locations/type/customer/${searchText}/page?page=${page}`
+        )
+        return response
+    }
     static pageFactoryWarehouses = async (page, factoryId) => {
         const response = await $api.get(`${BASE_URL}/api/erp/locations/warehouse/${factoryId}/page?page=${page}`)
         return response;

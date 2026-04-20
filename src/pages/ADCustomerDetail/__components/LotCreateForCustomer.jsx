@@ -1,32 +1,30 @@
 import {
     Button,
     FormControl,
+    FormErrorMessage,
     FormLabel,
+    Icon,
     Input,
-    Textarea,
-    Select,
-    VStack,
     NumberInput,
     NumberInputField,
-    FormErrorMessage,
-    useToast,
-    useDisclosure,
+    Select,
     SimpleGrid,
-    Icon,
+    Textarea,
+    VStack,
+    useDisclosure,
+    useToast,
 } from "@chakra-ui/react"
-import { Plus, ChevronDown } from "lucide-react"
-import { useState, useMemo, useEffect } from "react"
-import { apiLots } from "../../../utils/Controllers/Lots"
-import { apiLocations } from "../../../utils/Controllers/Locations"
+import { ChevronDown, Plus } from "lucide-react"
+import { useEffect, useMemo, useState } from "react"
 import GradientFormModal from "../../../components/common/GradientFormModal"
+import { apiLotLocations } from "../../../utils/Controllers/LotLocations"
+import { apiLots } from "../../../utils/Controllers/Lots"
 
-export default function LotCreate({ data, onSuccess }) {
+export default function LotCreateForCustomer({ customerId, onSuccess }) {
     const { isOpen, onOpen, onClose } = useDisclosure()
     const toast = useToast()
-    const [loading, setLoading] = useState(false)
-    const [customers, setCustomers] = useState([])
-
-    const builderId = data?.id || ""
+    const [saving, setSaving] = useState(false)
+    const [builders, setBuilders] = useState([])
 
     const TYPE_OPTIONS = useMemo(
         () => [
@@ -46,66 +44,71 @@ export default function LotCreate({ data, onSuccess }) {
         []
     )
 
-    const fetchCustomers = async () => {
-        try {
-            const response = await apiLocations.getCustomersPage(1, "all")
-            const records =
-                response?.data?.data?.records ??
-                response?.data?.records ??
-                response?.data?.data ??
-                response?.data ??
-                []
-            setCustomers(Array.isArray(records) ? records : [])
-        } catch (error) {
-            console.error("Ошибка загрузки заказчиков:", error)
-        }
-    }
-
-    useEffect(() => {
-        if (isOpen) {
-            fetchCustomers()
-        }
-    }, [isOpen])
-
     const [formData, setFormData] = useState({
         address: "",
         type: "",
         category: "",
         lot_number: "",
         lot_name: "",
-        customer_id: "",
-        builder_id: builderId,
+        customer_id: customerId || "",
+        builder_id: "",
         amount: "",
         note: "",
         start_date: "",
         end_date: "",
     })
     const [errors, setErrors] = useState({})
-    const selectedCustomerName = useMemo(() => {
-        if (!formData.customer_id) return ""
-        const found = customers.find((c) => String(c?.id) === String(formData.customer_id))
+
+    const selectedBuilderName = useMemo(() => {
+        if (!formData.builder_id) return ""
+        const found = builders.find((b) => String(b?.id) === String(formData.builder_id))
         return found?.name ? String(found.name) : ""
-    }, [customers, formData.customer_id])
+    }, [builders, formData.builder_id])
+
+    useEffect(() => {
+        if (!isOpen) return
+        setFormData((p) => ({ ...p, customer_id: customerId || "" }))
+    }, [customerId, isOpen])
+
+    const extractRecords = (res) => {
+        const data = res?.data
+        const records = data?.data?.records ?? data?.records ?? data?.data ?? data
+        return Array.isArray(records) ? records : []
+    }
+
+    const fetchBuilders = async () => {
+        try {
+            const res = await apiLotLocations.pageByType({ type: "company", searchName: "all", page: 1 })
+            setBuilders(extractRecords(res))
+        } catch (e) {
+            console.error("Error loading builders:", e)
+        }
+    }
+
+    useEffect(() => {
+        if (isOpen) fetchBuilders()
+    }, [isOpen])
 
     const handleChange = (e) => {
         const { name, value } = e.target
-        setFormData(prev => ({ ...prev, [name]: value }))
-        if (errors[name]) setErrors(prev => ({ ...prev, [name]: "" }))
+        setFormData((p) => ({ ...p, [name]: value }))
+        if (errors[name]) setErrors((p) => ({ ...p, [name]: "" }))
     }
 
     const handleNumberChange = (value) => {
-        setFormData(prev => ({ ...prev, amount: value }))
-        if (errors.amount) setErrors(prev => ({ ...prev, amount: "" }))
+        setFormData((p) => ({ ...p, amount: value }))
+        if (errors.amount) setErrors((p) => ({ ...p, amount: "" }))
     }
 
     const validate = () => {
         const newErrors = {}
         if (!formData.lot_name) newErrors.lot_name = "Lot nomi majburiy"
+        if (!formData.lot_number) newErrors.lot_number = "Lot raqami majburiy"
         if (!formData.address) newErrors.address = "Manzil majburiy"
         if (!formData.type) newErrors.type = "Turni tanlang"
         if (!formData.category) newErrors.category = "Kategoriyani tanlang"
-        if (!formData.customer_id) newErrors.customer_id = "Buyurtmachini tanlang"
-        if (!formData.builder_id) newErrors.builder_id = "Pudratchi ID si majburiy"
+        if (!formData.customer_id) newErrors.customer_id = "Buyurtmachi ID topilmadi"
+        if (!formData.builder_id) newErrors.builder_id = "Pudratchini tanlang"
         if (!formData.amount || Number(formData.amount) <= 0) newErrors.amount = "Summa to'g'ri emas"
         if (!formData.start_date) newErrors.start_date = "Boshlanish sanasi majburiy"
         if (!formData.end_date) newErrors.end_date = "Tugash sanasi majburiy"
@@ -119,8 +122,8 @@ export default function LotCreate({ data, onSuccess }) {
             category: "",
             lot_number: "",
             lot_name: "",
-            customer_id: "",
-            builder_id: builderId,
+            customer_id: customerId || "",
+            builder_id: "",
             amount: "",
             note: "",
             start_date: "",
@@ -135,38 +138,32 @@ export default function LotCreate({ data, onSuccess }) {
             setErrors(newErrors)
             return
         }
-
-        setLoading(true)
         try {
+            setSaving(true)
             const payload = {
                 ...formData,
                 amount: Number(formData.amount),
                 start_date: formData.start_date,
                 end_date: formData.end_date,
             }
-            const response = await apiLots.create(payload)
-            if (response?.status === 200 || response?.status === 201) {
-                toast({
-                    title: "Lot muvaffaqiyatli yaratildi",
-                    status: "success",
-                    duration: 3000,
-                })
+            const res = await apiLots.create(payload)
+            if (res?.status === 200 || res?.status === 201) {
+                toast({ title: "Lot muvaffaqiyatli yaratildi", status: "success", duration: 2500 })
                 resetForm()
                 onClose()
-                if (onSuccess) onSuccess()
+                onSuccess?.()
             } else {
                 throw new Error("Server javobi bilan xato")
             }
-        } catch (error) {
-            console.error("Error creating lot:", error)
+        } catch (e) {
             toast({
                 title: "Xatolik yuz berdi",
-                description: error.message,
+                description: e?.message,
                 status: "error",
                 duration: 5000,
             })
         } finally {
-            setLoading(false)
+            setSaving(false)
         }
     }
 
@@ -181,10 +178,10 @@ export default function LotCreate({ data, onSuccess }) {
                 onClose={onClose}
                 size="6xl"
                 title="Yangi lot"
-                subtitle="Lot rekvizitlari va buyurtmachini tanlang"
+                subtitle="Lot rekvizitlari va pudratchini tanlang"
                 headerIcon={Plus}
                 primaryLabel="Saqlash"
-                primaryLoading={loading}
+                primaryLoading={saving}
                 primaryLoadingText="Saqlanmoqda..."
                 primaryLeftIcon={<Icon as={Plus} boxSize={4} />}
                 onPrimary={handleSubmit}
@@ -197,8 +194,8 @@ export default function LotCreate({ data, onSuccess }) {
                             <FormErrorMessage>{errors.lot_name}</FormErrorMessage>
                         </FormControl>
 
-                        <FormControl isInvalid={errors.lot_number}>
-                            <FormLabel>Lot raqami</FormLabel>
+                        <FormControl isInvalid={errors.lot_number} isRequired>
+                            <FormLabel>Lot raqami *</FormLabel>
                             <Input name="lot_number" value={formData.lot_number} onChange={handleChange} />
                             <FormErrorMessage>{errors.lot_number}</FormErrorMessage>
                         </FormControl>
@@ -222,8 +219,10 @@ export default function LotCreate({ data, onSuccess }) {
                                 pr="8"
                                 icon={<ChevronDown size={18} />}
                             >
-                                {TYPE_OPTIONS.map(opt => (
-                                    <option key={opt} value={opt}>{opt}</option>
+                                {TYPE_OPTIONS.map((opt) => (
+                                    <option key={opt} value={opt}>
+                                        {opt}
+                                    </option>
                                 ))}
                             </Select>
                             <FormErrorMessage>{errors.type}</FormErrorMessage>
@@ -240,8 +239,10 @@ export default function LotCreate({ data, onSuccess }) {
                                 pr="8"
                                 icon={<ChevronDown size={18} />}
                             >
-                                {CATEGORY_OPTIONS.map(opt => (
-                                    <option key={opt} value={opt}>{opt}</option>
+                                {CATEGORY_OPTIONS.map((opt) => (
+                                    <option key={opt} value={opt}>
+                                        {opt}
+                                    </option>
                                 ))}
                             </Select>
                             <FormErrorMessage>{errors.category}</FormErrorMessage>
@@ -249,17 +250,17 @@ export default function LotCreate({ data, onSuccess }) {
                     </SimpleGrid>
 
                     <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4} w="100%">
-                        <FormControl isInvalid={errors.customer_id} isRequired>
-                            <FormLabel>Buyurtmachi *</FormLabel>
+                        <FormControl isInvalid={errors.builder_id} isRequired>
+                            <FormLabel>Pudratchi *</FormLabel>
                             <Select
-                                name="customer_id"
-                                value={formData.customer_id}
+                                name="builder_id"
+                                value={formData.builder_id}
                                 onChange={handleChange}
-                                placeholder="Buyurtmachi tanlang"
+                                placeholder="Pudratchi tanlang"
                                 variant="outline"
                                 pr="8"
                                 icon={<ChevronDown size={18} />}
-                                title={selectedCustomerName || undefined}
+                                title={selectedBuilderName || undefined}
                                 sx={{
                                     maxWidth: "100%",
                                     overflow: "hidden",
@@ -267,11 +268,13 @@ export default function LotCreate({ data, onSuccess }) {
                                     whiteSpace: "nowrap",
                                 }}
                             >
-                                {customers.map(cust => (
-                                    <option key={cust.id} value={cust.id}>{cust.name}</option>
+                                {builders.map((b) => (
+                                    <option key={b.id} value={b.id}>
+                                        {b.name}
+                                    </option>
                                 ))}
                             </Select>
-                            <FormErrorMessage>{errors.customer_id}</FormErrorMessage>
+                            <FormErrorMessage>{errors.builder_id}</FormErrorMessage>
                         </FormControl>
 
                         <FormControl isInvalid={errors.amount} isRequired>
@@ -306,3 +309,4 @@ export default function LotCreate({ data, onSuccess }) {
         </>
     )
 }
+

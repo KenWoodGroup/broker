@@ -183,6 +183,7 @@ function PartyProfileCard({ title, party, headerIcon: HeaderIcon, onNavigate }) 
     }
 
     const act = activeLabel(party.is_active);
+    const isPending = String(party?.is_active ?? "").toLowerCase() === "pending";
     const fields = [
         { icon: MapPin, label: "Manzil", value: party.address },
         { icon: Phone, label: "Telefon", value: party.phone },
@@ -239,7 +240,7 @@ function PartyProfileCard({ title, party, headerIcon: HeaderIcon, onNavigate }) 
                         <Badge colorScheme="purple" fontSize="sm" px={2} py={0.5} borderRadius="md">
                             {typeBadgeLabel(party.type)}
                         </Badge>
-                        {party.is_active ? (
+                        {party.is_active && !isPending ? (
                             <Badge colorScheme="orange" variant="subtle" fontSize="sm">
                                 {act ?? party.is_active}
                             </Badge>
@@ -416,7 +417,7 @@ export default function LotDetailPage() {
                             <>
                                 <HStack spacing={2} align="center" mb={1}>
                                     <Icon as={Package} boxSize={6} color="blue.500" />
-                                    <Heading size="lg" noOfLines={2}>
+                                    <Heading size="20px" noOfLines={2}>
                                         {title}
                                     </Heading>
                                 </HStack>
@@ -436,28 +437,11 @@ export default function LotDetailPage() {
                 </Center>
             ) : (
                 <VStack align="stretch" spacing={5}>
-                    <HStack spacing={2} flexWrap="wrap">
-                        <Badge colorScheme="blue" fontSize="sm" px={2} py={1} borderRadius="md">
-                            {amount}
-                        </Badge>
-                        {type ? (
-                            <Badge colorScheme="purple" variant="subtle" fontSize="sm">
-                                {type}
-                            </Badge>
-                        ) : null}
-                        {category ? (
-                            <Badge colorScheme="cyan" variant="subtle" fontSize="sm">
-                                {category}
-                            </Badge>
-                        ) : null}
-                    </HStack>
-
-                    <Text fontSize="sm" color={heroMuted}>
-                        Muddat:{" "}
-                        <Text as="span" fontWeight="medium" color="text">
-                            {start} — {end}
-                        </Text>
-                    </Text>
+                    <SimpleGrid columns={{ base: 1, sm: 2, lg: 3 }} spacing={3}>
+                        <DetailCell label="Summa" value={amount} icon={Wallet} />
+                        {type ? <DetailCell label="Turi" value={type} icon={Package} /> : null}
+                        {category ? <DetailCell label="Kategoriya" value={category} icon={Clock} /> : null}
+                    </SimpleGrid>
 
                     <Divider />
 
