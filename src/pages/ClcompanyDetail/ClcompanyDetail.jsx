@@ -102,7 +102,7 @@ export default function ClcompanyDetail({ role }) {
             label: "Obyektlar",
             icon: <MapPin size={18} />,
             component: (
-                <ConstructionSites role={role} companyId={id} />
+                <ConstructionSites data={data} role={role} companyId={id} />
             )
         },
         {

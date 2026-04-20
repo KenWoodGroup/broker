@@ -17,6 +17,7 @@ import {
     VStack,
     useColorModeValue,
     useToast,
+    Button,
 } from "@chakra-ui/react";
 import {
     ArrowLeft,
@@ -30,6 +31,7 @@ import {
     Phone,
     User,
     Wallet,
+    ExternalLink,
 } from "lucide-react";
 import { apiLots } from "../../utils/Controllers/Lots";
 
@@ -45,28 +47,45 @@ function formatMoneyUz(amount) {
     return `${n.toLocaleString("uz-UZ")} so'm`;
 }
 
-function formatDateUz(v) {
-    if (!v) return "—";
-    const d = new Date(typeof v === "string" ? v : v);
-    if (Number.isNaN(d.getTime())) return String(v);
-    return d.toLocaleDateString("uz-UZ", {
-        year: "numeric",
-        month: "long",
-        day: "numeric",
-    });
-}
-
-function formatDateTimeUz(v) {
+// Faqat sana: dd.mm.yyyy (vaqtsiz)
+function formatDateOnly(v) {
     if (!v) return "—";
     const d = new Date(v);
     if (Number.isNaN(d.getTime())) return String(v);
-    return d.toLocaleString("uz-UZ", {
-        year: "numeric",
-        month: "short",
-        day: "2-digit",
-        hour: "2-digit",
-        minute: "2-digit",
-    });
+    const day = String(d.getDate()).padStart(2, "0");
+    const month = String(d.getMonth() + 1).padStart(2, "0");
+    const year = d.getFullYear();
+    return `${day}.${month}.${year}`;
+}
+
+// Qolgan muddatni hisoblash (yil, oy, kun)
+function getRemainingTime(endDateStr) {
+    if (!endDateStr) return "";
+    const now = new Date();
+    const end = new Date(endDateStr);
+    if (isNaN(end.getTime())) return "Noto‘g‘ri sana";
+    if (end <= now) return "Tugagan";
+
+    let years = end.getFullYear() - now.getFullYear();
+    let months = end.getMonth() - now.getMonth();
+    let days = end.getDate() - now.getDate();
+
+    if (days < 0) {
+        months--;
+        const prevMonthDate = new Date(end.getFullYear(), end.getMonth(), 0).getDate();
+        days += prevMonthDate;
+    }
+    if (months < 0) {
+        years--;
+        months += 12;
+    }
+
+    const parts = [];
+    if (years > 0) parts.push(`${years} yil`);
+    if (months > 0) parts.push(`${months} oy`);
+    if (days > 0) parts.push(`${days} kun`);
+    if (parts.length === 0) return "Bugun tugaydi";
+    return `${parts.join(" ")} qoldi`;
 }
 
 function pickTitle(lot) {
@@ -113,7 +132,6 @@ function activeLabel(v) {
     return ACTIVE_LABEL_UZ[k] ?? String(v);
 }
 
-/** CompanyInfo (ClcompanyDetail) bilan bir xil qator ko‘rinishi */
 function ProfileInfoItem({ icon: IconSvg, label, value }) {
     const iconBg = useColorModeValue("blue.50", "blue.900");
     const iconColor = useColorModeValue("blue.500", "blue.200");
@@ -139,7 +157,7 @@ function ProfileInfoItem({ icon: IconSvg, label, value }) {
     );
 }
 
-function PartyProfileCard({ title, party, headerIcon: HeaderIcon }) {
+function PartyProfileCard({ title, party, headerIcon: HeaderIcon, onNavigate }) {
     const borderCol = useColorModeValue("gray.200", "gray.600");
     const cardBg = useColorModeValue("white", "gray.800");
     const headerIconBg = useColorModeValue("blue.50", "blue.900");
@@ -175,16 +193,15 @@ function PartyProfileCard({ title, party, headerIcon: HeaderIcon }) {
             label: "Balans",
             value: party.balance != null && party.balance !== "" ? `${party.balance}` : null,
         },
-        { icon: Hash, label: "ID", value: party.id },
         {
             icon: Clock,
             label: "Yaratilgan",
-            value: formatDateTimeUz(party.createdAt ?? party.created_at),
+            value: formatDateOnly(party.createdAt ?? party.created_at),
         },
         {
             icon: Clock,
             label: "Yangilangan",
-            value: formatDateTimeUz(party.updatedAt ?? party.updated_at),
+            value: formatDateOnly(party.updatedAt ?? party.updated_at),
         },
     ];
 
@@ -227,6 +244,17 @@ function PartyProfileCard({ title, party, headerIcon: HeaderIcon }) {
                                 {act ?? party.is_active}
                             </Badge>
                         ) : null}
+                        {onNavigate && party.id && (
+                            <Button
+                                size="sm"
+                                variant="outline"
+                                rightIcon={<ExternalLink size={14} />}
+                                onClick={() => onNavigate(party.id)}
+                                colorScheme="blue"
+                            >
+                                Ko‘rish
+                            </Button>
+                        )}
                     </HStack>
                 </Flex>
             </Box>
@@ -241,7 +269,7 @@ function PartyProfileCard({ title, party, headerIcon: HeaderIcon }) {
     );
 }
 
-function DetailCell({ label, value, icon: IconComp, mono = false }) {
+function DetailCell({ label, value, icon: IconComp, mono = false, extraBadge = null }) {
     const panelBg = useColorModeValue("gray.50", "whiteAlpha.100");
     const borderCol = useColorModeValue("gray.200", "whiteAlpha.200");
     const display =
@@ -278,6 +306,7 @@ function DetailCell({ label, value, icon: IconComp, mono = false }) {
             >
                 {display}
             </Text>
+            {extraBadge && <Box mt={2}>{extraBadge}</Box>}
         </Box>
     );
 }
@@ -338,10 +367,29 @@ export default function LotDetailPage() {
     const category = lot?.category ?? lot?.lot_category;
     const amount = formatMoneyUz(lot?.amount ?? lot?.sum ?? lot?.total_sum);
     const address = lot?.address;
-    const start = formatDateUz(lot?.start_date ?? lot?.startDate);
-    const end = formatDateUz(lot?.end_date ?? lot?.endDate);
+    const startRaw = lot?.start_date ?? lot?.startDate;
+    const endRaw = lot?.end_date ?? lot?.endDate;
+    const start = formatDateOnly(startRaw);
+    const end = formatDateOnly(endRaw);
+    const remaining = getRemainingTime(endRaw);
     const note = lot?.note ?? lot?.description;
     const lotInn = lot?.inn ?? lot?.customer_inn ?? "";
+
+    const remainingBadge = remaining ? (
+        <Badge colorScheme={remaining === "Tugagan" ? "red" : "green"} variant="subtle" fontSize="xs">
+            {remaining}
+        </Badge>
+    ) : null;
+
+    const handleNavigateToParty = (partyId, partyType) => {
+        // Agar kompaniya detallari uchun maxsus route mavjud bo‘lsa, shu yerga yozing
+        // Misol uchun: /company/:id yoki /customer/:id
+        if (partyType === "customer") {
+            navigate(`/customers/${partyId}`);
+        } else {
+            navigate(`/company-detail//${partyId}`);
+        }
+    };
 
     return (
         <Box pl="20px" pr="20px" pb="20px" pt="20px">
@@ -372,14 +420,6 @@ export default function LotDetailPage() {
                                         {title}
                                     </Heading>
                                 </HStack>
-                                <Text fontSize="sm" color="gray.600">
-                                    Lot raqami: {lotNo}
-                                    {id ? (
-                                        <Text as="span" fontFamily="mono" fontSize="xs" ml={2}>
-                                            · {id}
-                                        </Text>
-                                    ) : null}
-                                </Text>
                             </>
                         )}
                     </Box>
@@ -425,7 +465,12 @@ export default function LotDetailPage() {
                         <DetailCell label="Manzil" value={address} icon={MapPin} />
                         <DetailCell label="Lot raqami" value={lotNo} icon={Hash} />
                         <DetailCell label="Boshlanish" value={start} icon={CalendarRange} />
-                        <DetailCell label="Tugash" value={end} icon={CalendarRange} />
+                        <DetailCell
+                            label="Tugash"
+                            value={end}
+                            icon={CalendarRange}
+                            extraBadge={remainingBadge}
+                        />
                         {lotInn ? (
                             <DetailCell label="Lot bo‘yicha INN" value={lotInn} icon={Hash} />
                         ) : null}
@@ -434,8 +479,18 @@ export default function LotDetailPage() {
                     <Divider />
 
                     <VStack align="stretch" spacing={6}>
-                        <PartyProfileCard title="Buyurtmachi" party={lot?.customer} headerIcon={User} />
-                        <PartyProfileCard title="Quruvchi" party={lot?.builder} headerIcon={Building2} />
+                        <PartyProfileCard
+                            title="Buyurtmachi"
+                            party={lot?.customer}
+                            headerIcon={User}
+                            onNavigate={(partyId) => handleNavigateToParty(partyId, "customer")}
+                        />
+                        <PartyProfileCard
+                            title="Quruvchi"
+                            party={lot?.builder}
+                            headerIcon={Building2}
+                            onNavigate={(partyId) => handleNavigateToParty(partyId, "builder")}
+                        />
                     </VStack>
 
                     {note ? (
@@ -456,8 +511,6 @@ export default function LotDetailPage() {
                     ) : null}
 
                     <Divider />
-
-          
                 </VStack>
             )}
         </Box>
