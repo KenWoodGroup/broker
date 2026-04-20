@@ -23,8 +23,8 @@ class apiInvoices {
     return response;
   };
   
-  static UploadSalePriceExcel = async (data) => {
-  const response = await $api.post(`/erp/stock-sale-type/upload-excel`, data, {
+  static UploadSalePriceExcel = async (warehouseId, data) => {
+  const response = await $api.post(`/erp/stock-sale-type/upload-excel?warehouse_id=${warehouseId}`, data, {
     headers: {
       "Content-Type": "multipart/form-data",
     },

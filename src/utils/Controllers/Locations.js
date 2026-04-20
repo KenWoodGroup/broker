@@ -9,6 +9,10 @@ class apiLocations {
         const response = await $api.get(`${BASE_URL}/api/erp/filter/page?${params.toString()}`)
         return response;
     }
+    static GetCustomer = async (name) => {
+        const response = await $api.get(`${BASE_URL}/api/locations/by-name/customer/${name}`)
+        return response;
+    }
     static pageFactoryWarehouses = async (page, factoryId) => {
         const response = await $api.get(`${BASE_URL}/api/erp/locations/warehouse/${factoryId}/page?page=${page}`)
         return response;
@@ -81,8 +85,8 @@ class apiLocations {
         const response = await $api.get(`${BASE_URL}/api/locations/address?address=${address}&searchName=${search}&page=${page}`,)
         return response;
     }
-    static FilterCompany = async (address, search, activeType, page) => {
-        const response = await $api.get(`${BASE_URL}/api/locations/filter?address=${address}&searchName=${search}&activeType=${activeType}&page=${page}`,)
+    static FilterCompany = async (address, search, activeType, lot, page) => {
+        const response = await $api.get(`${BASE_URL}/api/locations/filter?address=${address}&searchName=${search}&activeType=${activeType}&lot=${lot}&page=${page}`,)
         return response;
     }
 

@@ -26,6 +26,7 @@ import { PencilLine, Plus, Search, Trash2, X } from "lucide-react";
 import PaginationBar from "../../components/common/PaginationBar";
 import { LotCardIconRows } from "../../components/common/EntityCardDetailRows";
 import CreateExel from "./_components/CreateExel";
+import regions from "../../constants/regions/regions.json";
 
 export default function LotCreatorLots() {
     const navigate = useNavigate();
@@ -63,12 +64,12 @@ export default function LotCreatorLots() {
         type: "",
         category: "",
         searchName: "",
+        address: "",      // добавлен фильтр по региону
         page: 1,
     });
     const requestSeq = useRef(0);
 
     const extractList = (res) => {
-        // backend can be: {data:{data:{records, pagination}}} or {data:{records, pagination}} or array
         const data = res?.data;
         const records = data?.data?.records ?? data?.records ?? data?.data ?? data;
         const pag = data?.data?.pagination ?? data?.pagination ?? null;
@@ -82,28 +83,16 @@ export default function LotCreatorLots() {
         const seq = ++requestSeq.current;
         try {
             setLoading(true);
+            // Если регион не выбран – передаём "all", иначе выбранное значение name_uz
+            const addressValue = next.address !== undefined ? next.address : filters.address;
             const params = {
                 type: next.type ?? filters.type ?? undefined,
                 category: next.category ?? filters.category ?? undefined,
                 searchName: (next.searchName ?? filters.searchName)?.trim() || undefined,
                 page: next.page ?? filters.page ?? 1,
+                address: addressValue === "" ? "all" : addressValue,   // ключевое изменение
             };
             const res = await apiLots.filter(params);
-            if (seq === requestSeq.current) {
-                const list = extractList(res);
-                setLots(list.records);
-                setPagination(list.pagination);
-            }
-        } finally {
-            if (seq === requestSeq.current) setLoading(false);
-        }
-    };
-
-    const fetchFiltered = async (nextFilters) => {
-        const seq = ++requestSeq.current;
-        try {
-            setLoading(true);
-            const res = await apiLots.filter(nextFilters);
             if (seq === requestSeq.current) {
                 const list = extractList(res);
                 setLots(list.records);
@@ -119,16 +108,14 @@ export default function LotCreatorLots() {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
-    // Auto-fetch on filter change (debounced for searchName)
+    // Авто-запрос при изменении фильтров (с debounce для searchName)
     useEffect(() => {
         const t = setTimeout(() => {
-            // always use filter endpoint
             fetchLots();
         }, 350);
-
         return () => clearTimeout(t);
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [filters.type, filters.category, filters.searchName, filters.page]);
+    }, [filters.type, filters.category, filters.searchName, filters.address, filters.page]);
 
     const formatMoneyUz = (amount) => {
         if (amount === null || amount === undefined || amount === "") return "—";
@@ -269,6 +256,25 @@ export default function LotCreatorLots() {
                     ))}
                 </Select>
 
+                {/* НОВЫЙ ФИЛЬТР ПО РЕГИОНУ (address) */}
+                <Select
+                    size="md"
+                    maxW="280px"
+                    flex="1 1 220px"
+                    value={filters.address}
+                    onChange={(e) => setFilters((p) => ({ ...p, address: e.target.value, page: 1 }))}
+                    placeholder="Viloyat (hammasi)"
+                    bg={inputBg}
+                    borderRadius="8px"
+                    borderColor={borderCol}
+                >
+                    {regions.map((region) => (
+                        <option key={region.id} value={region.name_uz}>
+                            {region.name_uz}
+                        </option>
+                    ))}
+                </Select>
+
                 <Badge colorScheme="blue" px={3} py={1} borderRadius="full" fontSize="sm" fontWeight="semibold">
                     {loading ? (
                         <Flex align="center" gap={1}>
@@ -280,7 +286,7 @@ export default function LotCreatorLots() {
                 </Badge>
             </Flex>
 
-            {/* LIST */}
+            {/* LIST (без изменений) */}
             <Box>
                 {loading ? (
                     <Flex justify="center" py="50px">
@@ -383,7 +389,7 @@ export default function LotCreatorLots() {
                 )}
             </Box>
 
-            {/* PAGINATION (bottom) */}
+            {/* PAGINATION */}
             {pagination ? (
                 <PaginationBar
                     mt="30px"
@@ -393,6 +399,7 @@ export default function LotCreatorLots() {
                     onPageChange={(p) => setFilters((prev) => ({ ...prev, page: p }))}
                 />
             ) : null}
+
             <CreateLotModal
                 isOpen={createLotModal.isOpen}
                 onClose={createLotModal.onClose}
@@ -431,4 +438,3 @@ export default function LotCreatorLots() {
         </Box>
     );
 }
-

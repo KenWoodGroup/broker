@@ -59,6 +59,13 @@ const STATUS_TYPES = [
     { value: "active", label: "Aktiv" },
 ]
 
+// Options for "hasLot" filter
+const HAS_LOT_OPTIONS = [
+    { value: "all", label: "Hammasi" },
+    { value: "true", label: "Ob’ekti bor" },
+    { value: "false", label: "Ob’ekti yo‘q" },
+]
+
 const isAdmin = (role) => role === "Admin"
 
 // Ключи для sessionStorage
@@ -67,7 +74,8 @@ const STORAGE_KEYS = {
     SEARCH: "companies_search",
     SEARCH_INPUT: "companies_search_input",
     REGION: "companies_region",
-    ACTIVE_TYPE: "companies_active_type"
+    ACTIVE_TYPE: "companies_active_type",
+    HAS_LOT: "companies_has_lot",      // новый ключ
 }
 
 export default function Clcompany({ role }) {
@@ -102,6 +110,12 @@ export default function Clcompany({ role }) {
         return saved || "all"
     })
 
+    // Новый фильтр: наличие объектов (hasLot)
+    const [hasLotFilter, setHasLotFilter] = useState(() => {
+        const saved = sessionStorage.getItem(STORAGE_KEYS.HAS_LOT)
+        return saved || "all"
+    })
+
     const debounceRef = useRef(null)
     const navigate = useNavigate()
 
@@ -128,15 +142,24 @@ export default function Clcompany({ role }) {
         }
     }, [selectedActiveType, role])
 
+    // Сохраняем фильтр hasLot
+    useEffect(() => {
+        sessionStorage.setItem(STORAGE_KEYS.HAS_LOT, hasLotFilter)
+    }, [hasLotFilter])
+
     // ─── Запрос данных ───────────────────────────────────────────────────────
     const fetchCompanies = useCallback(
-        async (pageNumber, searchTerm, region, activeType) => {
+        async (pageNumber, searchTerm, region, activeType, hasLot) => {
             try {
                 setLoading(true)
+                // Предполагается, что apiLocations.FilterCompany принимает 5 параметров:
+                // region, searchTerm, activeType, hasLot, page
+                // Если в реальности сигнатура другая – поправьте под свой API
                 const response = await apiLocations.FilterCompany(
                     region,
                     searchTerm,
                     activeType,
+                    hasLot,    // теперь передаём фильтр по наличию объектов
                     pageNumber
                 )
                 setCompanies(response.data.data.records)
@@ -147,13 +170,13 @@ export default function Clcompany({ role }) {
                 setLoading(false)
             }
         },
-        [] // зависимостей нет — функция стабильна
+        [] // функция стабильна
     )
 
     // При любом изменении фильтров / страницы — перезапрашиваем
     useEffect(() => {
-        fetchCompanies(page, search, selectedRegion, selectedActiveType)
-    }, [page, search, selectedRegion, selectedActiveType, fetchCompanies])
+        fetchCompanies(page, search, selectedRegion, selectedActiveType, hasLotFilter)
+    }, [page, search, selectedRegion, selectedActiveType, hasLotFilter, fetchCompanies])
 
     // Cleanup debounce при анмаунте
     useEffect(() => {
@@ -184,6 +207,11 @@ export default function Clcompany({ role }) {
         setPage(1)
     }
 
+    const handleHasLotChange = (e) => {
+        setHasLotFilter(e.target.value === "" ? "all" : e.target.value)
+        setPage(1)
+    }
+
     const handleRowClick = (item) => {
         const path = isAdmin(role)
             ? `/company-detail/${item.id}`
@@ -192,11 +220,11 @@ export default function Clcompany({ role }) {
     }
 
     const refreshCurrent = () =>
-        fetchCompanies(page, search, selectedRegion, selectedActiveType)
+        fetchCompanies(page, search, selectedRegion, selectedActiveType, hasLotFilter)
 
     // ─── Render ───────────────────────────────────────────────────────────────
     return (
-        <Box py="20px" pr="20px" pl="10px" >
+        <Box py="20px" pr="20px" pl="10px">
             {/* Заголовок */}
             <Flex justifyContent="space-between" mb="20px">
                 <Heading size="lg">Kompaniyalar</Heading>
@@ -266,20 +294,33 @@ export default function Clcompany({ role }) {
                         onChange={handleActiveTypeChange}
                     >
                         {isAdmin(role) ? (
-                            // Admin sees all statuses including delete
                             ACTIVE_TYPES.map((type) => (
                                 <option key={type.value} value={type.value}>
                                     {type.label}
                                 </option>
                             ))
                         ) : (
-                            // Non-admin sees only pending and active
                             STATUS_TYPES.map((type) => (
                                 <option key={type.value} value={type.value}>
                                     {type.label}
                                 </option>
                             ))
                         )}
+                    </Select>
+                </Box>
+
+                {/* НОВЫЙ ФИЛЬТР: наличие объектов */}
+                <Box w="220px">
+                    <Select
+                        placeholder="Ob’ekt (Hammasi)"
+                        value={hasLotFilter === "all" ? "" : hasLotFilter}
+                        onChange={handleHasLotChange}
+                    >
+                        {HAS_LOT_OPTIONS.map((opt) => (
+                            <option key={opt.value} value={opt.value}>
+                                {opt.label}
+                            </option>
+                        ))}
                     </Select>
                 </Box>
             </Flex>
@@ -360,7 +401,6 @@ export default function Clcompany({ role }) {
                                                 refresh={refreshCurrent}
                                             />
                                         </Td>
-
 
                                         <Td onClick={(e) => e.stopPropagation()}>
                                             <ContactPhone

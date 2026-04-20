@@ -193,9 +193,9 @@ const WarehouseStockPage = () => {
       let response;
 
       if (actionType === "update") {
-        response = await apiInvoices.UploadSalePriceExcel(formData);
+        response = await apiInvoices.UploadSalePriceExcel(warehouseId, formData);
       } else {
-        response = await apiInvoices.UploadExel(invoiceId, formData);
+        response = await apiInvoices.UploadExel( invoiceId, formData);
       }
 
       setUploadResult(response.data);
