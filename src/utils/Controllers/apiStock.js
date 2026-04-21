@@ -9,6 +9,8 @@ class apiStock {
       name: data?.name || "",
       address: data?.address || "all",
     });
+  static GetStock = async (data) => {
+    let url = `/erp/search?type=product&address=1&name=${data?.name}&page=${data?.page}`;
 
     if (data?.location_id) {
       params.append("location_id", data.location_id);

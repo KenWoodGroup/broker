@@ -5,6 +5,14 @@ class apiOfferItems {
         const response = await $api.get(`${BASE_URL}/api/offer-items`)
         return response;
     }
+    static getByUser = async (status, page, limit) => {
+        const response = await $api.get(`${BASE_URL}/api/offer-items/supplier?status=${status}&page=${page}&limit=${limit}`)
+        return response;
+    }
+    static updateStatus = async (id, data) => {
+        const response = await $api.put(`${BASE_URL}/api/offer-items/${id}`, data)
+        return response;
+    }
 }
 
 export { apiOfferItems };
