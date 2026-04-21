@@ -9,18 +9,7 @@ class apiStock {
       name: data?.name || "",
       address: data?.address || "all",
     });
-  static GetStock = async (data) => {
-    let url = `/erp/search?type=product&address=1&name=${data?.name}&page=${data?.page}`;
-
-    if (data?.location_id) {
-      params.append("location_id", data.location_id);
-    }
-
-    const response = await $api.get(
-      `${BASE_URL}/api/erp/search?${params.toString()}`
-    );
-
-    return response;
+    return await $api.get(`${BASE_URL}/api/erp/search?${params.toString()}`);
   };
   static GetByLocationId = async (locationId, page) => {
     const response = await $api.get(
