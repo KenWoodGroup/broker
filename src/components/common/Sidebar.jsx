@@ -27,8 +27,6 @@ import {
 import { useAuth } from "../../hooks/useAuth";
 import { useAuthStore } from "../../store/authStore";
 import { useUIStore } from "../../store/useUIStore";
-import { changeLanguage } from "i18next";
-import { useTranslation } from "react-i18next";
 import LogoutModal from "./LogoutModal";
 
 
