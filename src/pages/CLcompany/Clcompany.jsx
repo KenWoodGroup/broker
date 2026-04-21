@@ -356,7 +356,6 @@ export default function Clcompany({ role }) {
                                 <Tr>
                                     <Th>#</Th>
                                     <Th>Nomi</Th>
-                                    <Th>Turi</Th>
                                     <Th>Manzil</Th>
                                     <Th>Status</Th>
                                     <Th></Th>
@@ -376,19 +375,6 @@ export default function Clcompany({ role }) {
                                         <Td>{(page - 1) * 10 + index + 1}</Td>
 
                                         <Td fontWeight="medium">{item.name}</Td>
-
-                                        <Td>
-                                            <Badge
-                                                colorScheme={
-                                                    item.type === "company" ? "blue"
-                                                        : item.type === "builder" ? "green"
-                                                            : "purple"
-                                                }
-                                                textTransform="capitalize"
-                                            >
-                                                {item.type}
-                                            </Badge>
-                                        </Td>
 
                                         <Td maxW="250px">
                                             <Text noOfLines={1}>{item.address}</Text>

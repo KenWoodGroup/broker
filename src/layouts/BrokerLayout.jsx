@@ -6,7 +6,7 @@ import { Home, Inbox, Building2, Map, Search, ListOrdered, WalletCards  } from "
 
 const links = [
     { label: "Buyurtmalar", to: "/operator/offers", icon: ListOrdered, end: false },
-    { label: "Vazifalar", to: "/operator/tasks", icon: WalletCards, end: false },
+    // { label: "Vazifalar", to: "/operator/tasks", icon: WalletCards, end: false },
 
     // { label: "Qurilish obektlari", to: "https://dshk.shaffofqurilish.uz", icon: Map, end: true },
     // { label: "Qidiruv", to: "/operator/search", icon: Search },

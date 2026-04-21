@@ -7,6 +7,10 @@ class apiLots {
         const response = await $api.get(`/lots`, { params });
         return response;
     };
+    static GetByParent = async (id) => {
+        const response = await $api.get(`/lots/name?parent_id=${id}`);
+        return response;
+    };
     static GetLotsByParent = async (id, page = 1) => {
         const response = await $api.get(`/lots?parent_id=${id}&page=${page}`);
         return response;
