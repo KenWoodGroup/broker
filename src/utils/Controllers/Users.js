@@ -21,6 +21,10 @@ class apiUsers {
         const response = await $api.get(`${BASE_URL}/api/user/supplier?page=${page}`);
         return response;
     }
+    static GetUserRole = async (role)=> {
+        const response = await $api.get(`${BASE_URL}/api/user/all?role=${role}`);
+        return response;
+    }
     static getLotCreators = async (page) => {
         try {
             const response = await $api.get(`${BASE_URL}/api/user/lot-creator?page=${page}`);

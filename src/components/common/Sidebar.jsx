@@ -28,6 +28,7 @@ import { useAuth } from "../../hooks/useAuth";
 import { useAuthStore } from "../../store/authStore";
 import { useUIStore } from "../../store/useUIStore";
 import LogoutModal from "./LogoutModal";
+import { useTranslation } from "react-i18next";
 
 
 export default function Sidebar({ collapsed, links = [], end }) {

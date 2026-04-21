@@ -2,14 +2,22 @@ import axios from "axios";
 import { $api, BASE_URL } from "../api/axios";
 
 class apiStock {
-  static GetStock = async (data) => {
-    let url = `/erp/stock/broker?address=1&name=${data?.name}&page=${data?.page}`;
+  static GetStock = async (data = {}) => {
+    const params = new URLSearchParams({
+      page: data?.page || 1,
+      type: "product",
+      name: data?.name || "",
+      address: data?.address || "all",
+    });
 
     if (data?.location_id) {
-      url += `&location_id=${data.location_id}`;
+      params.append("location_id", data.location_id);
     }
 
-    const response = await $api.get(url);
+    const response = await $api.get(
+      `${BASE_URL}/api/erp/search?${params.toString()}`
+    );
+
     return response;
   };
   static GetByLocationId = async (locationId, page) => {
@@ -23,13 +31,13 @@ class apiStock {
     const response = await $api.get(`/erp/by-id/${id}`);
     return response;
   };
-  
+
   static UpdateSalePrice = async (saleTypeId, stockId, data) => {
     const response = await $api.put(
       `/erp/stock-sale-type/${saleTypeId}/${stockId}`,
       data,
       {
-      showSuccessToast: "Sotuv narxi yangilandi",
+        showSuccessToast: "Sotuv narxi yangilandi",
       },
     );
     return response;
