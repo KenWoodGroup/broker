@@ -45,6 +45,7 @@ export default function RatingEditModal({
     onClose,
     locationId,
     initialRating,
+    initialGrade,
     onUpdated,
 }) {
     const toast = useToast()
@@ -57,6 +58,7 @@ export default function RatingEditModal({
 
     const [saving, setSaving] = useState(false)
     const [rating, setRating] = useState("")
+    const [grade, setGrade] = useState("")
 
     const canSave = useMemo(() => {
         const i = toIntScore(rating)
@@ -76,34 +78,39 @@ export default function RatingEditModal({
             const score = Math.max(1, Math.min(5, Math.round(n)))
             setRating(String(score))
         }
+        if(!initialGrade) {
+            setGrade("")
+        } else {
+            setGrade(initialGrade)
+        }
     }, [isOpen, initialRating])
 
     const onSave = async () => {
         if (!locationId) return
-        const score = toIntScore(rating)
-        if (score == null) {
-            toast({
-                title: "Rating",
-                description: "Score son bo‘lishi kerak",
-                status: "warning",
-                duration: 3000,
-                isClosable: true,
-            })
-            return
-        }
-        if (score < 1 || score > 5) {
-            toast({
-                title: "Rating",
-                description: "Score 1..5 oralig‘ida bo‘lishi kerak",
-                status: "warning",
-                duration: 3000,
-                isClosable: true,
-            })
-            return
-        }
+        // const score = toIntScore(rating)
+        // if (score == null) {
+        //     toast({
+        //         title: "Rating",
+        //         description: "Score son bo‘lishi kerak",
+        //         status: "warning",
+        //         duration: 3000,
+        //         isClosable: true,
+        //     })
+        //     return
+        // }
+        // if (score < 1 || score > 5) {
+        //     toast({
+        //         title: "Rating",
+        //         description: "Score 1..5 oralig‘ida bo‘lishi kerak",
+        //         status: "warning",
+        //         duration: 3000,
+        //         isClosable: true,
+        //     })
+        //     return
+        // }
         try {
             setSaving(true)
-            await apiLocations.updateRating(locationId, { score })
+            await apiLocations.updateRating(locationId, { score:+rating, grade })
             onUpdated?.()
             onClose?.()
         } catch (e) {
@@ -162,7 +169,7 @@ export default function RatingEditModal({
                     <VStack align="stretch" spacing={4}>
                         <Box>
                             <Text fontSize="sm" fontWeight="semibold" mb={2}>
-                                Score
+                                Ball
                             </Text>
                             <Input
                                 type="number"
@@ -178,6 +185,18 @@ export default function RatingEditModal({
                             <Text fontSize="xs" color="gray.500" mt={2}>
                                 1 dan 5 gacha (butun son).
                             </Text>
+                        </Box>
+                        <Box>
+                            <Text fontSize="sm" fontWeight="semibold" mb={2}>
+                                Reyting
+                            </Text>
+                            <Input
+                                value={grade}
+                                onChange={(e) => setGrade(e.target.value)}
+                                borderRadius="lg"
+                                bg="bg"
+                                placeholder="AA BBB"
+                            />
                         </Box>
                     </VStack>
                 </ModalBody>

@@ -10,7 +10,7 @@ class apiOfferItems {
         return response;
     }
     static updateStatus = async (id, data) => {
-        const response = await $api.put(`${BASE_URL}/api/offer-items/${id}`, data)
+        const response = await $api.put(`${BASE_URL}/api/offer-items/status/${id}`, data)
         return response;
     }
 }

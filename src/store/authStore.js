@@ -2,6 +2,8 @@
 import { create } from "zustand";
 import Cookies from "js-cookie";
 
+const COOKIE_OPTIONS = { expires: 7 }; // 7 kun saqlanadi
+
 export const useAuthStore = create((set, get) => ({
     token: Cookies.get("token") || null,
     refreshToken: Cookies.get("refresh_token") || null,
@@ -14,12 +16,7 @@ export const useAuthStore = create((set, get) => ({
         Cookies.set("user_id", user.id);
         Cookies.set("user", JSON.stringify(user));
 
-        set({
-            token,
-            refreshToken,
-            userId: user.id,
-            user,
-        });
+        set({ token, refreshToken, userId: user.id, user });
     },
 
     setTokens: ({ token, refreshToken }) => {
@@ -38,14 +35,11 @@ export const useAuthStore = create((set, get) => ({
         Cookies.remove("refresh_token");
         Cookies.remove("user_id");
         Cookies.remove("user");
-
-        set({
-            token: null,
-            refreshToken: null,
-            userId: null,
-            user: null,
-        });
+        set({ token: null, refreshToken: null, userId: null, user: null });
     },
 
-    isAuthenticated: () => !!Cookies.get("token"),
+    // ✅ Funksiya emas, to'g'ridan-to'g'ri state'dan o'qiladi
+    get isAuthenticated() {
+        return !!get().token;
+    },
 }));
