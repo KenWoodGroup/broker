@@ -355,12 +355,12 @@ export default function Clcompany({ role }) {
                             <Thead>
                                 <Tr>
                                     <Th>#</Th>
+                                    <Th>Reyting</Th>
                                     <Th>Nomi</Th>
                                     <Th>Manzil</Th>
                                     <Th>Status</Th>
                                     <Th></Th>
                                     <Th>Telefon</Th>
-                                    {isAdmin(role) && <Th>Balans</Th>}
                                     <Th>Yaratilgan</Th>
                                     {isAdmin(role) && <Th>Amallar</Th>}
                                 </Tr>
@@ -372,9 +372,12 @@ export default function Clcompany({ role }) {
                                         onClick={() => handleRowClick(item)}
                                         cursor="pointer"
                                     >
-                                        <Td>{(page - 1) * 10 + index + 1}</Td>
+                                        <Td>{(page - 1) * 50 + index + 1}</Td>
+                                        <Td>{item.rating_grade ?? "!"} ({item.rating ?? "?"})</Td>
 
-                                        <Td fontWeight="medium">{item.name}</Td>
+                                        <Td fontWeight="medium" maxW={'600px'}>
+                                            <Text whiteSpace={'normal'}>{item.name}</Text>
+                                        </Td>
 
                                         <Td maxW="250px">
                                             <Text noOfLines={1}>{item.address}</Text>
@@ -396,12 +399,6 @@ export default function Clcompany({ role }) {
                                         </Td>
 
                                         <Td>{item.phone}</Td>
-
-                                        {isAdmin(role) && (
-                                            <Td fontWeight="semibold">
-                                                {Number(item.balance).toLocaleString()} so'm
-                                            </Td>
-                                        )}
 
                                         <Td>
                                             {new Date(item.createdAt).toLocaleDateString("uz-UZ")}

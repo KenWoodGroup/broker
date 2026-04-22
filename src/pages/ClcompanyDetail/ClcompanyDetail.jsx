@@ -137,6 +137,7 @@ export default function ClcompanyDetail({ role }) {
                 overflow="hidden"
                 mb={8}
             >
+                
                 <CardHeader bg={headerBg} py={4} px={6}>
                     <Flex justify="space-between" align="center">
                         <HStack spacing={4}>
@@ -190,7 +191,7 @@ export default function ClcompanyDetail({ role }) {
                                             py={1}
                                             fontSize="sm"
                                         >
-                                            {data?.rating_count ?? 0} ta baho
+                                            {data?.rating_grade ?? "Berilmagan"}
                                         </Badge>
 
                                     </HStack>
@@ -256,6 +257,7 @@ export default function ClcompanyDetail({ role }) {
                     onClose={ratingModal.onClose}
                     locationId={data.id}
                     initialRating={data?.rating}
+                    initialGrade={data?.rating_grade}
                     onUpdated={GetLocation}
                 />
             )}

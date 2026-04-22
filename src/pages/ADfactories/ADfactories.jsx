@@ -42,10 +42,11 @@ const CAT_DEBOUNCE = 400;
    API helper  (new endpoint: GET /api/erp/filter/page)
    params: searchTerm, page, addresses[] (strings), category_ids[] (UUIDs)
 ───────────────────────────────────────────────────────────────────────────── */
-async function apiFetchFilteredFactories(page, searchTerm, addresses, categoryIds) {
+async function apiFetchFilteredFactories(page, searchTerm, addresses, categoryIds, selectedPriceFreshness) {
     const params = new URLSearchParams();
     params.append("page", page);
     params.append("searchTerm", searchTerm || "");
+    params.append("price", selectedPriceFreshness || "all");
     addresses.forEach((addr) => params.append("addresses", addr));
     categoryIds.forEach((id) => params.append("category_ids", id));
 
@@ -313,6 +314,9 @@ export default function ADfactories({ reloadDependance, role = "admin" }) {
 
     /* ── Category filter ── */
     const [selectedCategories, setSelectedCategories] = useState([]); // [{id, name}]
+    // Price Freshness filter
+    const [selectedPriceFreshness, setSelectedPriceFreshness] = useState("all");
+
 
     /* ─── Pagination helpers ─── */
     const changePagination = useCallback(
@@ -343,10 +347,10 @@ export default function ADfactories({ reloadDependance, role = "admin" }) {
 
     /* ─── Fetch factories ─── */
     const fetchFactories = useCallback(
-        async (page, searchTerm, addressList, categoryIds) => {
+        async (page, searchTerm, addressList, categoryIds, selectedPriceFreshness) => {
             try {
                 setLoading(true);
-                const res = await apiFetchFilteredFactories(page, searchTerm, addressList, categoryIds);
+                const res = await apiFetchFilteredFactories(page, searchTerm, addressList, categoryIds, selectedPriceFreshness);
                 const d = res.data?.data ?? res.data; // supports both {data:{...}} and direct
                 setFactories(d.records ?? []);
                 setTotalPage(d.pagination?.total_pages ?? 1);
@@ -371,7 +375,8 @@ export default function ADfactories({ reloadDependance, role = "admin" }) {
             factoryPage,
             debouncedSearch,
             selectedAddresses.map((a) => a.label),
-            selectedCategories.map((c) => c.id)
+            selectedCategories.map((c) => c.id),
+            selectedPriceFreshness
         );
     }, [
         reloadDependance,
@@ -380,6 +385,7 @@ export default function ADfactories({ reloadDependance, role = "admin" }) {
         debouncedSearch,
         selectedAddresses,
         selectedCategories,
+        selectedPriceFreshness,
     ]);
 
     /* ─── Address: add ─── */
@@ -560,6 +566,19 @@ export default function ADfactories({ reloadDependance, role = "admin" }) {
                 >
                     Qo'shish
                 </Button>
+
+                {/* Vertical separator */}
+                <Box w="1px" h="36px" bg="gray.200" flexShrink={0} />
+                <Select
+                    value={selectedPriceFreshness}
+                    placeholder="Narx yangiliklari"
+                    maxW="200px"
+                    onChange={(e) => setSelectedPriceFreshness(e.target.value)}
+                >
+                    <option value="all">Hammasi</option>
+                    <option value="new">Yangi narxlar</option>
+                    <option value="old">Eski narxlar</option>
+                </Select>
 
                 {/* Clear all */}
                 {hasAnyFilter && (
