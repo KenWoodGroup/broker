@@ -15,32 +15,39 @@ import {
 import { apiOffers } from "../../../utils/Controllers/Offers";
 import { useNavigate } from "react-router";
 
-export default function EditStatus({ id, text, refresh, status }) {
+export default function EditStatus({ id, text, refresh }) {
     const [isOpen, setIsOpen] = useState(false);
     const [loading, setLoading] = useState(false);
     const toast = useToast();
-    const navigate = useNavigate()
+    const navigate = useNavigate();
 
     const onOpen = () => setIsOpen(true);
     const onClose = () => setIsOpen(false);
 
-    const PutStatus = async () => {
+    const handleCancel = async () => {
+        setLoading(true);
         try {
-            setLoading(true);
-            const data = {
-                status: status
-            };
-            const response = await apiOffers?.UpdateStatus(data, id);
-            toast({
-                title: "Muvaffaqiyatli",
-                description: "Holat muvaffaqiyatli o'zgartirildi",
-                status: "success",
-                duration: 3000,
-                isClosable: true,
-            });
+            await apiOffers.UpdateStatus(id, { status: "cancelled" });
+            toast({ title: "Buyurtma bekor qilindi", status: "success" });
             onClose();
             if (refresh) refresh();
-            navigate('/call-operator/orders')
+            navigate(-1);
+        } catch (err) {
+            toast({ title: "Xatolik", description: "Bekor qilishda xatolik", status: "error" });
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleNext = async () => {
+        setLoading(true);
+        try {
+            await apiOffers.UpdateStatus(id, { status: "contract_ready" });
+            toast({ title: "Holat o‘zgartirildi", status: "success" });
+            onClose();
+            if (refresh) refresh();
+        } catch (err) {
+            toast({ title: "Xatolik", description: "Holat o‘zgartirilmadi", status: "error" });
         } finally {
             setLoading(false);
         }
@@ -48,48 +55,28 @@ export default function EditStatus({ id, text, refresh, status }) {
 
     return (
         <>
-            {/* Button to open modal */}
-            <Button
-                variant="outline"
-                size="sm"
-                onClick={onOpen}
-            >
+            <Button variant="outline" size="sm" onClick={onOpen}>
                 O'zgartirish
             </Button>
-
-            {/* Modal */}
             <Modal isOpen={isOpen} onClose={onClose} isCentered>
                 <ModalOverlay />
                 <ModalContent>
-                    <ModalHeader>
-                        Holatni o'zgartirish
-                    </ModalHeader>
+                    <ModalHeader>Harakatni tanlang</ModalHeader>
                     <ModalCloseButton />
-
                     <ModalBody>
+                        <Text mb={4}>{text || "Quyidagi harakatlardan birini tanlang:"}</Text>
                         <VStack spacing={3} align="stretch">
-                            <Text>
-                                Holatni o'zgartirmoqchimisiz?
-                            </Text>
+                            <Button colorScheme="red" onClick={handleCancel} isLoading={loading} isDisabled={loading}>
+                                Bekor qilish
+                            </Button>
+                            <Button colorScheme="green" onClick={handleNext} isLoading={loading} isDisabled={loading}>
+                                Keyingi bosqichga o‘tkazish
+                            </Button>
                         </VStack>
                     </ModalBody>
-
                     <ModalFooter>
-                        <Button
-                            variant="ghost"
-                            onClick={onClose}
-                            isDisabled={loading}
-                            mr={3}
-                        >
-                            Yo'q
-                        </Button>
-                        <Button
-                            onClick={PutStatus}
-                            isLoading={loading}
-                            loadingText="Saqlanmoqda..."
-                            variant="solid"
-                        >
-                            Ha
+                        <Button variant="ghost" onClick={onClose} isDisabled={loading}>
+                            Yopish
                         </Button>
                     </ModalFooter>
                 </ModalContent>
