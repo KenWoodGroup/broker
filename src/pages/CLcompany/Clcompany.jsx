@@ -76,7 +76,9 @@ const STORAGE_KEYS = {
     REGION: "companies_region",
     ACTIVE_TYPE: "companies_active_type",
     HAS_LOT: "companies_has_lot",      // новый ключ
-}
+};
+
+
 
 export default function Clcompany({ role }) {
     const [companies, setCompanies] = useState([])
@@ -221,6 +223,7 @@ export default function Clcompany({ role }) {
 
     const refreshCurrent = () =>
         fetchCompanies(page, search, selectedRegion, selectedActiveType, hasLotFilter)
+
 
     // ─── Render ───────────────────────────────────────────────────────────────
     return (
@@ -373,7 +376,28 @@ export default function Clcompany({ role }) {
                                         cursor="pointer"
                                     >
                                         <Td>{(page - 1) * 50 + index + 1}</Td>
-                                        <Td>{item.rating_grade ?? "!"} ({item.rating ?? "?"})</Td>
+                                        <Td >
+                                            <Flex align="center" gap={1}>
+                                                <Text
+                                                fontWeight={'bold'}
+                                                    style={{
+                                                        color:
+                                                            +item.rating >= 65
+                                                                ? "oklch(72.3% .219 149.579)"
+                                                                : +item.rating >= 35
+                                                                    ? "oklch(79.5% .184 86.047)"
+                                                                    : +item.rating >= 20
+                                                                        ? "oklch(70.5% .213 47.604)"
+                                                                        : "oklch(63.7% .237 25.331)",
+                                                    }}
+                                                >
+                                                    {item.rating_grade ?? "!"}
+                                                </Text>
+                                                <Text >
+                                                    ({item.rating ?? "?"})
+                                                </Text>
+                                            </Flex>
+                                        </Td>
 
                                         <Td fontWeight="medium" maxW={'600px'}>
                                             <Text whiteSpace={'normal'}>{item.name}</Text>

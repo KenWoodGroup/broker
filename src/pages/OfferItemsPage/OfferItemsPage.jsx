@@ -5,6 +5,7 @@ import {
     useToast, IconButton, HStack, Divider
 } from "@chakra-ui/react";
 import { apiOfferItems } from "../../utils/Controllers/OfferItems";
+import { useNavigate } from "react-router";
 
 const TABS = [
     { status: "pending", label: "Yangi" },
@@ -63,7 +64,8 @@ function SkeletonCard() {
     );
 }
 
-function ItemCard({ item, onAction }) {
+function ItemCard({ item, onAction, tab }) {
+    const navigate = useNavigate();
     const [loading, setLoading] = useState(false);
     const toast = useToast();
     const action = ACTION_MAP[item.status];
@@ -159,24 +161,44 @@ function ItemCard({ item, onAction }) {
                             {qty ?? <Text as="span" fontStyle="italic" color="textSub" fontSize="12px">ko'rsatilmagan</Text>}
                         </Text>
                     </Text>
-                    {action && (
-                        <Button
-                            size="sm"
-                            variant="outline"
-                            fontSize="12px"
-                            fontWeight={500}
-                            color="link"
-                            borderColor="border"
-                            _hover={{ bg: useColorModeValue("rgba(0,136,230,0.07)", "rgba(0,136,230,0.15)") }}
-                            isLoading={loading}
-                            loadingText="Kutilmoqda..."
-                            onClick={handleAction}
-                            h="30px"
-                            px={3}
-                        >
-                            {action.label}
-                        </Button>
-                    )}
+                    <Flex align="center" gap={2}>
+                        {tab === "in_progress" && (
+                            <Button
+                                size="sm"
+                                variant="outline"
+                                fontSize="12px"
+                                fontWeight={500}
+                                color="link"
+                                borderColor="border"
+                                _hover={{ bg: useColorModeValue("rgba(0,136,230,0.07)", "rgba(0,136,230,0.15)") }}
+                                h="30px"
+                                px={3}
+                                onClick={() => {
+                                    navigate(`${item?.id}`)
+                                }}
+                            >
+                                +Variant
+                            </Button>
+                        )}
+                        {action && (
+                            <Button
+                                size="sm"
+                                variant="outline"
+                                fontSize="12px"
+                                fontWeight={500}
+                                color="link"
+                                borderColor="border"
+                                _hover={{ bg: useColorModeValue("rgba(0,136,230,0.07)", "rgba(0,136,230,0.15)") }}
+                                isLoading={loading}
+                                loadingText="Kutilmoqda..."
+                                onClick={handleAction}
+                                h="30px"
+                                px={3}
+                            >
+                                {action.label}
+                            </Button>
+                        )}
+                    </Flex>
                 </Flex>
             </Box>
         </Box>
@@ -336,7 +358,7 @@ export default function OfferItemsPage() {
             ) : (
                 <Grid templateColumns="repeat(auto-fill, minmax(280px, 1fr))" gap={3}>
                     {items.map(item => (
-                        <ItemCard key={item.id} item={item} onAction={() => fetch(tab, page, limit)} />
+                        <ItemCard key={item.id} item={item} onAction={() => fetch(tab, page, limit)} tab={tab} />
                     ))}
                 </Grid>
             )}

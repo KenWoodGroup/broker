@@ -3,6 +3,7 @@ import ADfactories from "../../pages/ADfactories/ADfactories";
 import ADfactoriesBycategory from "../../pages/ADfactoriesBycategory/ADfactoriesBycategory";
 import CLOffersCreate from "../../pages/CLOffersCreate/CLOffersCreate";
 import UnverifiedFactories from "../../pages/LeadFactory";
+import OrderItemDetail from "../../pages/OfferItemdetail/OfferItemdetail";
 import OfferItemsPage from "../../pages/OfferItemsPage/OfferItemsPage";
 import SPLRhome from "../../pages/SPLRhome/SPLRhome";
 
@@ -41,6 +42,11 @@ const supplierRoutes = [
         path: "orders",
         name: "orders",
         element: <OfferItemsPage/>
+    },
+    {
+        path: "orders/:id",
+        name: "order details",
+        element: <OrderItemDetail/>
     }
 ];
 export default supplierRoutes

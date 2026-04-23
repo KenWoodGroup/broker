@@ -8,6 +8,7 @@ class apiStock {
       type: "product",
       name: data?.name || "",
       address: data?.address || "all",
+      // location_id: data?.locationId || "all",
     });
     return await $api.get(`${BASE_URL}/api/erp/search?${params.toString()}`);
   };
