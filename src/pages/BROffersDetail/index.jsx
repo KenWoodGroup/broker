@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { apiOffers } from "../../utils/Controllers/Offers";
 import {
@@ -7,7 +7,6 @@ import {
     CardBody,
     Heading,
     Text,
-    Grid,
     SimpleGrid,
     Table,
     Thead,
@@ -32,11 +31,19 @@ import {
     AccordionButton,
     AccordionPanel,
     AccordionIcon,
+    Input,
+    AlertDialog,
+    AlertDialogBody,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogContent,
+    AlertDialogOverlay,
+    useDisclosure,
+    IconButton,
 } from "@chakra-ui/react";
 import {
     ArrowLeft,
     Building,
-    User,
     DollarSign,
     Package,
     Clock,
@@ -49,10 +56,11 @@ import {
     PenTool,
     Star,
     Settings,
+    Trash2,
+    Save,
 } from "lucide-react";
 import { apiOfferItems } from "../../utils/Controllers/OfferItems";
 
-// Статусы заказа с иконками из lucide-react
 const statusConfig = {
     new: { label: "Yangi", icon: Star, color: "blue" },
     in_progress: { label: "Jarayonda", icon: Settings, color: "orange" },
@@ -77,6 +85,15 @@ export default function BROffersDetail() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [updatingItemId, setUpdatingItemId] = useState(null);
+    
+    // Состояния для массового редактирования цен вариантов
+    const [salePrices, setSalePrices] = useState({}); // { variantId: numericPrice }
+    const [savingPricesItemId, setSavingPricesItemId] = useState(null);
+    
+    // Удаление варианта
+    const [deletingVariant, setDeletingVariant] = useState({ itemId: null, variantId: null });
+    const { isOpen: isDeleteDialogOpen, onOpen: onDeleteDialogOpen, onClose: onDeleteDialogClose } = useDisclosure();
+    const cancelRef = useRef();
 
     useEffect(() => {
         const fetchOffer = async () => {
@@ -84,6 +101,14 @@ export default function BROffersDetail() {
                 setLoading(true);
                 const response = await apiOffers.getOffer(id);
                 setOffer(response.data);
+                // Инициализируем salePrices из данных вариантов
+                const initialPrices = {};
+                response.data.offer_items?.forEach(item => {
+                    item.variants?.forEach(variant => {
+                        initialPrices[variant.id] = variant.sale_price || variant.cost_price || 0;
+                    });
+                });
+                setSalePrices(initialPrices);
             } catch (err) {
                 console.error(err);
                 setError("Ma'lumotlarni yuklashda xatolik yuz berdi");
@@ -101,19 +126,17 @@ export default function BROffersDetail() {
         if (id) fetchOffer();
     }, [id, toast]);
 
+    // Обновление статуса позиции на "variant_completed"
     const updateItemStatus = async (itemId) => {
         try {
             setUpdatingItemId(itemId);
             await apiOfferItems.updateStatus(itemId, { status: "variant_completed" });
-
-            // Локально обновляем статус элемента
             setOffer(prev => ({
                 ...prev,
                 offer_items: prev.offer_items.map(item =>
                     item.id === itemId ? { ...item, status: "variant_completed" } : item
                 )
             }));
-
             toast({
                 title: "Muvaffaqiyatli",
                 description: "Variantlar yakunlandi deb belgilandi",
@@ -135,7 +158,113 @@ export default function BROffersDetail() {
         }
     };
 
-    // ИЗМЕНЁННАЯ ФУНКЦИЯ ФОРМАТИРОВАНИЯ ДАТЫ (ДД.ММ.ГГГГ)
+    // Массовое сохранение цен для всех вариантов конкретной позиции
+    const handleSaveAllPrices = async (itemId, variants) => {
+        const variantsPayload = variants.map(variant => ({
+            variant_id: variant.id,
+            sale_price: salePrices[variant.id]
+        }));
+        setSavingPricesItemId(itemId);
+        try {
+            await apiOfferItems.EditOffersItems(itemId, { variants: variantsPayload });
+            // Обновляем локальные данные в offer
+            setOffer(prev => ({
+                ...prev,
+                offer_items: prev.offer_items.map(item => {
+                    if (item.id !== itemId) return item;
+                    return {
+                        ...item,
+                        variants: item.variants.map(variant => ({
+                            ...variant,
+                            sale_price: salePrices[variant.id]
+                        }))
+                    };
+                })
+            }));
+            toast({
+                title: "Muvaffaqiyatli",
+                description: "Barcha narxlar yangilandi",
+                status: "success",
+                duration: 3000,
+                isClosable: true,
+            });
+        } catch (err) {
+            console.error(err);
+            toast({
+                title: "Xatolik",
+                description: "Narxlarni saqlashda xatolik yuz berdi",
+                status: "error",
+                duration: 5000,
+                isClosable: true,
+            });
+        } finally {
+            setSavingPricesItemId(null);
+        }
+    };
+
+    // Изменение цены в локальном состоянии
+    const handlePriceChange = (variantId, rawValue) => {
+        // Удаляем всё, кроме цифр
+        const numeric = parseFloat(rawValue.replace(/\D/g, '')) || 0;
+        setSalePrices(prev => ({ ...prev, [variantId]: numeric }));
+    };
+
+    // Форматирование числа с пробелами (50 000 000)
+    const formatNumberWithSpaces = (num) => {
+        if (num === undefined || num === null) return "0";
+        return num.toLocaleString("uz-UZ");
+    };
+
+    // Удаление варианта
+    const openDeleteDialog = (itemId, variantId) => {
+        setDeletingVariant({ itemId, variantId });
+        onDeleteDialogOpen();
+    };
+
+    const handleDeleteVariant = async () => {
+        const { itemId, variantId } = deletingVariant;
+        if (!itemId || !variantId) return;
+        try {
+            await apiOfferItems.DeleteVariant(itemId, variantId);
+            // Удаляем вариант из offer
+            setOffer(prev => ({
+                ...prev,
+                offer_items: prev.offer_items.map(item => {
+                    if (item.id !== itemId) return item;
+                    return {
+                        ...item,
+                        variants: item.variants.filter(v => v.id !== variantId)
+                    };
+                })
+            }));
+            // Удаляем цену из локального состояния
+            setSalePrices(prev => {
+                const newPrices = { ...prev };
+                delete newPrices[variantId];
+                return newPrices;
+            });
+            toast({
+                title: "Muvaffaqiyatli",
+                description: "Variant o‘chirildi",
+                status: "success",
+                duration: 3000,
+                isClosable: true,
+            });
+        } catch (err) {
+            console.error(err);
+            toast({
+                title: "Xatolik",
+                description: "Variantni o‘chirishda xatolik",
+                status: "error",
+                duration: 5000,
+                isClosable: true,
+            });
+        } finally {
+            onDeleteDialogClose();
+            setDeletingVariant({ itemId: null, variantId: null });
+        }
+    };
+
     const formatDate = (dateString) => {
         if (!dateString) return "-";
         const date = new Date(dateString);
@@ -152,25 +281,16 @@ export default function BROffersDetail() {
         return amount.toLocaleString("uz-UZ") + " UZS";
     };
 
-    const getPaymentStatusText = (status) => {
-        const map = {
-            unpaid: "To'lanmagan",
-            partially_paid: "Qisman to'langan",
-            paid: "To'langan",
-        };
-        return map[status] || status;
-    };
-
     const getItemStatusBadge = (status) => {
         switch (status) {
-            case "delivered":
-                return <Badge colorScheme="green">Yetkazilgan</Badge>;
-            case "cancelled":
-                return <Badge colorScheme="red">Bekor qilingan</Badge>;
+            case "pending":
+                return <Badge colorScheme="yellow">Kutilmoqda</Badge>;
+            case "in_progress":
+                return <Badge colorScheme="blue">Bajarilmoqda</Badge>;
             case "variant_completed":
                 return <Badge colorScheme="green">Variantlar yakunlandi</Badge>;
             default:
-                return <Badge colorScheme="yellow">Kutilmoqda</Badge>;
+                return <Badge colorScheme="gray">Noma'lum</Badge>;
         }
     };
 
@@ -270,93 +390,142 @@ export default function BROffersDetail() {
 
                         <Heading size="md" mb={4}>Mahsulotlar va variantlar</Heading>
                         <VStack spacing={6} align="stretch">
-                            {offer.offer_items?.map((item, idx) => (
-                                <Card key={item.id} variant="outline" borderRadius="lg" overflow="hidden">
-                                    <CardBody p={5}>
-                                        <Flex justify="space-between" wrap="wrap" gap={3} mb={4}>
-                                            <HStack>
-                                                <Text fontWeight="bold" fontSize="lg">{idx + 1}.</Text>
-                                                <Heading size="sm">{item.product_name}</Heading>
-                                            </HStack>
-                                            <HStack spacing={3}>
-                                                {getItemStatusBadge(item.status)}
-                                                {item.status !== "variant_completed" && item.status !== "pending" && (
-                                                    <Button
-                                                        size="sm"
-                                                        colorScheme="green"
-                                                        isLoading={updatingItemId === item.id}
-                                                        onClick={() => updateItemStatus(item.id)}
-                                                    >
-                                                        Variantlar yakunlandi
-                                                    </Button>
-                                                )}
-                                            </HStack>
-                                        </Flex>
-
-                                        <SimpleGrid columns={{ base: 2, md: 4 }} spacing={3} mb={4} fontSize="sm">
-                                            <Box>
-                                                <Text color="gray.500">Miqdori</Text>
-                                                <Text fontWeight="medium">{parseFloat(item.quantity).toLocaleString()} {item.unit}</Text>
-                                            </Box>
-                                            <Box>
-                                                <Text color="gray.500">Narxi (customer)</Text>
-                                                <Text fontWeight="medium">{formatPrice(item.customer_price)}</Text>
-                                            </Box>
-                                        </SimpleGrid>
-
-                                        {item.variants && item.variants.length > 0 && (
-                                            <Box mt={3} pt={3} borderTopWidth="1px">
-                                                <HStack mb={2}>
-                                                    <Icon as={Factory} color="purple.500" />
-                                                    <Text fontWeight="semibold" fontSize="sm">Variantlar ({item.variants.length})</Text>
+                            {offer.offer_items?.map((item, idx) => {
+                                // Редактирование доступно если статус заказа price_review ИЛИ статус позиции variant_completed
+                                const isEditable = offer.status === "price_review" && item.status === "variant_completed";
+                                return (
+                                    <Card key={item.id} variant="outline" borderRadius="lg" overflow="hidden">
+                                        <CardBody p={5}>
+                                            <Flex justify="space-between" wrap="wrap" gap={3} mb={4}>
+                                                <HStack>
+                                                    <Text fontWeight="bold" fontSize="lg">{idx + 1}.</Text>
+                                                    <Heading size="sm">{item.product_name}</Heading>
                                                 </HStack>
-                                                <Accordion allowToggle>
-                                                    <AccordionItem border="none">
-                                                        <AccordionButton px={0} py={1}>
-                                                            <Box flex="1" textAlign="left" fontSize="sm">
-                                                                Barcha variantlarni ko'rish
-                                                            </Box>
-                                                            <AccordionIcon />
-                                                        </AccordionButton>
-                                                        <AccordionPanel pb={4} px={0}>
-                                                            <TableContainer>
-                                                                <Table size="sm" variant="simple">
-                                                                    <Thead>
-                                                                        <Tr>
-                                                                            <Th>Mahsulot nomi</Th>
-                                                                            <Th>Zavod</Th>
-                                                                            <Th>Manzil</Th>
-                                                                            <Th isNumeric>Narxi</Th>
-                                                                            <Th>Yetkazib berish</Th>
-                                                                        </Tr>
-                                                                    </Thead>
-                                                                    <Tbody>
-                                                                        {item.variants.map((variant, vIdx) => (
-                                                                            <Tr key={vIdx}>
-                                                                                <Td>{variant.product_name}</Td>
-                                                                                <Td>{variant.factory_name || "-"}</Td>
-                                                                                <Td>{variant.address}</Td>
-                                                                                <Td isNumeric>{formatPrice(variant.cost_price)}</Td>
-                                                                                <Td>{variant.is_delivery ? "Bor" : "Yo'q"}</Td>
-                                                                            </Tr>
-                                                                        ))}
-                                                                    </Tbody>
-                                                                </Table>
-                                                            </TableContainer>
-                                                        </AccordionPanel>
-                                                    </AccordionItem>
-                                                </Accordion>
-                                            </Box>
-                                        )}
+                                                <HStack spacing={3}>
+                                                    {getItemStatusBadge(item.status)}
+                                                    {item.status !== "variant_completed" && (
+                                                        <Button
+                                                            size="sm"
+                                                            colorScheme="green"
+                                                            isLoading={updatingItemId === item.id}
+                                                            onClick={() => updateItemStatus(item.id)}
+                                                        >
+                                                            Variantlar yakunlandi
+                                                        </Button>
+                                                    )}
+                                                </HStack>
+                                            </Flex>
 
-                                        {item.selected_variant_id && (
-                                            <Box mt={2} fontSize="sm" color="gray.500">
-                                                Tanlangan variant ID: {item.selected_variant_id}
-                                            </Box>
-                                        )}
-                                    </CardBody>
-                                </Card>
-                            ))}
+                                            <SimpleGrid columns={{ base: 2, md: 4 }} spacing={3} mb={4} fontSize="sm">
+                                                <Box>
+                                                    <Text color="gray.500">Miqdori</Text>
+                                                    <Text fontWeight="medium">{parseFloat(item.quantity).toLocaleString()} {item.unit}</Text>
+                                                </Box>
+                                                <Box>
+                                                    <Text color="gray.500">Narxi (customer)</Text>
+                                                    <Text fontWeight="medium">{formatPrice(item.customer_price)}</Text>
+                                                </Box>
+                                            </SimpleGrid>
+
+                                            {item.variants && item.variants.length > 0 && (
+                                                <Box mt={3} pt={3} borderTopWidth="1px">
+                                                    <HStack mb={2} justify="space-between">
+                                                        <HStack>
+                                                            <Icon as={Factory} color="purple.500" />
+                                                            <Text fontWeight="semibold" fontSize="sm">Variantlar ({item.variants.length})</Text>
+                                                        </HStack>
+                                                        {isEditable && (
+                                                            <Button
+                                                                size="sm"
+                                                                colorScheme="blue"
+                                                                leftIcon={<Icon as={Save} />}
+                                                                isLoading={savingPricesItemId === item.id}
+                                                                onClick={() => handleSaveAllPrices(item.id, item.variants)}
+                                                            >
+                                                                Narxlarni saqlash
+                                                            </Button>
+                                                        )}
+                                                    </HStack>
+                                                    <Accordion allowToggle>
+                                                        <AccordionItem border="none">
+                                                            <AccordionButton px={0} py={1}>
+                                                                <Box flex="1" textAlign="left" fontSize="sm">
+                                                                    Barcha variantlarni ko'rish
+                                                                </Box>
+                                                                <AccordionIcon />
+                                                            </AccordionButton>
+                                                            <AccordionPanel pb={4} px={0}>
+                                                                <TableContainer>
+                                                                    <Table size="sm" variant="simple">
+                                                                        <Thead>
+                                                                            <Tr>
+                                                                                <Th>Mahsulot nomi</Th>
+                                                                                <Th>Zavod</Th>
+                                                                                <Th>Manzil</Th>
+                                                                                <Th isNumeric>Narxi (cost)</Th>
+                                                                                <Th isNumeric>Sotuv narxi (sale)</Th>
+                                                                                <Th>Yetkazib berish</Th>
+                                                                                {isEditable && <Th>Amallar</Th>}
+                                                                            </Tr>
+                                                                        </Thead>
+                                                                        <Tbody>
+                                                                            {item.variants.map((variant) => (
+                                                                                <Tr key={variant.id}>
+                                                                                    <Td>{variant.product_name}</Td>
+                                                                                    <Td>{variant.factory_name || "-"}</Td>
+                                                                                    <Td>{variant.address}</Td>
+                                                                                    <Td isNumeric>{formatPrice(variant.cost_price)}</Td>
+                                                                                    <Td isNumeric>
+                                                                                        {isEditable ? (
+                                                                                            <Input
+                                                                                                size="sm"
+                                                                                                value={formatNumberWithSpaces(salePrices[variant.id])}
+                                                                                                onChange={(e) => handlePriceChange(variant.id, e.target.value)}
+                                                                                                onBlur={(e) => {
+                                                                                                    // Дополнительное форматирование при потере фокуса
+                                                                                                    const num = salePrices[variant.id];
+                                                                                                    if (!isNaN(num)) {
+                                                                                                        e.target.value = formatNumberWithSpaces(num);
+                                                                                                    }
+                                                                                                }}
+                                                                                            />
+                                                                                        ) : (
+                                                                                            formatPrice(variant.sale_price || variant.cost_price)
+                                                                                        )}
+                                                                                    </Td>
+                                                                                    <Td>{variant.is_delivery ? "Bor" : "Yo'q"}</Td>
+                                                                                    {isEditable && (
+                                                                                        <Td>
+                                                                                            <IconButton
+                                                                                                icon={<Icon as={Trash2} />}
+                                                                                                size="xs"
+                                                                                                colorScheme="red"
+                                                                                                variant="ghost"
+                                                                                                onClick={() => openDeleteDialog(item.id, variant.id)}
+                                                                                                aria-label="Delete variant"
+                                                                                            />
+                                                                                        </Td>
+                                                                                    )}
+                                                                                </Tr>
+                                                                            ))}
+                                                                        </Tbody>
+                                                                    </Table>
+                                                                </TableContainer>
+                                                            </AccordionPanel>
+                                                        </AccordionItem>
+                                                    </Accordion>
+                                                </Box>
+                                            )}
+
+                                            {item.selected_variant_id && (
+                                                <Box mt={2} fontSize="sm" color="gray.500">
+                                                    Tanlangan variant ID: {item.selected_variant_id}
+                                                </Box>
+                                            )}
+                                        </CardBody>
+                                    </Card>
+                                );
+                            })}
                         </VStack>
 
                         {(!offer.offer_items || offer.offer_items.length === 0) && (
@@ -367,6 +536,31 @@ export default function BROffersDetail() {
                     </CardBody>
                 </Card>
             </Box>
+
+            <AlertDialog
+                isOpen={isDeleteDialogOpen}
+                leastDestructiveRef={cancelRef}
+                onClose={onDeleteDialogClose}
+            >
+                <AlertDialogOverlay>
+                    <AlertDialogContent>
+                        <AlertDialogHeader fontSize="lg" fontWeight="bold">
+                            Variantni o‘chirish
+                        </AlertDialogHeader>
+                        <AlertDialogBody>
+                            Ushbu variantni butunlay o‘chirishni xohlaysizmi? Bu amalni qaytarib bo‘lmaydi.
+                        </AlertDialogBody>
+                        <AlertDialogFooter>
+                            <Button ref={cancelRef} onClick={onDeleteDialogClose}>
+                                Bekor qilish
+                            </Button>
+                            <Button colorScheme="red" onClick={handleDeleteVariant} ml={3}>
+                                O‘chirish
+                            </Button>
+                        </AlertDialogFooter>
+                    </AlertDialogContent>
+                </AlertDialogOverlay>
+            </AlertDialog>
         </Box>
     );
 }

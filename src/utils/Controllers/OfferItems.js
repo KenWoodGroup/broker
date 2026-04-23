@@ -21,6 +21,15 @@ class apiOfferItems {
         const response = await $api.put(`${BASE_URL}/api/offer-items/status/${id}`, data)
         return response;
     }
+    static EditOffersItems = async (id, data) => {
+        const response = await $api.put(`${BASE_URL}/api/offer-items/variants/${id}`, data)
+        return response;
+    }
+    static DeleteVariant = async (OfferItemId, VariantId) => {
+        const response = await $api.delete(`${BASE_URL}/api/offer-items/variants/${OfferItemId}/${VariantId}`)
+        return response;
+    }
+
 }
 
 export { apiOfferItems };

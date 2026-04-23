@@ -11,13 +11,11 @@ import {
     Spinner,
     Alert,
     AlertIcon,
-    Divider,
     HStack,
     VStack,
     Icon,
     Flex,
     useToast,
-    Button,
     Center,
 } from "@chakra-ui/react";
 import {
@@ -25,7 +23,7 @@ import {
     FaBuilding,
     FaMoneyBill,
     FaReceipt,
-    FaInbox,
+    FaUser,
 } from "react-icons/fa6";
 import { NavLink } from "react-router-dom";
 import { Package } from "lucide-react";
@@ -46,7 +44,6 @@ export default function Offers({ status, link }) {
             const response = await apiOffers?.GetByStatus(page, 20, status);
             setOffers(response.data.data?.records || []);
             setPagination(response.data.pagination);
-
         } finally {
             setLoading(false);
         }
@@ -60,16 +57,15 @@ export default function Offers({ status, link }) {
         setCurrentPage(newPage);
     };
 
+    // Новая функция форматирования даты: ДД.ММ.ГГГГ
     const formatDate = (dateString) => {
+        if (!dateString) return "-";
         const date = new Date(dateString);
-        return date.toLocaleDateString('uz-UZ', {
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric',
-        }) + ' ' + date.toLocaleTimeString('uz-UZ', {
-            hour: '2-digit',
-            minute: '2-digit',
-        });
+        if (isNaN(date.getTime())) return "-";
+        const day = String(date.getDate()).padStart(2, '0');
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const year = date.getFullYear();
+        return `${day}.${month}.${year}`;
     };
 
     const formatPrice = (price) => {
@@ -115,30 +111,25 @@ export default function Offers({ status, link }) {
         );
     }
 
-    // Empty Data Component
     const EmptyData = () => (
         <Center border={'1px'} py={10} borderRadius={'10px'}>
             <VStack spacing={4}>
-                <Box p={4}  borderRadius="full">
+                <Box p={4} borderRadius="full">
                     <Package size={40} />
                 </Box>
-
                 <Heading size="md" color="gray.500">
                     Buyurtmalar mavjud emas
                 </Heading>
-
                 <Text color="gray.400" textAlign="center">
                     Hali buyurtmalar yo'q.<br />
                 </Text>
             </VStack>
         </Center>
-
     );
 
     return (
-        <Box py={'20px'} pl="20px"   pr="20px" pb="20px"  pt="20px"  minH="100vh">
+        <Box py={'20px'} pl="20px" pr="20px" pb="20px" pt="20px" minH="100vh">
             <Box maxW="1400px" mx="auto">
-                {/* Header */}
                 <Box mb={6}>
                     <Heading as="h1" size="xl" mb={2}>
                         Kutilayotgan buyurtmalar
@@ -150,17 +141,14 @@ export default function Offers({ status, link }) {
                     )}
                 </Box>
 
-                {/* Check if data is empty */}
                 {offers.length === 0 ? (
                     <EmptyData />
                 ) : (
                     <>
-                        {/* Offers Grid */}
                         <VStack spacing={6} align="stretch">
                             {offers.map((offer) => (
                                 <NavLink to={`${link}${offer?.id}`} key={offer.id}>
                                     <Card variant="outline" borderRadius="lg" overflow="hidden" _hover={{ shadow: "md" }}>
-                                        {/* Card Header */}
                                         <Box borderBottom="1px solid" borderColor="gray.200" px={6} py={4}>
                                             <Flex justify="space-between" align="center" wrap="wrap" gap={3}>
                                                 <HStack spacing={3}>
@@ -171,6 +159,12 @@ export default function Offers({ status, link }) {
                                                     <Text fontSize="sm" color="gray.600">
                                                         {getStatusText(offer.status)}
                                                     </Text>
+                                                    <HStack spacing={1} ml={2}>
+                                                        <Icon as={FaUser} boxSize={3} color="gray.500" />
+                                                        <Text fontSize="sm" color="gray.600">
+                                                            От: {offer.location.name}
+                                                        </Text>
+                                                    </HStack>
                                                 </HStack>
                                                 <Text fontSize="sm" color="gray.600">
                                                     {formatDate(offer.date)}
@@ -178,9 +172,7 @@ export default function Offers({ status, link }) {
                                             </Flex>
                                         </Box>
 
-                                        {/* Card Body */}
                                         <CardBody p={6}>
-                                            {/* Location and Construction Info */}
                                             <Grid templateColumns={{ base: "1fr", md: "1fr 1fr" }} gap={4}>
                                                 <GridItem>
                                                     <VStack align="start" spacing={2}>
@@ -204,31 +196,8 @@ export default function Offers({ status, link }) {
                                                         </HStack>
                                                     </VStack>
                                                 </GridItem>
-
-                                                <GridItem>
-                                                    <VStack align="start" spacing={2}>
-                                                        <HStack>
-                                                            <Icon as={FaMoneyBill} color="gray.500" />
-                                                            <Text fontSize="sm">
-                                                                <Text as="span" fontWeight="bold">Umumiy summa:</Text> {formatPrice(offer.total_sum)}
-                                                            </Text>
-                                                        </HStack>
-                                                        <HStack>
-                                                            <Icon as={FaMoneyBill} color="gray.500" />
-                                                            <Text fontSize="sm">
-                                                                <Text as="span" fontWeight="bold">To'langan:</Text> {formatPrice(offer.paid_sum)}
-                                                            </Text>
-                                                        </HStack>
-                                                        <HStack>
-                                                            <Text fontSize="sm" color="gray.600">
-                                                                {getPaymentStatusText(offer.payment_status)}
-                                                            </Text>
-                                                        </HStack>
-                                                    </VStack>
-                                                </GridItem>
                                             </Grid>
 
-                                            {/* Note */}
                                             {offer.note && (
                                                 <Alert status="info" borderRadius="md" mt={4}>
                                                     <AlertIcon />
