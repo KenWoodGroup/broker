@@ -35,7 +35,7 @@ export default function FactoryHeader({ factoryId, onBack, role }) {
   const textSub = useColorModeValue("neutral.500", "neutral.400");
   const [loading, setLoading] = useState(false);
 
-  const storageKey = `${STORAGE_PREFIX}:${factoryId}`;
+  const storageKey = `${STORAGE_PREFIX}`;
 
   const [collapsed, setCollapsed] = useState(() => {
     return localStorage.getItem(storageKey) === "true";

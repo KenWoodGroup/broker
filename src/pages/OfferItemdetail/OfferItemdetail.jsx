@@ -12,7 +12,7 @@ import {
     Divider, Collapse, Tooltip,
 } from "@chakra-ui/react";
 
-import { apiOfferItems } from "../../utils/Controllers/offerItems";
+import { apiOfferItems } from "../../utils/Controllers/OfferItems";
 import { apiStock } from "../../utils/Controllers/apiStock";
 import regions from "../../constants/regions/regions.json";
 import districts from "../../constants/regions/districts.json";
@@ -132,7 +132,7 @@ function EmptyHint({ icon = "📭", title, sub }) {
 function StockCard({ item, isSelected, onAdd }) {
     const sp = item.sale_price_type?.[0];
     const price = sp?.sale_price ?? item.purchase_price;
-    const locName = item.product?.location?.name || "—";
+    const locName = item?.location?.parent?.name || "—";
     const address = item.location?.address;
     const addrOk = address && address !== "Berilmagan";
 
@@ -193,12 +193,12 @@ function StockCard({ item, isSelected, onAdd }) {
                     <Text fontWeight={500} color="text" display="inline">{fmtPrice(price)}</Text>
                     <Text color="textSub" display="inline"> / {item.product?.unit || "—"}</Text>
                 </Box>
-                {item.location?.name && (
+                {/* {item.location?.name && (
                     <Box>
                         <Text color="textSub" display="inline">Ombor: </Text>
                         <Text color="text" display="inline">{item.location.name}</Text>
                     </Box>
-                )}
+                )} */}
                 {addrOk && (
                     <Flex align="center" gap={1} color="textSub">
                         <PinIco />
@@ -414,7 +414,7 @@ export default function OrderItemDetail() {
         if (selectedStockIds.has(item.id)) return;
         const sp = item.sale_price_type?.[0];
         setStagedVariants(prev => [...prev, {
-            factory_name: item.product?.location?.name || "",
+            factory_name: item?.location?.parent?.name || "",
             address: item.location?.address || "",
             product_name: item.product?.name || "",
             cost_price: Number(sp?.sale_price ?? item.purchase_price ?? 0),

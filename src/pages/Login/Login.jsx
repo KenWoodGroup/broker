@@ -11,6 +11,9 @@ import {
     FormErrorMessage,
     Link,
 } from "@chakra-ui/react";
+import Cookies from "js-cookie";
+
+
 import { useRef, useState } from "react";
 import { Auth } from "../../utils/Controllers/Auth";
 import { useAuth } from "../../hooks/useAuth";
@@ -71,10 +74,13 @@ export default function Login() {
                     return;
                 }
                 login({
-                    token: data.tokens.access_token,
-                    refreshToken: data.tokens.refresh_token,
+                    // token: data.tokens.access_token,
+                    // refreshToken: data.tokens.refresh_token,
                     user: userData
                 });
+                Cookies.set("token", data.tokens.access_token);
+                Cookies.set("u_refresh_token", data.tokens.refresh_token);
+
                 const role = userData.role;
                 if (role === "admin") {
                     navigate("/")
