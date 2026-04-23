@@ -19,16 +19,16 @@ export const useAuthStore = create((set, get) => ({
         set({ userId: user.id, user });
     },
 
-    setTokens: ({ token, refreshToken }) => {
-        if (token) {
-            Cookies.set("token", token);
-            set({ token });
-        }
-        if (refreshToken) {
-            Cookies.set("u_refresh_token", refreshToken);
-            set({ refreshToken });
-        }
-    },
+    // setTokens: ({ token, refreshToken }) => {
+    //     if (token) {
+    //         Cookies.set("token", token);
+    //         set({ token });
+    //     }
+    //     if (refreshToken) {
+    //         Cookies.set("u_refresh_token", refreshToken);
+    //         set({ refreshToken });
+    //     }
+    // },
 
     logout: () => {
         Cookies.remove("token");
