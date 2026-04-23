@@ -10,13 +10,13 @@ export const useAuthStore = create((set, get) => ({
     userId: Cookies.get("user_id") || null,
     user: Cookies.get("user") ? JSON.parse(Cookies.get("user")) : null,
 
-    login: ({ token, refreshToken, user }) => {
-        Cookies.set("token", token);
-        Cookies.set("refresh_token", refreshToken);
+    login: ({ user }) => {
+        // Cookies.set("token", token);
+        // Cookies.set("refresh_token", refreshToken);
         Cookies.set("user_id", user.id);
         Cookies.set("user", JSON.stringify(user));
 
-        set({ token, refreshToken, userId: user.id, user });
+        set({ userId: user.id, user });
     },
 
     setTokens: ({ token, refreshToken }) => {
@@ -25,14 +25,14 @@ export const useAuthStore = create((set, get) => ({
             set({ token });
         }
         if (refreshToken) {
-            Cookies.set("refresh_token", refreshToken);
+            Cookies.set("u_refresh_token", refreshToken);
             set({ refreshToken });
         }
     },
 
     logout: () => {
         Cookies.remove("token");
-        Cookies.remove("refresh_token");
+        Cookies.remove("u_refresh_token");
         Cookies.remove("user_id");
         Cookies.remove("user");
         set({ token: null, refreshToken: null, userId: null, user: null });
