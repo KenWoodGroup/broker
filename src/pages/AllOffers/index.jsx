@@ -169,12 +169,7 @@ const OfferCard = ({ offer, onClick, onStatusChange, isUpdating }) => {
                             {formatCurrency(offer.total_sum)}
                         </Text>
                     </VStack>
-                    <VStack align="end" spacing={0}>
-                        <Text fontSize="xs" >To'langan</Text>
-                        <Text fontSize="sm" fontWeight="medium" color="green.500">
-                            {formatCurrency(offer.paid_sum)}
-                        </Text>
-                    </VStack>
+                
                 </HStack>
 
                 {/* Date and Items */}
@@ -416,7 +411,7 @@ export default function AllOffers() {
     };
 
     const handleCardClick = (offerId) => {
-        navigate(`/operator/offers/${offerId}`);
+        navigate(`/offers/${offerId}`);
     };
 
     useEffect(() => {

@@ -18,12 +18,14 @@ import ADCustomers from "../../pages/ADCustomers/ADCustomers.jsx";
 import ADCustomerDetail from "../../pages/ADCustomerDetail/ADCustomerDetail.jsx";
 import LotCreatorLots from "../../pages/LotCreatorLots/LotCreatorLots";
 import LotDetailPage from "../../pages/LotDetail/LotDetailPage";
+import AllOffers from "../../pages/AllOffers/index.jsx";
+import BROffersDetail from "../../pages/BROffersDetail/index.jsx";
 
 const adminRoutes = [
     {
         path: "",
         name: "ok",
-        element: <ADhome/>
+        element: <ADhome />
     },
     {
         path: 'factories',
@@ -91,9 +93,9 @@ const adminRoutes = [
         element: <SPoperators />
     },
     {
-        name:'ad suppliers',
-        path:'roles/suppliers',
-        element:<ADsuppliers/>
+        name: 'ad suppliers',
+        path: 'roles/suppliers',
+        element: <ADsuppliers />
     },
     {
         name: "lot creators",
@@ -101,20 +103,30 @@ const adminRoutes = [
         element: <ADLotCreators />,
     },
     {
-        name:'roles',
-        path:'roles',
-        element:<RolesPage/>
+        name: 'roles',
+        path: 'roles',
+        element: <RolesPage />
     },
     {
-        name:'tasks',
-        path:'tasks',
-        element:<ADtasks/>
+        name: 'tasks',
+        path: 'tasks',
+        element: <ADtasks />
     },
-        {
-        name:'lead-factory',
-        path:'lead-factory',
-        element:<LeadFactory/>
-    }
+    {
+        name: 'lead-factory',
+        path: 'lead-factory',
+        element: <LeadFactory />
+    },
+    {
+        name: "br offers",
+        path: "offers",
+        element: <AllOffers />
+    },
+    {
+        name: "br offer detail",
+        path: "offers/:id",
+        element: <BROffersDetail />
+    },
 
 
 ];

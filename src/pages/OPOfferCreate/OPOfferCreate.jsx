@@ -181,10 +181,6 @@ export default function OPOfferCreate() {
                 toast({ title: `${i + 1}-pozitsiyada mahsulot nomini ko'rsating`, status: "error" });
                 return false;
             }
-            if (!item.customer_price || item.customer_price <= 0) {
-                toast({ title: `${i + 1}-pozitsiyada to'g'ri narxni ko'rsating`, status: "error" });
-                return false;
-            }
             if (!item.quantity || item.quantity <= 0) {
                 toast({ title: `${i + 1}-pozitsiyada to'g'ri miqdorni ko'rsating`, status: "error" });
                 return false;
@@ -415,7 +411,7 @@ export default function OPOfferCreate() {
                                             templateColumns={{ base: "1fr", sm: "repeat(2, 1fr)", md: "repeat(4, 1fr)" }}
                                             gap={3}
                                         >
-                                            <FormControl isRequired>
+                                            <FormControl>
                                                 <FormLabel fontSize="sm">Perexodnoy narx</FormLabel>
                                                 <Input
                                                     type="number"
