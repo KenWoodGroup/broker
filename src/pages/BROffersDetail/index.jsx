@@ -50,6 +50,7 @@ import {
     Star,
     Settings,
 } from "lucide-react";
+import { apiOfferItems } from "../../utils/Controllers/OfferItems";
 
 // Статусы заказа с иконками из lucide-react
 const statusConfig = {
@@ -65,6 +66,7 @@ const statusConfig = {
     delivered: { label: "Yetkazib berilgan", icon: CheckCircle, color: "green" },
     completed: { label: "Tugallangan", icon: CheckCircle, color: "green" },
     cancelled: { label: "Bekor qilingan", icon: XCircle, color: "red" },
+    variant_completed: { label: "Variantlar yakunlandi", icon: CheckCircle, color: "green" },
 };
 
 export default function BROffersDetail() {
@@ -74,6 +76,7 @@ export default function BROffersDetail() {
     const [offer, setOffer] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [updatingItemId, setUpdatingItemId] = useState(null);
 
     useEffect(() => {
         const fetchOffer = async () => {
@@ -98,16 +101,49 @@ export default function BROffersDetail() {
         if (id) fetchOffer();
     }, [id, toast]);
 
+    const updateItemStatus = async (itemId) => {
+        try {
+            setUpdatingItemId(itemId);
+            await apiOfferItems.updateStatus(itemId, { status: "variant_completed" });
+
+            // Локально обновляем статус элемента
+            setOffer(prev => ({
+                ...prev,
+                offer_items: prev.offer_items.map(item =>
+                    item.id === itemId ? { ...item, status: "variant_completed" } : item
+                )
+            }));
+
+            toast({
+                title: "Muvaffaqiyatli",
+                description: "Variantlar yakunlandi deb belgilandi",
+                status: "success",
+                duration: 3000,
+                isClosable: true,
+            });
+        } catch (err) {
+            console.error(err);
+            toast({
+                title: "Xatolik",
+                description: "Statusni yangilashda xatolik yuz berdi",
+                status: "error",
+                duration: 5000,
+                isClosable: true,
+            });
+        } finally {
+            setUpdatingItemId(null);
+        }
+    };
+
+    // ИЗМЕНЁННАЯ ФУНКЦИЯ ФОРМАТИРОВАНИЯ ДАТЫ (ДД.ММ.ГГГГ)
     const formatDate = (dateString) => {
         if (!dateString) return "-";
         const date = new Date(dateString);
-        return date.toLocaleDateString("uz-UZ", {
-            year: "numeric",
-            month: "long",
-            day: "numeric",
-            hour: "2-digit",
-            minute: "2-digit",
-        });
+        if (isNaN(date.getTime())) return "-";
+        const day = String(date.getDate()).padStart(2, '0');
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const year = date.getFullYear();
+        return `${day}.${month}.${year}`;
     };
 
     const formatPrice = (price) => {
@@ -131,6 +167,8 @@ export default function BROffersDetail() {
                 return <Badge colorScheme="green">Yetkazilgan</Badge>;
             case "cancelled":
                 return <Badge colorScheme="red">Bekor qilingan</Badge>;
+            case "variant_completed":
+                return <Badge colorScheme="green">Variantlar yakunlandi</Badge>;
             default:
                 return <Badge colorScheme="yellow">Kutilmoqda</Badge>;
         }
@@ -146,7 +184,7 @@ export default function BROffersDetail() {
 
     if (error || !offer) {
         return (
-            <Box p={6}  minH="100vh">
+            <Box p={6} minH="100vh">
                 <Alert status="error" borderRadius="md">
                     <AlertIcon />
                     {error || "Buyurtma topilmadi"}
@@ -159,7 +197,7 @@ export default function BROffersDetail() {
     const StatusIcon = statusInfo.icon;
 
     return (
-        <Box p={{ base: 4, md: 6 }}  minH="100vh">
+        <Box pr={{ base: 4 }} minH="100vh">
             <Box maxW="1400px" mx="auto">
                 <Button
                     leftIcon={<Icon as={ArrowLeft} />}
@@ -170,7 +208,6 @@ export default function BROffersDetail() {
                     Orqaga
                 </Button>
 
-                {/* Основная карточка заказа */}
                 <Card borderRadius="2xl" boxShadow="lg" mb={8}>
                     <Flex
                         direction={{ base: "column", sm: "row" }}
@@ -221,7 +258,6 @@ export default function BROffersDetail() {
                                 </CardBody>
                             </Card>
                         </SimpleGrid>
-
                         {offer.note && (
                             <Alert status="info" borderRadius="lg" mb={6}>
                                 <AlertIcon />
@@ -232,7 +268,6 @@ export default function BROffersDetail() {
 
                         <Divider my={6} />
 
-                        {/* Список товаров с вариантами */}
                         <Heading size="md" mb={4}>Mahsulotlar va variantlar</Heading>
                         <VStack spacing={6} align="stretch">
                             {offer.offer_items?.map((item, idx) => (
@@ -243,7 +278,19 @@ export default function BROffersDetail() {
                                                 <Text fontWeight="bold" fontSize="lg">{idx + 1}.</Text>
                                                 <Heading size="sm">{item.product_name}</Heading>
                                             </HStack>
-                                            {getItemStatusBadge(item.status)}
+                                            <HStack spacing={3}>
+                                                {getItemStatusBadge(item.status)}
+                                                {item.status !== "variant_completed" && item.status !== "pending" && (
+                                                    <Button
+                                                        size="sm"
+                                                        colorScheme="green"
+                                                        isLoading={updatingItemId === item.id}
+                                                        onClick={() => updateItemStatus(item.id)}
+                                                    >
+                                                        Variantlar yakunlandi
+                                                    </Button>
+                                                )}
+                                            </HStack>
                                         </Flex>
 
                                         <SimpleGrid columns={{ base: 2, md: 4 }} spacing={3} mb={4} fontSize="sm">
@@ -255,14 +302,8 @@ export default function BROffersDetail() {
                                                 <Text color="gray.500">Narxi (customer)</Text>
                                                 <Text fontWeight="medium">{formatPrice(item.customer_price)}</Text>
                                             </Box>
-                                            <Box>
-                                                <Text color="gray.500">Yetkazilgan</Text>
-                                                <Text>{parseFloat(item.delivered_quantity).toLocaleString()} {item.unit}</Text>
-                                            </Box>
-                                        
                                         </SimpleGrid>
 
-                                        {/* Блок вариантов, если они есть */}
                                         {item.variants && item.variants.length > 0 && (
                                             <Box mt={3} pt={3} borderTopWidth="1px">
                                                 <HStack mb={2}>
