@@ -1,10 +1,11 @@
 // src/auth/RequireAuth.jsx
 import { Navigate, Outlet, useLocation } from "react-router-dom";
 import { useAuthStore } from "../store/authStore";
+import Cookies from "js-cookie";
 
 export default function RequireAuth({ role }) {
-    const isAuth = useAuthStore((s) => s.token);
-    const { user } = useAuthStore()
+    const isAuth = Cookies.get("token") ? true : false;
+    const { user } = useAuthStore();
     const location = useLocation();
     const permissionKey = (r) => {
         switch (r) {

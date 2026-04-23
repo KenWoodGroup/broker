@@ -24,7 +24,7 @@ export default function Login() {
     const { login } = useAuth();
     const navigate = useNavigate();
     // UI states
-    const [loading, setLoading] = useState(false)
+    const [loading, setLoading] = useState(false);
 
     const passInput = useRef("");
     const logInput = useRef("");

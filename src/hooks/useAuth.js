@@ -6,11 +6,11 @@ export const useAuth = () => {
     const logoutFromStore = useAuthStore((s) => s.logout);
     
     // ✅ Boolean sifatida olinadi
-    const isAuthenticated = useAuthStore((s) => !!s.token);
+    // const isAuthenticated = useAuthStore((s) => !!s.token);
     const user = useAuthStore((s) => s.user);
 
-    const login = ({ token, refreshToken, user }) => {
-        loginToStore({ token, refreshToken, user });
+    const login = ({ user }) => {
+        loginToStore({ user });
     };
 
     const logout = () => {
@@ -18,5 +18,5 @@ export const useAuth = () => {
         window.location.href = "/login";
     };
 
-    return { login, logout, isAuthenticated, user };
+    return { login, logout, user };
 };
