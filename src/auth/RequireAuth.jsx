@@ -5,6 +5,7 @@ import { useAuthStore } from "../store/authStore";
 export default function RequireAuth({ role }) {
     const isAuth = useAuthStore((s) => s.token);
     const { user } = useAuthStore()
+
     const location = useLocation();
     const permissionKey = (r) => {
         switch (r) {
@@ -23,7 +24,7 @@ export default function RequireAuth({ role }) {
         }
     }
     if (!isAuth || role !== permissionKey(user?.role)) {
-        return <Navigate to="/login" replace state={{ from: location }} />;
+        // return <Navigate to="/login" replace state={{ from: location }} />;
     }
 
     return <Outlet />;

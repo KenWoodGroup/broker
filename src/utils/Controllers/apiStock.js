@@ -18,7 +18,6 @@ class apiStock {
     );
     return response;
   };
-
   static GetById = async (id) => {
     const response = await $api.get(`/erp/by-id/${id}`);
     return response;

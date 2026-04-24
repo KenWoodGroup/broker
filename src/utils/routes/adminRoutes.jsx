@@ -20,6 +20,7 @@ import LotCreatorLots from "../../pages/LotCreatorLots/LotCreatorLots";
 import LotDetailPage from "../../pages/LotDetail/LotDetailPage";
 import AllOffers from "../../pages/AllOffers/index.jsx";
 import BROffersDetail from "../../pages/BROffersDetail/index.jsx";
+import OPOfferCreate from "../../pages/OPOfferCreate/OPOfferCreate.jsx";
 
 const adminRoutes = [
     {
@@ -80,7 +81,7 @@ const adminRoutes = [
     {
         path: '/create-offer/:id',
         name: 'companies detail',
-        element: <CLOffersCreate role={'Admin'} />
+        element: <OPOfferCreate role={'Admin'} />
     },
     {
         path: 'options',
