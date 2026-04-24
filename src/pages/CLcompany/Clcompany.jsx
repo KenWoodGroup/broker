@@ -62,8 +62,8 @@ const STATUS_TYPES = [
 // Options for "hasLot" filter
 const HAS_LOT_OPTIONS = [
     { value: "all", label: "Hammasi" },
-    { value: "true", label: "Ob’ekti bor" },
-    { value: "false", label: "Ob’ekti yo‘q" },
+    { value: "true", label: "Ob'ekti bor" },
+    { value: "false", label: "Ob'ekti yo'q" },
 ]
 
 const isAdmin = (role) => role === "Admin"
@@ -75,7 +75,8 @@ const STORAGE_KEYS = {
     SEARCH_INPUT: "companies_search_input",
     REGION: "companies_region",
     ACTIVE_TYPE: "companies_active_type",
-    HAS_LOT: "companies_has_lot",      // новый ключ
+    HAS_LOT: "companies_has_lot",
+    SCROLL_Y: "companies_scroll_y",  // 👈 новый ключ для скролла
 };
 
 
@@ -89,12 +90,10 @@ export default function Clcompany({ role }) {
     })
     const [loading, setLoading] = useState(false)
 
-    // searchInput — только для отображения в поле ввода (не триггерит запрос)
     const [searchInput, setSearchInput] = useState(() => {
         const saved = sessionStorage.getItem(STORAGE_KEYS.SEARCH_INPUT)
         return saved || ""
     })
-    // search — «зафиксированное» значение после debounce, триггерит запрос
     const [search, setSearch] = useState(() => {
         const saved = sessionStorage.getItem(STORAGE_KEYS.SEARCH)
         return saved || "all"
@@ -105,20 +104,20 @@ export default function Clcompany({ role }) {
         return saved || "all"
     })
 
-    // Admin can see all statuses, non-admin can only see pending and active
     const [selectedActiveType, setSelectedActiveType] = useState(() => {
         if (!isAdmin(role)) return "all"
         const saved = sessionStorage.getItem(STORAGE_KEYS.ACTIVE_TYPE)
         return saved || "all"
     })
 
-    // Новый фильтр: наличие объектов (hasLot)
     const [hasLotFilter, setHasLotFilter] = useState(() => {
         const saved = sessionStorage.getItem(STORAGE_KEYS.HAS_LOT)
         return saved || "all"
     })
 
     const debounceRef = useRef(null)
+    const scrollRef = useRef(null)          // 👈 ref на прокручиваемый контейнер
+    const scrollRestoredRef = useRef(false) // 👈 флаг — восстановили ли уже скролл
     const navigate = useNavigate()
 
     // Сохраняем фильтры в sessionStorage при их изменении
@@ -144,24 +143,33 @@ export default function Clcompany({ role }) {
         }
     }, [selectedActiveType, role])
 
-    // Сохраняем фильтр hasLot
     useEffect(() => {
         sessionStorage.setItem(STORAGE_KEYS.HAS_LOT, hasLotFilter)
     }, [hasLotFilter])
+
+    // ─── Сохранение позиции скролла при уходе со страницы ───────────────────
+    useEffect(() => {
+        const container = scrollRef.current
+        if (!container) return
+
+        const handleScroll = () => {
+            sessionStorage.setItem(STORAGE_KEYS.SCROLL_Y, container.scrollTop.toString())
+        }
+
+        container.addEventListener("scroll", handleScroll, { passive: true })
+        return () => container.removeEventListener("scroll", handleScroll)
+    }, [companies]) // переподписываемся после рендера списка
 
     // ─── Запрос данных ───────────────────────────────────────────────────────
     const fetchCompanies = useCallback(
         async (pageNumber, searchTerm, region, activeType, hasLot) => {
             try {
                 setLoading(true)
-                // Предполагается, что apiLocations.FilterCompany принимает 5 параметров:
-                // region, searchTerm, activeType, hasLot, page
-                // Если в реальности сигнатура другая – поправьте под свой API
                 const response = await apiLocations.FilterCompany(
                     region,
                     searchTerm,
                     activeType,
-                    hasLot,    // теперь передаём фильтр по наличию объектов
+                    hasLot,
                     pageNumber
                 )
                 setCompanies(response.data.data.records)
@@ -172,13 +180,29 @@ export default function Clcompany({ role }) {
                 setLoading(false)
             }
         },
-        [] // функция стабильна
+        []
     )
 
     // При любом изменении фильтров / страницы — перезапрашиваем
     useEffect(() => {
         fetchCompanies(page, search, selectedRegion, selectedActiveType, hasLotFilter)
     }, [page, search, selectedRegion, selectedActiveType, hasLotFilter, fetchCompanies])
+
+    // ─── Восстановление скролла после загрузки данных ────────────────────────
+    useEffect(() => {
+        // Восстанавливаем только один раз при первом рендере со списком
+        if (loading || companies.length === 0 || scrollRestoredRef.current) return
+
+        const savedY = sessionStorage.getItem(STORAGE_KEYS.SCROLL_Y)
+        if (savedY && scrollRef.current) {
+            // Небольшая задержка, чтобы DOM успел отрисоваться
+            const timer = setTimeout(() => {
+                scrollRef.current?.scrollTo({ top: parseInt(savedY), behavior: "instant" })
+                scrollRestoredRef.current = true
+            }, 50)
+            return () => clearTimeout(timer)
+        }
+    }, [loading, companies])
 
     // Cleanup debounce при анмаунте
     useEffect(() => {
@@ -192,6 +216,9 @@ export default function Clcompany({ role }) {
         const value = e.target.value
         setSearchInput(value)
         setPage(1)
+        // При новом поиске сбрасываем сохранённый скролл
+        sessionStorage.removeItem(STORAGE_KEYS.SCROLL_Y)
+        scrollRestoredRef.current = false
 
         if (debounceRef.current) clearTimeout(debounceRef.current)
         debounceRef.current = setTimeout(() => {
@@ -202,19 +229,26 @@ export default function Clcompany({ role }) {
     const handleRegionChange = (e) => {
         setSelectedRegion(e.target.value === "" ? "all" : e.target.value)
         setPage(1)
+        sessionStorage.removeItem(STORAGE_KEYS.SCROLL_Y)
+        scrollRestoredRef.current = false
     }
 
     const handleActiveTypeChange = (e) => {
         setSelectedActiveType(e.target.value === "" ? "all" : e.target.value)
         setPage(1)
+        sessionStorage.removeItem(STORAGE_KEYS.SCROLL_Y)
+        scrollRestoredRef.current = false
     }
 
     const handleHasLotChange = (e) => {
         setHasLotFilter(e.target.value === "" ? "all" : e.target.value)
         setPage(1)
+        sessionStorage.removeItem(STORAGE_KEYS.SCROLL_Y)
+        scrollRestoredRef.current = false
     }
 
     const handleRowClick = (item) => {
+        // Скролл уже сохранён через listener, просто переходим
         const path = isAdmin(role)
             ? `/company-detail/${item.id}`
             : `/call-operator/company/${item.id}`
@@ -227,7 +261,15 @@ export default function Clcompany({ role }) {
 
     // ─── Render ───────────────────────────────────────────────────────────────
     return (
-        <Box py="20px" pr="20px" pl="10px">
+        // 👇 Оборачиваем в прокручиваемый контейнер с ref
+        <Box
+            ref={scrollRef}
+            py="20px"
+            pr="20px"
+            pl="10px"
+            h="100vh"
+            overflowY="auto"
+        >
             {/* Заголовок */}
             <Flex justifyContent="space-between" mb="20px">
                 <Heading size="lg">Kompaniyalar</Heading>
@@ -289,7 +331,7 @@ export default function Clcompany({ role }) {
                     </Select>
                 </Box>
 
-                {/* Статус фильтр - всем доступен, но с разными опциями */}
+                {/* Статус фильтр */}
                 <Box w="220px">
                     <Select
                         placeholder="Status (Hammasi)"
@@ -312,10 +354,10 @@ export default function Clcompany({ role }) {
                     </Select>
                 </Box>
 
-                {/* НОВЫЙ ФИЛЬТР: наличие объектов */}
+                {/* Фильтр: наличие объектов */}
                 <Box w="220px">
                     <Select
-                        placeholder="Ob’ekt (Hammasi)"
+                        placeholder="Ob'ekt (Hammasi)"
                         value={hasLotFilter === "all" ? "" : hasLotFilter}
                         onChange={handleHasLotChange}
                     >
@@ -407,7 +449,6 @@ export default function Clcompany({ role }) {
                                             <Text noOfLines={1}>{item.address}</Text>
                                         </Td>
 
-                                        {/* Status column - edit available for everyone */}
                                         <Td onClick={(e) => e.stopPropagation()}>
                                             <StatusEdit
                                                 data={item}

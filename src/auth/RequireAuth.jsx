@@ -4,6 +4,7 @@ import { useAuthStore } from "../store/authStore";
 import Cookies from "js-cookie";
 
 export default function RequireAuth({ role }) {
+
     const isAuth = Cookies.get("token") ? true : false;
     const { user } = useAuthStore();
     const location = useLocation();

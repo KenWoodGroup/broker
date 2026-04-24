@@ -44,6 +44,7 @@ import CompanyInfo from "./__components/CompanyInfo"
 import LocationEditModal from "./__components/LocationEditModal"
 import CompanyUsers from "./__components/CompanyUsers"
 import RatingEditModal from "./__components/RatingEditModal"
+import LocationContact from "./__components/LocationContact/LocationContact"
 
 export default function ClcompanyDetail({ role }) {
     const { id } = useParams()
@@ -97,6 +98,11 @@ export default function ClcompanyDetail({ role }) {
                 }
             ]
             : []),
+        {
+            label: "Kontraktlar",
+            icon: <Users size={18} />,
+            component: <LocationContact id={id} role={role} />
+        },
         {
             label: "Buyurtmalar",
             icon: <Package size={18} />,
