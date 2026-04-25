@@ -45,13 +45,13 @@ const CAT_DEBOUNCE = 400;
 async function apiFetchFilteredFactories(page, searchTerm, addresses, categoryIds, selectedPriceFreshness) {
     const params = new URLSearchParams();
     params.append("page", page);
-    params.append("searchTerm", searchTerm || "");
-    params.append("price", selectedPriceFreshness || "all");
+    params.append("searchTerm", searchTerm  "");
+    params.append("price", selectedPriceFreshness  "all");
     addresses.forEach((addr) => params.append("addresses", addr));
     categoryIds.forEach((id) => params.append("category_ids", id));
 
     return apiLocations.pageAllFilteredFarctories(params);
-    // return $api.get(`${BASE_URL}/api/erp/filter/page?${params.toString()}`);
+    // return $api.get(${BASE_URL}/api/erp/filter/page?${params.toString()});
 }
 
 /* ─────────────────────────────────────────────────────────────────────────────
@@ -100,8 +100,7 @@ function CategoryDropdown({ selectedCategories, onChange }) {
             // setCatLoading(false);
         }
     }, []);
-
-    useEffect(() => {
+  useEffect(() => {
         if (isOpen) loadCategories(catPage, debSearch);
     }, [isOpen, debSearch, catPage, loadCategories]);
 
@@ -130,7 +129,7 @@ function CategoryDropdown({ selectedCategories, onChange }) {
 
     const btnLabel =
         selectedCategories.length > 0
-            ? `${selectedCategories.length} ta kategoriya`
+            ? ${selectedCategories.length} ta kategoriya
             : "Kategoriya tanlash";
 
     return (
@@ -195,9 +194,7 @@ function CategoryDropdown({ selectedCategories, onChange }) {
                             <Text p={4} fontSize="sm" color="gray.400" textAlign="center">
                                 Kategoriya topilmadi
                             </Text>
-                        )}
-
-                        {categories.map((cat) => (
+                  {categories.map((cat) => (
                             <Flex
                                 key={cat.id}
                                 px={3}
@@ -288,8 +285,7 @@ function CategoryDropdown({ selectedCategories, onChange }) {
 ───────────────────────────────────────────────────────────────────────────── */
 export default function ADfactories({ reloadDependance, role = "admin" }) {
     const searchRef = useRef(null);
-
-    /* ── Factories data ── */
+  /* ── Factories data ── */
     const [factories, setFactories] = useState([]);
     const [loading, setLoading] = useState(false);
     const [totalPage, setTotalPage] = useState(1);
@@ -395,15 +391,14 @@ export default function ADfactories({ reloadDependance, role = "admin" }) {
 
         const district = districts.find((d) => d.id == selectedDistrict);
         const label = district
-            ? `${region.name_uz}, ${district.name_uz}`
+            ? ${region.name_uz}, ${district.name_uz}
             : region.name_uz;
         const uid = district
-            ? `r${selectedRegion}-d${selectedDistrict}`
-            : `r${selectedRegion}`;
+            ? r${selectedRegion}-d${selectedDistrict}
+            : r${selectedRegion};
 
         if (selectedAddresses.find((a) => a.id === uid)) return; // duplicate guard
-
-        setSelectedAddresses((prev) => [...prev, { id: uid, label }]);
+ setSelectedAddresses((prev) => [...prev, { id: uid, label }]);
         setSelectedRegion("");
         setSelectedDistrict("");
         setFilteredDistricts(districts);
@@ -439,8 +434,8 @@ export default function ADfactories({ reloadDependance, role = "admin" }) {
     }, []);
 
     /* ─── Derived ─── */
-    const hasFilters = selectedAddresses.length > 0 || selectedCategories.length > 0;
-    const hasAnyFilter = hasFilters || search;
+    const hasFilters = selectedAddresses.length > 0  selectedCategories.length > 0;
+    const hasAnyFilter = hasFilters  search;
 
     const doReload = () =>
         fetchFactories(
@@ -496,7 +491,7 @@ export default function ADfactories({ reloadDependance, role = "admin" }) {
                                 <Spinner size="xs" /> <span>Yuklanmoqda...</span>
                             </Flex>
                         ) : (
-                            `Jami: ${totalCount} ta zavod`
+                            Jami: ${totalCount} ta zavod
                         )}
                     </Badge>
                 </Flex>
@@ -516,9 +511,7 @@ export default function ADfactories({ reloadDependance, role = "admin" }) {
 
                 {/* Vertical separator */}
                 <Box w="1px" h="36px" bg="gray.200" flexShrink={0} />
-
-
-                {/* Viloyat */}
+                  {/* Viloyat */}
                 <Select
                     value={selectedRegion}
                     placeholder="Viloyat"
@@ -594,8 +587,7 @@ export default function ADfactories({ reloadDependance, role = "admin" }) {
                     </Button>
                 )}
             </Flex>
-
-            {/* ══ Row 3: Active filter tags ══ */}
+{/* ══ Row 3: Active filter tags ══ */}
             {hasFilters && (
                 <Wrap mb="16px" spacing={2}>
                     {selectedAddresses.map((addr) => (
@@ -619,7 +611,7 @@ export default function ADfactories({ reloadDependance, role = "admin" }) {
                                 size="sm"
                                 variant="subtle"
                             >
-                                <TagLabel>🏷️ {cat.name}</TagLabel>
+                                <TagLabel>🏷 {cat.name}</TagLabel>
                                 <TagCloseButton onClick={() => removeCategory(cat.id)} />
                             </Tag>
                         </WrapItem>
