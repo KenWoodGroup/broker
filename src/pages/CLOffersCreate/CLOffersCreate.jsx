@@ -519,7 +519,10 @@ export default function CLOffersCreate({ role = 'admin' }) {
                                     </Card>
                                 )}
                                 {visibleLocations.map((location) => {
-                                    const productCount = getProductCountForLocation(location.id);
+                                    const productCount =
+                                        typeof location?.count === "number"
+                                            ? location.count
+                                            : getProductCountForLocation(location.id);
                                     const isSelected = selectedFactory?.id === location.id;
                                     return (
                                         <Button
@@ -548,6 +551,11 @@ export default function CLOffersCreate({ role = 'admin' }) {
                                                 <Text fontWeight="medium" fontSize="sm" noOfLines={2}>
                                                     {location.name}
                                                 </Text>
+                                                {productCount > 0 && (
+                                                    <Badge mt={1} colorScheme={isSelected ? "blue" : "gray"} borderRadius="full">
+                                                        {productCount}
+                                                    </Badge>
+                                                )}
                                               
                                             </VStack>
                                         </Button>
@@ -678,7 +686,7 @@ export default function CLOffersCreate({ role = 'admin' }) {
                                     _dark={{ bg: "gray.800" }}
                                 >
                                     {/* Wider-than-container table enables horizontal scroll */}
-                                    <Table variant="simple" width="max-content" minW="1100px">
+                                    <Table variant="simple" width="100%" minW="1100px" tableLayout="auto">
                                         <Thead bg="gray.50" _dark={{ bg: "gray.700" }}>
                                             <Tr>
                                                 {role !== 'supplier' && (
@@ -693,10 +701,10 @@ export default function CLOffersCreate({ role = 'admin' }) {
                                                     </Th>
                                                 )}
                                                 <Th width="56px" color="gray.600" _dark={{ color: "gray.200" }}>№</Th>
-                                                <Th width={{ base: "45%", md: "40%" }}>Nomi</Th>
-                                                <Th width={{ base: "20%", md: "18%" }}>Kategoriya</Th>
-                                                <Th width={{ base: "22%", md: "24%" }}>Ishlab chiqaruvchi</Th>
-                                                <Th width={{ base: "13%", md: "18%" }}>Narxi</Th>
+                                                <Th>Nomi</Th>
+                                                <Th>Kategoriya</Th>
+                                                <Th>Ishlab chiqaruvchi</Th>
+                                                <Th isNumeric>Narxi</Th>
                                             </Tr>
                                         </Thead>
                                         <Tbody>
@@ -746,7 +754,7 @@ export default function CLOffersCreate({ role = 'admin' }) {
                                                             </Text>
                                                         </VStack>
                                                     </Td>
-                                                    <Td fontWeight="bold" color="green.600" _dark={{ color: "green.300" }}>
+                                                    <Td isNumeric fontWeight="bold" color="green.600" _dark={{ color: "green.300" }}>
                                                         {formatPrice(item.purchase_price)}
                                                     </Td>
                                                 </Tr>
