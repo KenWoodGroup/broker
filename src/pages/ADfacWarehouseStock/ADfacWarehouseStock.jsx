@@ -182,6 +182,7 @@ const WarehouseStockPage = () => {
   };
 
   const handleUploadExcel = async () => {
+    console.log("invoiceId:", invoiceId);
     if (!selectedFile) return;
     if (actionType === "add" && !invoiceId) return;
 
@@ -193,9 +194,12 @@ const WarehouseStockPage = () => {
       let response;
 
       if (actionType === "update") {
-        response = await apiInvoices.UploadSalePriceExcel(warehouseId, formData);
+        response = await apiInvoices.UploadSalePriceExcel(
+          warehouseId,
+          formData,
+        );
       } else {
-        response = await apiInvoices.UploadExel( invoiceId, formData);
+        response = await apiInvoices.UploadExel(invoiceId, formData);
       }
 
       setUploadResult(response.data);
@@ -429,7 +433,7 @@ const WarehouseStockPage = () => {
                 >
                   {priceType?.price_type?.name || "ulgurji"}:{""}
                   {parseFloat(priceType?.sale_price).toLocaleString()} (
-                  {getDaysDiff(priceType?.updatedAt)} kun oldin)  
+                  {getDaysDiff(priceType?.updatedAt)} kun oldin)
                 </Text>
               ))
             ) : (
@@ -691,11 +695,14 @@ const WarehouseStockPage = () => {
 
             {actionType === "add" && uploadStep === 1 && (
               <VStack spacing={4}>
-                <Textarea placeholder="Yangi mahsulotlar uchun izoh" />
+                <Textarea
+                  placeholder="Yangi mahsulotlar uchun izoh"
+                  value={invoiceNote}
+                  onChange={(e) => setInvoiceNote(e.target.value)}
+                />
               </VStack>
             )}
-
-            {(actionType === "update" ||
+            {((actionType === "update" && !uploadResult) ||
               (actionType === "add" && uploadStep === 2)) && (
               <VStack spacing={4}>
                 <Input
@@ -804,30 +811,120 @@ const WarehouseStockPage = () => {
                 </VStack>
               </VStack>
             )}
+
+            {actionType === "update" && uploadResult && (
+              <VStack spacing={4}>
+                <Icon
+                  as={CheckCircleIcon}
+                  boxSize={16}
+                  color="green.500"
+                  mt={3}
+                />
+                <Text fontSize="lg" fontWeight="semibold" color="text">
+                  Narxlar yangilandi!
+                </Text>
+                <Card bg="bg" width="100%">
+                  <CardBody>
+                    <SimpleGrid columns={3} spacing={4}>
+                      <VStack>
+                        <Text fontSize="3xl" fontWeight="bold" color="blue.400">
+                          {uploadResult?.summary?.total_rows ?? 0}
+                        </Text>
+                        <Text fontSize="sm" color="gray.500" textAlign="center">
+                          Jami qatorlar
+                        </Text>
+                      </VStack>
+                      <VStack>
+                        <Text
+                          fontSize="3xl"
+                          fontWeight="bold"
+                          color="green.500"
+                        >
+                          {uploadResult?.summary?.updated ?? 0}
+                        </Text>
+                        <Text fontSize="sm" color="gray.500" textAlign="center">
+                          Yangilandi
+                        </Text>
+                      </VStack>
+                      <VStack>
+                        <Text
+                          fontSize="3xl"
+                          fontWeight="bold"
+                          color="orange.400"
+                        >
+                          {uploadResult?.summary?.skipped ?? 0}
+                        </Text>
+                        <Text fontSize="sm" color="gray.500" textAlign="center">
+                          O'tkazildi
+                        </Text>
+                      </VStack>
+                      <Box></Box>
+                    </SimpleGrid>
+                  </CardBody>
+                </Card>
+              </VStack>
+            )}
+            {uploadResult?.skipped_details?.length > 0 && (
+              <Card bg="bg" width="100%" mt={3}>
+                <CardBody>
+                  <Text
+                    fontSize="sm"
+                    fontWeight="600"
+                    color="orange.400"
+                    mb={2}
+                  >
+                    O'tkazib yuborilganlar:
+                  </Text>
+                  <VStack align="start" spacing={2}>
+                    {uploadResult.skipped_details.map((item, index) => (
+                      <Box key={index} maxH="200px" overflowY="auto">
+                        <Text fontSize="sm" color="text" fontWeight="600">
+                          {item.name}
+                        </Text>
+                        <Text fontSize="xs" color="gray.400">
+                          {item.reason}
+                        </Text>
+                      </Box>
+                    ))}
+                  </VStack>
+                </CardBody>
+              </Card>
+            )}
           </ModalBody>
 
           <ModalFooter>
             {actionType === "update" ? (
-              <>
+              uploadResult ? (
                 <Button
-                  variant="ghost"
-                  mr={3}
-                  onClick={onUploadClose}
-                  isDisabled={uploadLoading}
+                  colorScheme="blue"
+                  onClick={handleCloseUpload}
+                  width="100%"
                   borderRadius="xl"
                 >
-                  Bekor qilish
+                  Yopish
                 </Button>
-                <Button
-                  colorScheme="green"
-                  onClick={handleUploadExcel}
-                  isDisabled={!selectedFile}
-                  isLoading={uploadLoading}
-                  borderRadius="xl"
-                >
-                  Yuklash
-                </Button>
-              </>
+              ) : (
+                <>
+                  <Button
+                    variant="ghost"
+                    mr={3}
+                    onClick={onUploadClose}
+                    isDisabled={uploadLoading}
+                    borderRadius="xl"
+                  >
+                    Bekor qilish
+                  </Button>
+                  <Button
+                    colorScheme="green"
+                    onClick={handleUploadExcel}
+                    isDisabled={!selectedFile}
+                    isLoading={uploadLoading}
+                    borderRadius="xl"
+                  >
+                    Yuklash
+                  </Button>
+                </>
+              )
             ) : (
               <>
                 {uploadStep === 1 && (

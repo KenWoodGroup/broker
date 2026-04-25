@@ -152,13 +152,13 @@ export default function Login() {
                         fontWeight="bold"
                         fontSize="md"
                     >
-                        USD
+                        <img src="../../../public/logo.jpg" alt="" />
                     </Box>
                 </Flex>
 
                 {/* Title */}
                 <Heading textAlign="center" size="lg" mb={2} color="text">
-                    Login
+                    Tizimga kirish
                 </Heading>
 
                 {/* Subtitle */}
@@ -190,11 +190,7 @@ export default function Login() {
                 </FormControl>
 
                 {/* Forgot password */}
-                <Flex justify="flex-end" mb={5}>
-                    <Link color="link" fontSize="sm" href="#">
-                        Parolni unutdingizmi?
-                    </Link>
-                </Flex>
+                
 
                 {/* Login button */}
                 <Button
@@ -205,6 +201,7 @@ export default function Login() {
                     _hover={{ bg: "secondary" }}
                     loadingText="Loading..."
                     variant="solidPrimary"
+                    mt={5}
                 >
                     Kirish
                 </Button>

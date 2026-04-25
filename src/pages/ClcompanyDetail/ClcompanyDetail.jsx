@@ -99,7 +99,7 @@ export default function ClcompanyDetail({ role }) {
             ]
             : []),
         {
-            label: "Kontraktlar",
+            label: "Kontaktlar",
             icon: <Users size={18} />,
             component: <LocationContact id={id} role={role} />
         },

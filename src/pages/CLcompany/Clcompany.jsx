@@ -282,94 +282,96 @@ export default function Clcompany({ role }) {
             </Flex>
 
             {/* Фильтры */}
-            <Flex mb="20px" gap={4} wrap="wrap">
-                {/* Поиск */}
-                <Flex flex="1" minW="200px" maxW="600px" gap={4} mr={8}>
-                    <InputGroup>
-                        <InputLeftElement pointerEvents="none">
-                            <Search size={18} color="gray" />
-                        </InputLeftElement>
-                        <Input
-                            placeholder="Qidiruv..."
-                            value={searchInput}
-                            onChange={handleSearchChange}
-                        />
-                    </InputGroup>
-                    {/* Total count — always visible */}
-                    <Flex align="center" gap={2}>
-                        <Badge
-                            colorScheme="blue"
-                            px={3}
-                            py={1}
-                            borderRadius="full"
-                            fontSize="sm"
-                            fontWeight="semibold"
-                        >
-                            {loading ? (
-                                <Flex align="center" gap={1}>
-                                    <Spinner size="xs" /> <span>Yuklanmoqda...</span>
-                                </Flex>
-                            ) : (
-                                `Jami: ${pagination?.total_count ?? "-"} ta quruvchi`
-                            )}
-                        </Badge>
+            <Box mb="20px">
+    {/* 1-qator: Search + Badge */}
+    <Flex gap={4} mb={3}>
+        <InputGroup maxW="400px">
+            <InputLeftElement pointerEvents="none">
+                <Search size={18} color="gray" />
+            </InputLeftElement>
+            <Input
+                placeholder="Qidiruv..."
+                value={searchInput}
+                onChange={handleSearchChange}
+            />
+        </InputGroup>
+
+        <Flex align="center">
+            <Badge
+                colorScheme="blue"
+                px={3}
+                py={1}
+                borderRadius="full"
+                fontSize="sm"
+                fontWeight="semibold"
+            >
+                {loading ? (
+                    <Flex align="center" gap={1}>
+                        <Spinner size="xs" /> <span>Yuklanmoqda...</span>
                     </Flex>
-                </Flex>
+                ) : (
+                    `Jami: ${pagination?.total_count ?? "-"} ta quruvchi`
+                )}
+            </Badge>
+        </Flex>
+    </Flex>
 
-                {/* Регион */}
-                <Box w="300px">
-                    <Select
-                        placeholder="Hudud (Hammasi)"
-                        value={selectedRegion === "all" ? "" : selectedRegion}
-                        onChange={handleRegionChange}
-                    >
-                        {REGIONS.map((r) => (
-                            <option key={r.id} value={r.name}>
-                                {r.name}
-                            </option>
-                        ))}
-                    </Select>
-                </Box>
+    {/* 2-qator: 3 ta Select */}
+    <Flex gap={4} wrap="wrap">
+        {/* Hudud */}
+        <Box w="300px">
+            <Select
+                placeholder="Hudud (Hammasi)"
+                value={selectedRegion === "all" ? "" : selectedRegion}
+                onChange={handleRegionChange}
+            >
+                {REGIONS.map((r) => (
+                    <option key={r.id} value={r.name}>
+                        {r.name}
+                    </option>
+                ))}
+            </Select>
+        </Box>
 
-                {/* Статус фильтр */}
-                <Box w="220px">
-                    <Select
-                        placeholder="Status (Hammasi)"
-                        value={selectedActiveType === "all" ? "" : selectedActiveType}
-                        onChange={handleActiveTypeChange}
-                    >
-                        {isAdmin(role) ? (
-                            ACTIVE_TYPES.map((type) => (
-                                <option key={type.value} value={type.value}>
-                                    {type.label}
-                                </option>
-                            ))
-                        ) : (
-                            STATUS_TYPES.map((type) => (
-                                <option key={type.value} value={type.value}>
-                                    {type.label}
-                                </option>
-                            ))
-                        )}
-                    </Select>
-                </Box>
+        {/* Status */}
+        <Box w="220px">
+            <Select
+                placeholder="Status (Hammasi)"
+                value={selectedActiveType === "all" ? "" : selectedActiveType}
+                onChange={handleActiveTypeChange}
+            >
+                {isAdmin(role) ? (
+                    ACTIVE_TYPES.map((type) => (
+                        <option key={type.value} value={type.value}>
+                            {type.label}
+                        </option>
+                    ))
+                ) : (
+                    STATUS_TYPES.map((type) => (
+                        <option key={type.value} value={type.value}>
+                            {type.label}
+                        </option>
+                    ))
+                )}
+            </Select>
+        </Box>
 
-                {/* Фильтр: наличие объектов */}
-                <Box w="220px">
-                    <Select
-                        placeholder="Ob'ekt (Hammasi)"
-                        value={hasLotFilter === "all" ? "" : hasLotFilter}
-                        onChange={handleHasLotChange}
-                    >
-                        {HAS_LOT_OPTIONS.map((opt) => (
-                            <option key={opt.value} value={opt.value}>
-                                {opt.label}
-                            </option>
-                        ))}
-                    </Select>
-                </Box>
-            </Flex>
-
+        {/* Ob'ekt */}
+        <Box w="220px">
+            <Select
+                placeholder="Ob'ekt (Hammasi)"
+                value={hasLotFilter === "all" ? "" : hasLotFilter}
+                onChange={handleHasLotChange}
+            >
+                {HAS_LOT_OPTIONS.map((opt) => (
+                    <option key={opt.value} value={opt.value}>
+                        {opt.label}
+                    </option>
+                ))}
+            </Select>
+        </Box>
+    </Flex>
+</Box>
             {/* Состояние загрузки */}
             {loading ? (
                 <Flex justify="center" py="80px">
