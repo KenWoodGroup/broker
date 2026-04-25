@@ -28,17 +28,9 @@ import {
     Card,
     TableContainer,
     Checkbox,
-    useDisclosure,
     Tooltip,
     InputGroup,
     InputRightElement,
-    Modal,
-    ModalOverlay,
-    ModalContent,
-    ModalHeader,
-    ModalFooter,
-    ModalBody,
-    ModalCloseButton,
     Divider,
 } from "@chakra-ui/react";
 import {
@@ -47,11 +39,9 @@ import {
     ViewIcon,
     SearchIcon,
     CloseIcon,
-    AddIcon,
 } from "@chakra-ui/icons";
 import { Factory, Building2, Warehouse } from "lucide-react";
 import { apiStock } from "../../utils/Controllers/apiStock";
-import { apiLocations } from "../../utils/Controllers/Locations";
 import SelectedItemsModal from "./__components/CartModal";
 import { useParams } from "react-router";
 
@@ -64,12 +54,8 @@ export default function CLOffersCreate({ role = 'admin' }) {
     const [searchResults, setSearchResults] = useState([]);
     const [locations, setLocations] = useState([]); // Список заводов для сайдбара (не меняется при фильтрации)
     const [allLocations, setAllLocations] = useState([]); // Резервная копия всех заводов
-    const [factories, setFactories] = useState([]);
     const [selectedFactory, setSelectedFactory] = useState(null);
-    const [factorySearch, setFactorySearch] = useState("");
-    const [factorySearchResults, setFactorySearchResults] = useState([]);
-    const [factoryLoading, setFactoryLoading] = useState(false);
-    const [factorySearchTimeout, setFactorySearchTimeout] = useState(null);
+    const [sidebarFactoryQuery, setSidebarFactoryQuery] = useState("");
 
     const [pagination, setPagination] = useState({
         totalCount: 0,
@@ -85,80 +71,27 @@ export default function CLOffersCreate({ role = 'admin' }) {
     const [itemQuantities, setItemQuantities] = useState({});
     const [searchTimeout, setSearchTimeout] = useState(null);
 
-    const { isOpen, onOpen, onClose } = useDisclosure();
-    const { isOpen: isFactoryModalOpen, onOpen: onFactoryModalOpen, onClose: onFactoryModalClose } = useDisclosure();
+    const [isCartOpen, setIsCartOpen] = useState(false);
     const toast = useToast();
     const { id } = useParams();
     
     // Сохраняем текущий поисковый запрос без фильтра завода для обновления списка заводов
     const currentSearchTermRef = useRef("");
 
-    // Factory search with debounce
-    const debouncedFactorySearch = (searchTerm) => {
-        if (factorySearchTimeout) {
-            clearTimeout(factorySearchTimeout);
-        }
-
-        if (!searchTerm.trim()) {
-            setFactorySearchResults([]);
-            return;
-        }
-
-        const timeout = setTimeout(() => {
-            performFactorySearch(searchTerm);
-        }, 500);
-
-        setFactorySearchTimeout(timeout);
-    };
-
-    const performFactorySearch = async (searchTerm) => {
-        setFactoryLoading(true);
-        try {
-            const response = await apiLocations.getFactory(searchTerm, id);
-            const factories = response.data || [];
-            setFactorySearchResults(factories);
-
-            if (factories.length === 0) {
-                toast({
-                    title: "Hech narsa topilmadi",
-                    description: `"${searchTerm}" bo'yicha fabrikalar topilmadi`,
-                    status: "info",
-                    duration: 3000,
-                    isClosable: true,
-                });
+    // Build unique factories list from search results.
+    // API returns stock rows with `location.parent` holding the factory (zavod).
+    const deriveFactoriesFromStocks = (stocks) => {
+        const map = new Map();
+        (stocks || []).forEach((row) => {
+            const factory = row?.location?.parent;
+            if (factory?.id && !map.has(factory.id)) {
+                map.set(factory.id, { id: factory.id, name: factory.name });
             }
-        } finally {
-            setFactoryLoading(false);
-        }
-    };
-
-    const handleFactorySearchChange = (e) => {
-        const value = e.target.value;
-        setFactorySearch(value);
-        debouncedFactorySearch(value);
-    };
-
-    const selectFactory = (factory) => {
-        setSelectedFactory(factory);
-        setFactorySearch("");
-        setFactorySearchResults([]);
-        onFactoryModalClose();
-
-        // После выбора завода, запускаем поиск с текущим запросом или "all"
-        const searchTerm = searchData.name.trim() === "" ? "all" : searchData.name;
-        setSearchData(prev => ({ ...prev, name: searchTerm, page: 1 }));
-        
-        // Загружаем товары выбранного завода
-        performSearchWithSidebarLoading(searchTerm, 1, factory.id);
-
-        toast({
-            title: "Factory tanlandi",
-            description: `${factory.name} tanlandi`,
-            status: "success",
-            duration: 3000,
-            isClosable: true,
         });
+        return Array.from(map.values());
     };
+
+    // Factory selection comes from the sidebar list (no modal).
 
     const clearFactory = () => {
         setSelectedFactory(null);
@@ -241,14 +174,15 @@ export default function CLOffersCreate({ role = 'admin' }) {
             }
 
             const response = await apiStock.GetStock(requestData);
-            setSearchResults(response.data.data || []);
+            const rows = response?.data?.data || [];
+            setSearchResults(rows);
             
             // Обновляем список заводов ТОЛЬКО если нет фильтра по заводу (locationId === null)
             // Это сохраняет полный список заводов в сайдбаре при фильтрации
             if (locationId === null) {
-                const newLocations = response.data.locations || [];
-                setLocations(newLocations);
-                setAllLocations(newLocations);
+                const factoriesFromRows = deriveFactoriesFromStocks(rows);
+                setLocations(factoriesFromRows);
+                setAllLocations(factoriesFromRows);
                 currentSearchTermRef.current = actualSearchTerm;
             }
             
@@ -358,11 +292,8 @@ export default function CLOffersCreate({ role = 'admin' }) {
             if (searchTimeout) {
                 clearTimeout(searchTimeout);
             }
-            if (factorySearchTimeout) {
-                clearTimeout(factorySearchTimeout);
-            }
         };
-    }, [searchTimeout, factorySearchTimeout]);
+    }, [searchTimeout]);
 
     // Product selection handlers
     const handleSelectRow = (itemId) => {
@@ -451,22 +382,34 @@ export default function CLOffersCreate({ role = 'admin' }) {
     const getProductCountForLocation = (locationId) => {
         // Если есть выбранный завод, показываем количество только для него, для остальных - 0 или общее?
         // Лучше показывать количество в текущем отфильтрованном списке
-        return searchResults.filter(item => item.location_id === locationId).length;
+        return searchResults.filter(item => item?.location?.parent?.id === locationId).length;
     };
 
     // Используем сохраненный список заводов (не обновляется при фильтрации)
     const displayLocations = locations.length > 0 ? locations : allLocations;
+    const filteredLocations = displayLocations.filter((loc) => {
+        if (!sidebarFactoryQuery.trim()) return true;
+        return (loc?.name || "").toLowerCase().includes(sidebarFactoryQuery.trim().toLowerCase());
+    });
 
     return (
         <Container maxW="container.xl" py={8} pb={20}>
-            <Flex gap={6} direction={{ base: "column", lg: "row" }}>
+            <Flex gap={6} direction={{ base: "column", lg: "row" }} align="flex-start">
                 {/* Left Sidebar - Factories List */}
                 <Box
                     as="aside"
                     w={{ base: "100%", lg: "280px" }}
                     flexShrink={0}
                 >
-                    <Card p={4} position="sticky" top="20px">
+                    <Card
+                        p={4}
+                        position="static"
+                        borderWidth="1px"
+                        borderColor="gray.200"
+                        boxShadow="md"
+                        bgGradient="linear(to-b, white, gray.50)"
+                        _dark={{ bgGradient: "linear(to-b, gray.800, gray.900)", borderColor: "gray.700" }}
+                    >
                         <VStack spacing={4} align="stretch">
                             <Flex justify="space-between" align="center">
                                 <HStack>
@@ -475,18 +418,37 @@ export default function CLOffersCreate({ role = 'admin' }) {
                                         Zavodlar
                                     </Heading>
                                 </HStack>
-                                <Tooltip label="Zavod qidirish">
-                                    <IconButton
-                                        icon={<AddIcon />}
-                                        size="sm"
-                                        variant="ghost"
-                                        onClick={onFactoryModalOpen}
-                                        aria-label="Zavod qo'shish"
-                                        isDisabled={sidebarLoading || loading}
-                                    />
-                                </Tooltip>
+                                {/* Modal removed per updated UX */}
                             </Flex>
                             <Divider />
+
+                            {/* Inline factory search (quick filter) */}
+                            <Box>
+                                <InputGroup size="sm">
+                                    <Input
+                                        value={sidebarFactoryQuery}
+                                        onChange={(e) => setSidebarFactoryQuery(e.target.value)}
+                                        placeholder="Zavod qidirish..."
+                                        borderRadius="md"
+                                        bg="white"
+                                        _dark={{ bg: "gray.800" }}
+                                        isDisabled={sidebarLoading || loading || displayLocations.length === 0}
+                                    />
+                                    <InputRightElement>
+                                        {sidebarFactoryQuery ? (
+                                            <IconButton
+                                                icon={<CloseIcon boxSize={3} />}
+                                                size="xs"
+                                                variant="ghost"
+                                                aria-label="Tozalash"
+                                                onClick={() => setSidebarFactoryQuery("")}
+                                            />
+                                        ) : (
+                                            <SearchIcon color="gray.400" />
+                                        )}
+                                    </InputRightElement>
+                                </InputGroup>
+                            </Box>
 
                             {/* All factories option */}
                             <Button
@@ -499,6 +461,8 @@ export default function CLOffersCreate({ role = 'admin' }) {
                                 w="full"
                                 isLoading={sidebarLoading && !selectedFactory}
                                 isDisabled={sidebarLoading || loading}
+                                borderRadius="md"
+                                boxShadow={!selectedFactory ? "sm" : "none"}
                             >
                                 Barcha zavodlar
                                 {!selectedFactory && searchResults.length > 0 && (
@@ -509,13 +473,41 @@ export default function CLOffersCreate({ role = 'admin' }) {
                             </Button>
 
                             {/* List of factories from search results */}
-                            <VStack spacing={1} align="stretch" maxH="calc(100vh - 300px)" overflowY="auto">
+                            {/* Use page scroll (no internal scroll) */}
+                            <VStack spacing={1} align="stretch">
                                 {displayLocations.length === 0 && !loading && !sidebarLoading && (
-                                    <Text fontSize="sm" color="gray.500" textAlign="center" py={4}>
-                                        Hech qanday zavod topilmadi
-                                    </Text>
+                                    <Card
+                                        p={4}
+                                        borderWidth="1px"
+                                        borderColor="gray.200"
+                                        bg="white"
+                                        _dark={{ bg: "gray.800", borderColor: "gray.700" }}
+                                    >
+                                        <VStack spacing={1} align="start">
+                                            <Text fontWeight="semibold">Zavodlar yo‘q</Text>
+                                            <Text fontSize="sm" color="gray.500">
+                                                Hozircha zavodlar ro‘yxati mavjud emas.
+                                            </Text>
+                                        </VStack>
+                                    </Card>
                                 )}
-                                {displayLocations.map((location) => {
+                                {displayLocations.length > 0 && filteredLocations.length === 0 && !loading && !sidebarLoading && (
+                                    <Card
+                                        p={4}
+                                        borderWidth="1px"
+                                        borderColor="blue.200"
+                                        bgGradient="linear(to-r, blue.50, cyan.50)"
+                                        _dark={{ borderColor: "blue.700", bgGradient: "linear(to-r, blue.900, cyan.900)" }}
+                                    >
+                                        <VStack spacing={1} align="start">
+                                            <Text fontWeight="semibold">Zavod topilmadi</Text>
+                                            <Text fontSize="sm" color="gray.600" _dark={{ color: "gray.200" }}>
+                                                “{sidebarFactoryQuery}” bo‘yicha natija yo‘q.
+                                            </Text>
+                                        </VStack>
+                                    </Card>
+                                )}
+                                {filteredLocations.map((location) => {
                                     const productCount = getProductCountForLocation(location.id);
                                     const isSelected = selectedFactory?.id === location.id;
                                     return (
@@ -534,6 +526,12 @@ export default function CLOffersCreate({ role = 'admin' }) {
                                             h="auto"
                                             isLoading={sidebarLoading && isSelected}
                                             isDisabled={sidebarLoading || loading}
+                                            borderRadius="md"
+                                            _hover={{
+                                                transform: "translateY(-1px)",
+                                                boxShadow: "sm",
+                                            }}
+                                            transition="all 0.15s ease"
                                         >
                                             <VStack align="start" spacing={0} flex={1}>
                                                 <Text fontWeight="medium" fontSize="sm" noOfLines={2}>
@@ -571,56 +569,55 @@ export default function CLOffersCreate({ role = 'admin' }) {
                 </Box>
 
                 {/* Right Content - Search and Results */}
-                <Box flex={1}>
+                <Box flex={1} minW={0}>
                     <VStack spacing={6} align="stretch">
                         <Heading as="h1" size="xl">
                             {role === 'supplier' ? 'Mahsulot qidiruv markazi' : 'Taklif yaratish'}
                         </Heading>
 
-                        {/* Product Search Card */}
-                        <Card p={6}>
-                            <VStack spacing={4}>
-                                <FormControl isInvalid={!!error && error.includes("nomini")}>
-                                    <FormLabel fontWeight="medium">Tovar nomi</FormLabel>
-                                    <InputGroup size="lg">
-                                        <Input
-                                            name="name"
-                                            value={searchData.name === "all" ? "" : searchData.name}
-                                            onChange={handleInputChange}
-                                            placeholder="Tovar nomini kiriting (avtomatik qidiruv)"
-                                            autoFocus
-                                            pr="4.5rem"
-                                            isDisabled={sidebarLoading}
-                                        />
-                                        <InputRightElement width="4.5rem">
-                                            <HStack spacing={1}>
-                                                {searchData.name && searchData.name !== "all" && (
-                                                    <IconButton
-                                                        icon={<CloseIcon />}
-                                                        size="sm"
-                                                        variant="ghost"
-                                                        onClick={handleClearSearch}
-                                                        aria-label="Tozalash"
-                                                        isDisabled={sidebarLoading || loading}
-                                                    />
-                                                )}
-                                                {loading ? (
-                                                    <Spinner size="sm" color="blue.500" />
-                                                ) : (
-                                                    <SearchIcon color="gray.400" />
-                                                )}
-                                            </HStack>
-                                        </InputRightElement>
-                                    </InputGroup>
-                                    <Text fontSize="sm" color="gray.500" mt={1}>
-                                        {searchData.name && searchData.name !== "all" 
-                                            ? "Yozishni to'xtating, qidiruv avtomatik boshlanadi" 
-                                            : selectedFactory 
-                                                ? `"${selectedFactory.name}" zavodidagi barcha mahsulotlar ko'rsatilmoqda`
-                                                : "Qidirish uchun yozishni boshlang"}
-                                    </Text>
-                                </FormControl>
-                            </VStack>
+                                {/* No pre-search guidance block (removed) */}
+
+                        {/* Product Search (no wrapper card) */}
+                        <Box>
+                            <FormControl isInvalid={!!error && error.includes("nomini")}>
+                                <FormLabel fontWeight="medium">Tovar nomi</FormLabel>
+                                <InputGroup size="lg">
+                                    <Input
+                                        name="name"
+                                        value={searchData.name === "all" ? "" : searchData.name}
+                                        onChange={handleInputChange}
+                                        placeholder="Tovar nomini kiriting (avtomatik qidiruv)"
+                                        autoFocus
+                                        pr="4.5rem"
+                                        borderRadius="lg"
+                                        bg="white"
+                                        borderColor="gray.200"
+                                        _hover={{ borderColor: "blue.300" }}
+                                        _focusVisible={{ borderColor: "blue.400", boxShadow: "0 0 0 1px var(--chakra-colors-blue-400)" }}
+                                        _dark={{ bg: "gray.800", borderColor: "gray.700" }}
+                                        isDisabled={sidebarLoading}
+                                    />
+                                    <InputRightElement width="4.5rem">
+                                        <HStack spacing={1}>
+                                            {searchData.name && searchData.name !== "all" && (
+                                                <IconButton
+                                                    icon={<CloseIcon />}
+                                                    size="sm"
+                                                    variant="ghost"
+                                                    onClick={handleClearSearch}
+                                                    aria-label="Tozalash"
+                                                    isDisabled={sidebarLoading || loading}
+                                                />
+                                            )}
+                                            {loading ? (
+                                                <Spinner size="sm" color="blue.500" />
+                                            ) : (
+                                                <SearchIcon color="gray.400" />
+                                            )}
+                                        </HStack>
+                                    </InputRightElement>
+                                </InputGroup>
+                            </FormControl>
 
                             {error && (
                                 <Alert status="error" mt={4} borderRadius="md">
@@ -628,35 +625,39 @@ export default function CLOffersCreate({ role = 'admin' }) {
                                     <AlertDescription>{error}</AlertDescription>
                                 </Alert>
                             )}
-                        </Card>
+                        </Box>
 
-                        {/* Search Results */}
+                        {/* Results / empty state (table is only shown when data exists) */}
                         {searchResults.length > 0 && (
                             <Box>
-                                <Flex justify="space-between" align="center" mb={4}>
+                                <Flex justify="space-between" align="center" mb={4} flexWrap="wrap" gap={2}>
                                     <Heading as="h3" size="md">
-                                        Qidiruv natijalari
+                                        Natijalar
                                         {selectedFactory && (
                                             <Badge ml={2} colorScheme="purple">
-                                                Filter: {selectedFactory.name}
+                                                {selectedFactory.name}
                                             </Badge>
                                         )}
                                     </Heading>
-                                    <Badge colorScheme="blue" fontSize="sm" p={2} borderRadius="full">
-                                        Topildi: {pagination.totalCount} ta tovar
+                                    <Badge colorScheme="blue" fontSize="sm" px={3} py={1.5} borderRadius="full">
+                                        {pagination.totalCount} ta
                                     </Badge>
                                 </Flex>
 
                                 <TableContainer
                                     borderWidth="1px"
                                     borderRadius="lg"
-                                    boxShadow="sm"
+                                    boxShadow="md"
                                     overflowX="auto"
+                                    maxW="100%"
+                                    bg="white"
+                                    _dark={{ bg: "gray.800" }}
                                 >
-                                    <Table variant="simple">
-                                        <Thead bg="gray.100" _dark={{ bg: "gray.700" }}>
+                                    {/* Wider-than-container table enables horizontal scroll */}
+                                    <Table variant="simple" width="max-content" minW="1100px">
+                                        <Thead bg="gray.50" _dark={{ bg: "gray.700" }}>
                                             <Tr>
-                                                {role !== 'supplier' &&
+                                                {role !== 'supplier' && (
                                                     <Th width="50px">
                                                         <Checkbox
                                                             isChecked={selectedItems.length === searchResults.length && searchResults.length > 0}
@@ -666,12 +667,12 @@ export default function CLOffersCreate({ role = 'admin' }) {
                                                             isDisabled={sidebarLoading || loading}
                                                         />
                                                     </Th>
-                                                }
-                                                <Th>№</Th>
-                                                <Th>Nomi</Th>
-                                                <Th>Kategoriya</Th>
-                                                <Th>Ishlab chiqaruvchi</Th>
-                                                <Th>Narxi</Th>
+                                                )}
+                                                <Th width="56px" color="gray.600" _dark={{ color: "gray.200" }}>№</Th>
+                                                <Th width={{ base: "45%", md: "40%" }}>Nomi</Th>
+                                                <Th width={{ base: "20%", md: "18%" }}>Kategoriya</Th>
+                                                <Th width={{ base: "22%", md: "24%" }}>Ishlab chiqaruvchi</Th>
+                                                <Th width={{ base: "13%", md: "18%" }}>Narxi</Th>
                                             </Tr>
                                         </Thead>
                                         <Tbody>
@@ -680,21 +681,19 @@ export default function CLOffersCreate({ role = 'admin' }) {
                                                     key={item.id}
                                                     onClick={() => {
                                                         if (role === 'supplier' || sidebarLoading || loading) return;
-                                                        handleSelectRow(item.id)
+                                                        handleSelectRow(item.id);
                                                     }}
                                                     cursor={sidebarLoading || loading ? "not-allowed" : "pointer"}
                                                     bg={selectedItems.includes(item.id) ? "blue.50" : undefined}
                                                     _dark={{
                                                         bg: selectedItems.includes(item.id) ? "blue.900" : undefined,
-                                                        _hover: { bg: selectedItems.includes(item.id) ? "blue.800" : "gray.700" }
+                                                        _hover: { bg: selectedItems.includes(item.id) ? "blue.800" : "gray.700" },
                                                     }}
-                                                    _hover={{
-                                                        bg: selectedItems.includes(item.id) ? "blue.100" : "gray.50"
-                                                    }}
+                                                    _hover={{ bg: selectedItems.includes(item.id) ? "blue.100" : "gray.50" }}
                                                     transition="background 0.2s"
                                                     opacity={sidebarLoading || loading ? 0.6 : 1}
                                                 >
-                                                    {role !== 'supplier' &&
+                                                    {role !== 'supplier' && (
                                                         <Td onClick={(e) => e.stopPropagation()}>
                                                             <Checkbox
                                                                 isChecked={selectedItems.includes(item.id)}
@@ -704,15 +703,23 @@ export default function CLOffersCreate({ role = 'admin' }) {
                                                                 isDisabled={sidebarLoading || loading}
                                                             />
                                                         </Td>
-                                                    }
+                                                    )}
                                                     <Td>{(pagination.currentPage - 1) * pagination.limit + index + 1}</Td>
-                                                    <Td maxW="250px" whiteSpace="normal" fontWeight="medium" title={item.product?.name}>
-                                                        {item.product?.name || "—"}
+                                                    <Td fontWeight="medium">
+                                                        <Text noOfLines={2} title={item.product?.name}>
+                                                            {item.product?.name || "—"}
+                                                        </Text>
                                                     </Td>
-                                                    <Td>{item.product?.category?.name || "—"}</Td>
+                                                    <Td>
+                                                        <Text noOfLines={2} title={item.product?.category?.name}>
+                                                            {item.product?.category?.name || "—"}
+                                                        </Text>
+                                                    </Td>
                                                     <Td>
                                                         <VStack align="start" spacing={0}>
-                                                            <Text>{item.product?.location?.name || getLocationName(item.location_id)}</Text>
+                                                            <Text noOfLines={2} title={item?.location?.parent?.name || getLocationName(item.location_id)}>
+                                                                {item?.location?.parent?.name || getLocationName(item.location_id)}
+                                                            </Text>
                                                         </VStack>
                                                     </Td>
                                                     <Td fontWeight="bold" color="green.600" _dark={{ color: "green.300" }}>
@@ -724,7 +731,6 @@ export default function CLOffersCreate({ role = 'admin' }) {
                                     </Table>
                                 </TableContainer>
 
-                                {/* Pagination */}
                                 {pagination.totalPages > 1 && (
                                     <Flex justify="space-between" align="center" mt={4} flexWrap="wrap" gap={2}>
                                         <Text fontSize="sm" color="gray.600" _dark={{ color: "gray.400" }}>
@@ -742,15 +748,10 @@ export default function CLOffersCreate({ role = 'admin' }) {
                                             <HStack spacing={1} display={{ base: "none", md: "flex" }}>
                                                 {Array.from({ length: Math.min(5, pagination.totalPages) }, (_, i) => {
                                                     let pageNum;
-                                                    if (pagination.totalPages <= 5) {
-                                                        pageNum = i + 1;
-                                                    } else if (pagination.currentPage <= 3) {
-                                                        pageNum = i + 1;
-                                                    } else if (pagination.currentPage >= pagination.totalPages - 2) {
-                                                        pageNum = pagination.totalPages - 4 + i;
-                                                    } else {
-                                                        pageNum = pagination.currentPage - 2 + i;
-                                                    }
+                                                    if (pagination.totalPages <= 5) pageNum = i + 1;
+                                                    else if (pagination.currentPage <= 3) pageNum = i + 1;
+                                                    else if (pagination.currentPage >= pagination.totalPages - 2) pageNum = pagination.totalPages - 4 + i;
+                                                    else pageNum = pagination.currentPage - 2 + i;
 
                                                     return (
                                                         <Button
@@ -793,23 +794,39 @@ export default function CLOffersCreate({ role = 'admin' }) {
                             </Box>
                         )}
 
-                        {/* Empty and loading states */}
-                        {searchResults.length === 0 && !loading && !sidebarLoading && searchData.name && searchData.name !== "all" && (
-                            <Alert status="info" borderRadius="lg">
-                                <AlertIcon />
-                                <AlertDescription>
-                                    Sizning "{searchData.name}" so'rovingiz bo'yicha hech narsa topilmadi
-                                </AlertDescription>
-                            </Alert>
-                        )}
-
-                        {searchResults.length === 0 && !loading && !sidebarLoading && selectedFactory && (!searchData.name || searchData.name === "all") && (
-                            <Alert status="info" borderRadius="lg">
-                                <AlertIcon />
-                                <AlertDescription>
-                                    "{selectedFactory.name}" zavodida hech qanday mahsulot topilmadi
-                                </AlertDescription>
-                            </Alert>
+                        {/* Empty state (instead of table) */}
+                        {searchResults.length === 0 && !loading && !sidebarLoading && (selectedFactory || (searchData.name && searchData.name !== "all")) && (
+                            <Card
+                                p={8}
+                                borderWidth="1px"
+                                borderColor="gray.200"
+                                bg="white"
+                                _dark={{ bg: "gray.800", borderColor: "gray.700" }}
+                                boxShadow="sm"
+                            >
+                                <VStack spacing={2} align="center" textAlign="center">
+                                    <Box
+                                        w="48px"
+                                        h="48px"
+                                        borderRadius="full"
+                                        bg="gray.100"
+                                        _dark={{ bg: "gray.700" }}
+                                        display="flex"
+                                        alignItems="center"
+                                        justifyContent="center"
+                                    >
+                                        <SearchIcon color="gray.400" />
+                                    </Box>
+                                    <Text fontSize="lg" fontWeight="semibold">
+                                        Mahsulot yo‘q
+                                    </Text>
+                                    <Text fontSize="sm" color="gray.500" maxW="440px">
+                                        {selectedFactory
+                                            ? `“${selectedFactory.name}” zavodi bo‘yicha mahsulot topilmadi.`
+                                            : `“${searchData.name}” bo‘yicha mahsulot topilmadi.`}
+                                    </Text>
+                                </VStack>
+                            </Card>
                         )}
 
                         {(loading || sidebarLoading) && (searchData.name || selectedFactory) && (
@@ -822,76 +839,6 @@ export default function CLOffersCreate({ role = 'admin' }) {
                 </Box>
             </Flex>
 
-            {/* Factory Search Modal */}
-            <Modal isOpen={isFactoryModalOpen} onClose={onFactoryModalClose} size="lg">
-                <ModalOverlay />
-                <ModalContent>
-                    <ModalHeader>Factory qidirish</ModalHeader>
-                    <ModalCloseButton />
-                    <ModalBody>
-                        <VStack spacing={4}>
-                            <FormControl>
-                                <FormLabel>Factory nomi</FormLabel>
-                                <InputGroup>
-                                    <Input
-                                        value={factorySearch}
-                                        onChange={handleFactorySearchChange}
-                                        placeholder="Factory nomini kiriting"
-                                        autoFocus
-                                    />
-                                    <InputRightElement>
-                                        {factoryLoading ? (
-                                            <Spinner size="sm" color="blue.500" />
-                                        ) : (
-                                            <SearchIcon color="gray.400" />
-                                        )}
-                                    </InputRightElement>
-                                </InputGroup>
-                            </FormControl>
-
-                            {factorySearchResults.length > 0 && (
-                                <Box w="100%" maxH="300px" overflowY="auto">
-                                    <VStack spacing={2} align="stretch">
-                                        {factorySearchResults.map((factory) => (
-                                            <Card
-                                                key={factory.id}
-                                                p={3}
-                                                cursor="pointer"
-                                                onClick={() => selectFactory(factory)}
-                                                _hover={{ bg: "gray.50", _dark: { bg: "gray.700" } }}
-                                                borderWidth="1px"
-                                            >
-                                                <HStack>
-                                                    <Box as={Building2} size={16} color="gray.500" />
-                                                    <Box>
-                                                        <Text fontWeight="medium">{factory.name}</Text>
-                                                        <Text fontSize="sm" color="gray.500">{factory.id}</Text>
-                                                    </Box>
-                                                </HStack>
-                                            </Card>
-                                        ))}
-                                    </VStack>
-                                </Box>
-                            )}
-
-                            {factorySearch && !factoryLoading && factorySearchResults.length === 0 && (
-                                <Alert status="info">
-                                    <AlertIcon />
-                                    <AlertDescription>
-                                        "{factorySearch}" bo'yicha hech narsa topilmadi
-                                    </AlertDescription>
-                                </Alert>
-                            )}
-                        </VStack>
-                    </ModalBody>
-                    <ModalFooter>
-                        <Button variant="ghost" onClick={onFactoryModalClose}>
-                            Yopish
-                        </Button>
-                    </ModalFooter>
-                </ModalContent>
-            </Modal>
-
             {/* Fixed button for selected items */}
             {selectedItems.length > 0 && (
                 <Box position="fixed" bottom="20px" right="20px" zIndex={10}>
@@ -900,7 +847,7 @@ export default function CLOffersCreate({ role = 'admin' }) {
                             leftIcon={<ViewIcon />}
                             colorScheme="blue"
                             size="lg"
-                            onClick={onOpen}
+                            onClick={() => setIsCartOpen(true)}
                             boxShadow="lg"
                             _hover={{ transform: 'scale(1.05)' }}
                             isDisabled={sidebarLoading || loading}
@@ -913,8 +860,8 @@ export default function CLOffersCreate({ role = 'admin' }) {
 
             {/* Selected items modal */}
             <SelectedItemsModal
-                isOpen={isOpen}
-                onClose={onClose}
+                isOpen={isCartOpen}
+                onClose={() => setIsCartOpen(false)}
                 selectedItemsData={selectedItemsData}
                 selectedItems={selectedItems}
                 onRemoveItem={handleRemoveItem}
