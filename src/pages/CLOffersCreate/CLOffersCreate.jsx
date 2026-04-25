@@ -56,6 +56,7 @@ export default function CLOffersCreate({ role = 'admin' }) {
     const [allLocations, setAllLocations] = useState([]); // Резервная копия всех заводов
     const [selectedFactory, setSelectedFactory] = useState(null);
     const [sidebarFactoryQuery, setSidebarFactoryQuery] = useState("");
+    const [visibleFactoriesCount, setVisibleFactoriesCount] = useState(20);
 
     const [pagination, setPagination] = useState({
         totalCount: 0,
@@ -180,9 +181,13 @@ export default function CLOffersCreate({ role = 'admin' }) {
             // Обновляем список заводов ТОЛЬКО если нет фильтра по заводу (locationId === null)
             // Это сохраняет полный список заводов в сайдбаре при фильтрации
             if (locationId === null) {
+                // Preferred source: backend-provided `locations` list for current query (e.g. "Beton").
+                // Fallback: derive unique factories from stock rows when `locations` is missing.
+                const fromResponse = response?.data?.locations || [];
                 const factoriesFromRows = deriveFactoriesFromStocks(rows);
-                setLocations(factoriesFromRows);
-                setAllLocations(factoriesFromRows);
+                const newLocations = fromResponse.length > 0 ? fromResponse : factoriesFromRows;
+                setLocations(newLocations);
+                setAllLocations(newLocations);
                 currentSearchTermRef.current = actualSearchTerm;
             }
             
@@ -391,6 +396,12 @@ export default function CLOffersCreate({ role = 'admin' }) {
         if (!sidebarFactoryQuery.trim()) return true;
         return (loc?.name || "").toLowerCase().includes(sidebarFactoryQuery.trim().toLowerCase());
     });
+    const visibleLocations = filteredLocations.slice(0, visibleFactoriesCount);
+    const canShowMoreFactories = filteredLocations.length > visibleFactoriesCount;
+
+    useEffect(() => {
+        setVisibleFactoriesCount(20);
+    }, [sidebarFactoryQuery, displayLocations.length]);
 
     return (
         <Container maxW="100%" px={{ base: 4, md: 6, lg: 8 }} py={8} pb={20}>
@@ -507,7 +518,7 @@ export default function CLOffersCreate({ role = 'admin' }) {
                                         </VStack>
                                     </Card>
                                 )}
-                                {filteredLocations.map((location) => {
+                                {visibleLocations.map((location) => {
                                     const productCount = getProductCountForLocation(location.id);
                                     const isSelected = selectedFactory?.id === location.id;
                                     return (
@@ -542,6 +553,19 @@ export default function CLOffersCreate({ role = 'admin' }) {
                                         </Button>
                                     );
                                 })}
+
+                                {canShowMoreFactories && (
+                                    <Button
+                                        variant="outline"
+                                        colorScheme="blue"
+                                        size="sm"
+                                        mt={2}
+                                        onClick={() => setVisibleFactoriesCount((c) => c + 20)}
+                                        isDisabled={sidebarLoading || loading}
+                                    >
+                                        Yana ko‘rsatish
+                                    </Button>
+                                )}
                             </VStack>
 
                             {selectedFactory && (
