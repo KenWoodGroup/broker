@@ -393,7 +393,7 @@ export default function CLOffersCreate({ role = 'admin' }) {
     });
 
     return (
-        <Container maxW="container.xl" py={8} pb={20}>
+        <Container maxW="100%" px={{ base: 4, md: 6, lg: 8 }} py={8} pb={20}>
             <Flex gap={6} direction={{ base: "column", lg: "row" }} align="flex-start">
                 {/* Left Sidebar - Factories List */}
                 <Box
