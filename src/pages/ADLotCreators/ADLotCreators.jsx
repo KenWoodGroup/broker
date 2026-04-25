@@ -49,7 +49,7 @@ export default function ADLotCreators() {
     }, [page]);
 
     return (
-        <Box pr="20px" pb="20px">
+        <Box pr="20px" pb="20px" mt={"20px"}>
             <Flex justifyContent="space-between" mb="20px">
                 <HStack>
                     <IconButton
