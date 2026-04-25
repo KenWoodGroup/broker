@@ -59,6 +59,13 @@ const STATUS_TYPES = [
     { value: "active", label: "Aktiv" },
 ]
 
+// Options for "hasLot" filter
+const HAS_LOT_OPTIONS = [
+    { value: "all", label: "Hammasi" },
+    { value: "true", label: "Ob'ekti bor" },
+    { value: "false", label: "Ob'ekti yo'q" },
+]
+
 const isAdmin = (role) => role === "Admin"
 
 // Ключи для sessionStorage
@@ -67,8 +74,12 @@ const STORAGE_KEYS = {
     SEARCH: "companies_search",
     SEARCH_INPUT: "companies_search_input",
     REGION: "companies_region",
-    ACTIVE_TYPE: "companies_active_type"
-}
+    ACTIVE_TYPE: "companies_active_type",
+    HAS_LOT: "companies_has_lot",
+    SCROLL_Y: "companies_scroll_y",  // 👈 новый ключ для скролла
+};
+
+
 
 export default function Clcompany({ role }) {
     const [companies, setCompanies] = useState([])
@@ -79,12 +90,10 @@ export default function Clcompany({ role }) {
     })
     const [loading, setLoading] = useState(false)
 
-    // searchInput — только для отображения в поле ввода (не триггерит запрос)
     const [searchInput, setSearchInput] = useState(() => {
         const saved = sessionStorage.getItem(STORAGE_KEYS.SEARCH_INPUT)
         return saved || ""
     })
-    // search — «зафиксированное» значение после debounce, триггерит запрос
     const [search, setSearch] = useState(() => {
         const saved = sessionStorage.getItem(STORAGE_KEYS.SEARCH)
         return saved || "all"
@@ -95,14 +104,20 @@ export default function Clcompany({ role }) {
         return saved || "all"
     })
 
-    // Admin can see all statuses, non-admin can only see pending and active
     const [selectedActiveType, setSelectedActiveType] = useState(() => {
         if (!isAdmin(role)) return "all"
         const saved = sessionStorage.getItem(STORAGE_KEYS.ACTIVE_TYPE)
         return saved || "all"
     })
 
+    const [hasLotFilter, setHasLotFilter] = useState(() => {
+        const saved = sessionStorage.getItem(STORAGE_KEYS.HAS_LOT)
+        return saved || "all"
+    })
+
     const debounceRef = useRef(null)
+    const scrollRef = useRef(null)          // 👈 ref на прокручиваемый контейнер
+    const scrollRestoredRef = useRef(false) // 👈 флаг — восстановили ли уже скролл
     const navigate = useNavigate()
 
     // Сохраняем фильтры в sessionStorage при их изменении
@@ -128,15 +143,33 @@ export default function Clcompany({ role }) {
         }
     }, [selectedActiveType, role])
 
+    useEffect(() => {
+        sessionStorage.setItem(STORAGE_KEYS.HAS_LOT, hasLotFilter)
+    }, [hasLotFilter])
+
+    // ─── Сохранение позиции скролла при уходе со страницы ───────────────────
+    useEffect(() => {
+        const container = scrollRef.current
+        if (!container) return
+
+        const handleScroll = () => {
+            sessionStorage.setItem(STORAGE_KEYS.SCROLL_Y, container.scrollTop.toString())
+        }
+
+        container.addEventListener("scroll", handleScroll, { passive: true })
+        return () => container.removeEventListener("scroll", handleScroll)
+    }, [companies]) // переподписываемся после рендера списка
+
     // ─── Запрос данных ───────────────────────────────────────────────────────
     const fetchCompanies = useCallback(
-        async (pageNumber, searchTerm, region, activeType) => {
+        async (pageNumber, searchTerm, region, activeType, hasLot) => {
             try {
                 setLoading(true)
                 const response = await apiLocations.FilterCompany(
                     region,
                     searchTerm,
                     activeType,
+                    hasLot,
                     pageNumber
                 )
                 setCompanies(response.data.data.records)
@@ -147,13 +180,29 @@ export default function Clcompany({ role }) {
                 setLoading(false)
             }
         },
-        [] // зависимостей нет — функция стабильна
+        []
     )
 
     // При любом изменении фильтров / страницы — перезапрашиваем
     useEffect(() => {
-        fetchCompanies(page, search, selectedRegion, selectedActiveType)
-    }, [page, search, selectedRegion, selectedActiveType, fetchCompanies])
+        fetchCompanies(page, search, selectedRegion, selectedActiveType, hasLotFilter)
+    }, [page, search, selectedRegion, selectedActiveType, hasLotFilter, fetchCompanies])
+
+    // ─── Восстановление скролла после загрузки данных ────────────────────────
+    useEffect(() => {
+        // Восстанавливаем только один раз при первом рендере со списком
+        if (loading || companies.length === 0 || scrollRestoredRef.current) return
+
+        const savedY = sessionStorage.getItem(STORAGE_KEYS.SCROLL_Y)
+        if (savedY && scrollRef.current) {
+            // Небольшая задержка, чтобы DOM успел отрисоваться
+            const timer = setTimeout(() => {
+                scrollRef.current?.scrollTo({ top: parseInt(savedY), behavior: "instant" })
+                scrollRestoredRef.current = true
+            }, 50)
+            return () => clearTimeout(timer)
+        }
+    }, [loading, companies])
 
     // Cleanup debounce при анмаунте
     useEffect(() => {
@@ -167,6 +216,9 @@ export default function Clcompany({ role }) {
         const value = e.target.value
         setSearchInput(value)
         setPage(1)
+        // При новом поиске сбрасываем сохранённый скролл
+        sessionStorage.removeItem(STORAGE_KEYS.SCROLL_Y)
+        scrollRestoredRef.current = false
 
         if (debounceRef.current) clearTimeout(debounceRef.current)
         debounceRef.current = setTimeout(() => {
@@ -177,14 +229,26 @@ export default function Clcompany({ role }) {
     const handleRegionChange = (e) => {
         setSelectedRegion(e.target.value === "" ? "all" : e.target.value)
         setPage(1)
+        sessionStorage.removeItem(STORAGE_KEYS.SCROLL_Y)
+        scrollRestoredRef.current = false
     }
 
     const handleActiveTypeChange = (e) => {
         setSelectedActiveType(e.target.value === "" ? "all" : e.target.value)
         setPage(1)
+        sessionStorage.removeItem(STORAGE_KEYS.SCROLL_Y)
+        scrollRestoredRef.current = false
+    }
+
+    const handleHasLotChange = (e) => {
+        setHasLotFilter(e.target.value === "" ? "all" : e.target.value)
+        setPage(1)
+        sessionStorage.removeItem(STORAGE_KEYS.SCROLL_Y)
+        scrollRestoredRef.current = false
     }
 
     const handleRowClick = (item) => {
+        // Скролл уже сохранён через listener, просто переходим
         const path = isAdmin(role)
             ? `/company-detail/${item.id}`
             : `/call-operator/company/${item.id}`
@@ -192,11 +256,20 @@ export default function Clcompany({ role }) {
     }
 
     const refreshCurrent = () =>
-        fetchCompanies(page, search, selectedRegion, selectedActiveType)
+        fetchCompanies(page, search, selectedRegion, selectedActiveType, hasLotFilter)
+
 
     // ─── Render ───────────────────────────────────────────────────────────────
     return (
-        <Box py="20px" pr="20px" pl="10px" >
+        // 👇 Оборачиваем в прокручиваемый контейнер с ref
+        <Box
+            ref={scrollRef}
+            py="20px"
+            pr="20px"
+            pl="10px"
+            h="100vh"
+            overflowY="auto"
+        >
             {/* Заголовок */}
             <Flex justifyContent="space-between" mb="20px">
                 <Heading size="lg">Kompaniyalar</Heading>
@@ -258,7 +331,7 @@ export default function Clcompany({ role }) {
                     </Select>
                 </Box>
 
-                {/* Статус фильтр - всем доступен, но с разными опциями */}
+                {/* Статус фильтр */}
                 <Box w="220px">
                     <Select
                         placeholder="Status (Hammasi)"
@@ -266,20 +339,33 @@ export default function Clcompany({ role }) {
                         onChange={handleActiveTypeChange}
                     >
                         {isAdmin(role) ? (
-                            // Admin sees all statuses including delete
                             ACTIVE_TYPES.map((type) => (
                                 <option key={type.value} value={type.value}>
                                     {type.label}
                                 </option>
                             ))
                         ) : (
-                            // Non-admin sees only pending and active
                             STATUS_TYPES.map((type) => (
                                 <option key={type.value} value={type.value}>
                                     {type.label}
                                 </option>
                             ))
                         )}
+                    </Select>
+                </Box>
+
+                {/* Фильтр: наличие объектов */}
+                <Box w="220px">
+                    <Select
+                        placeholder="Ob'ekt (Hammasi)"
+                        value={hasLotFilter === "all" ? "" : hasLotFilter}
+                        onChange={handleHasLotChange}
+                    >
+                        {HAS_LOT_OPTIONS.map((opt) => (
+                            <option key={opt.value} value={opt.value}>
+                                {opt.label}
+                            </option>
+                        ))}
                     </Select>
                 </Box>
             </Flex>
@@ -314,13 +400,12 @@ export default function Clcompany({ role }) {
                             <Thead>
                                 <Tr>
                                     <Th>#</Th>
+                                    <Th>Reyting</Th>
                                     <Th>Nomi</Th>
-                                    <Th>Turi</Th>
                                     <Th>Manzil</Th>
                                     <Th>Status</Th>
                                     <Th></Th>
                                     <Th>Telefon</Th>
-                                    {isAdmin(role) && <Th>Balans</Th>}
                                     <Th>Yaratilgan</Th>
                                     {isAdmin(role) && <Th>Amallar</Th>}
                                 </Tr>
@@ -332,35 +417,44 @@ export default function Clcompany({ role }) {
                                         onClick={() => handleRowClick(item)}
                                         cursor="pointer"
                                     >
-                                        <Td>{(page - 1) * 10 + index + 1}</Td>
+                                        <Td>{(page - 1) * 50 + index + 1}</Td>
+                                        <Td >
+                                            <Flex align="center" gap={1}>
+                                                <Text
+                                                fontWeight={'bold'}
+                                                    style={{
+                                                        color:
+                                                            +item.rating >= 65
+                                                                ? "oklch(72.3% .219 149.579)"
+                                                                : +item.rating >= 35
+                                                                    ? "oklch(79.5% .184 86.047)"
+                                                                    : +item.rating >= 20
+                                                                        ? "oklch(70.5% .213 47.604)"
+                                                                        : "oklch(63.7% .237 25.331)",
+                                                    }}
+                                                >
+                                                    {item.rating_grade ?? "!"}
+                                                </Text>
+                                                <Text >
+                                                    ({item.rating ?? "?"})
+                                                </Text>
+                                            </Flex>
+                                        </Td>
 
-                                        <Td fontWeight="medium">{item.name}</Td>
-
-                                        <Td>
-                                            <Badge
-                                                colorScheme={
-                                                    item.type === "company" ? "blue"
-                                                        : item.type === "builder" ? "green"
-                                                            : "purple"
-                                                }
-                                                textTransform="capitalize"
-                                            >
-                                                {item.type}
-                                            </Badge>
+                                        <Td fontWeight="medium" maxW={'600px'}>
+                                            <Text whiteSpace={'normal'}>{item.name}</Text>
                                         </Td>
 
                                         <Td maxW="250px">
                                             <Text noOfLines={1}>{item.address}</Text>
                                         </Td>
 
-                                        {/* Status column - edit available for everyone */}
                                         <Td onClick={(e) => e.stopPropagation()}>
                                             <StatusEdit
                                                 data={item}
                                                 refresh={refreshCurrent}
                                             />
                                         </Td>
-
 
                                         <Td onClick={(e) => e.stopPropagation()}>
                                             <ContactPhone
@@ -370,12 +464,6 @@ export default function Clcompany({ role }) {
                                         </Td>
 
                                         <Td>{item.phone}</Td>
-
-                                        {isAdmin(role) && (
-                                            <Td fontWeight="semibold">
-                                                {Number(item.balance).toLocaleString()} so'm
-                                            </Td>
-                                        )}
 
                                         <Td>
                                             {new Date(item.createdAt).toLocaleDateString("uz-UZ")}

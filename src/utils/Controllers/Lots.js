@@ -7,13 +7,22 @@ class apiLots {
         const response = await $api.get(`/lots`, { params });
         return response;
     };
+    static GetByParent = async (id) => {
+        const response = await $api.get(`/lots/name?parent_id=${id}`);
+        return response;
+    };
+    static GetLotsByParent = async (id, page = 1) => {
+        const response = await $api.get(`/lots?parent_id=${id}&page=${page}`);
+        return response;
+    };
 
-    static filter = async ({ type, category, searchName, page } = {}) => {
+    static filter = async ({ type, category, searchName, page, address } = {}) => {
         const params = {};
         if (type) params.type = type;
         if (category) params.category = category;
         if (searchName) params.searchName = searchName;
         if (page) params.page = page;
+        if (address) params.address = address;
 
         const response = await $api.get(`/lots/filter`, { params });
         return response;

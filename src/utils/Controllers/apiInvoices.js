@@ -23,13 +23,14 @@ class apiInvoices {
     return response;
   };
   
-  static UploadSalePriceExcel = async (data) => {
-  const response = await $api.post(`/erp/stock-sale-type/upload-excel`, data, {
-    headers: {
-      "Content-Type": "multipart/form-data",
-    },
-  });
-  return response;
+  static UploadSalePriceExcel = async (warehouseId, data) => {
+    const response = await $api.post(`/erp/stock-sale-type/upload-excel`, data, {
+      params: { warehouse_id: warehouseId },
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+    return response;
 };
 }
 export { apiInvoices };

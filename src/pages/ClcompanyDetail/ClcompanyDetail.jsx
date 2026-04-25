@@ -33,7 +33,8 @@ import {
     ArrowLeft,
     Edit2,
     Users,
-    MapPin
+    MapPin,
+    Star
 } from "lucide-react"
 
 import ConstructionSites from "./__components/ConstructionSites"
@@ -42,17 +43,21 @@ import CompanyOrders from "./__components/CompanyOrders"
 import CompanyInfo from "./__components/CompanyInfo"
 import LocationEditModal from "./__components/LocationEditModal"
 import CompanyUsers from "./__components/CompanyUsers"
+import RatingEditModal from "./__components/RatingEditModal"
+import LocationContact from "./__components/LocationContact/LocationContact"
 
 export default function ClcompanyDetail({ role }) {
     const { id } = useParams()
     const navigate = useNavigate()
     const editModal = useDisclosure()
+    const ratingModal = useDisclosure()
 
     const [data, setData] = useState(null)
     const [loading, setLoading] = useState(true)
 
     const bg = useColorModeValue("white", "gray.800")
     const headerBg = useColorModeValue("gray.50", "gray.700")
+    const ratingBg = useColorModeValue("whiteAlpha.700", "whiteAlpha.200")
 
     const isAdmin = role === "Admin"
 
@@ -94,6 +99,11 @@ export default function ClcompanyDetail({ role }) {
             ]
             : []),
         {
+            label: "Kontraktlar",
+            icon: <Users size={18} />,
+            component: <LocationContact id={id} role={role} />
+        },
+        {
             label: "Buyurtmalar",
             icon: <Package size={18} />,
             component: <CompanyOrders id={id} role={role} />
@@ -102,7 +112,7 @@ export default function ClcompanyDetail({ role }) {
             label: "Obyektlar",
             icon: <MapPin size={18} />,
             component: (
-                <ConstructionSites role={role} companyId={id} />
+                <ConstructionSites data={data} role={role} companyId={id} />
             )
         },
         {
@@ -133,6 +143,7 @@ export default function ClcompanyDetail({ role }) {
                 overflow="hidden"
                 mb={8}
             >
+                
                 <CardHeader bg={headerBg} py={4} px={6}>
                     <Flex justify="space-between" align="center">
                         <HStack spacing={4}>
@@ -152,30 +163,65 @@ export default function ClcompanyDetail({ role }) {
                                         {data?.name}
                                     </Heading>
 
-                                    <Badge
-                                        mt={2}
-                                        colorScheme={
-                                            data?.type === "company"
-                                                ? "blue"
-                                                : "green"
-                                        }
-                                    >
-                                        {data?.type === "company"
-                                            ? "KOMPANIYA"
-                                            : "SHAXS"}
-                                    </Badge>
+                                    <HStack spacing={3} mt={2} flexWrap="wrap">
+                                        <Badge
+                                            colorScheme={
+                                                data?.type === "company" ? "blue" : "green"
+                                            }
+                                        >
+                                            {data?.type === "company" ? "KOMPANIYA" : "SHAXS"}
+                                        </Badge>
+
+                                        <HStack
+                                            spacing={1.5}
+                                            px={3}
+                                            py={1}
+                                            borderRadius="full"
+                                            bg={ratingBg}
+                                            borderWidth="1px"
+                                            borderColor="whiteAlpha.300"
+                                            cursor={isAdmin ? "pointer" : "default"}
+                                            onClick={isAdmin ? ratingModal.onOpen : undefined}
+                                        >
+                                            <Star size={16} />
+                                            <Text fontWeight="bold" fontSize="sm">
+                                                {data?.rating ?? "0.00"}
+                                            </Text>
+                                        </HStack>
+
+                                        <Badge
+                                            colorScheme="purple"
+                                            variant="subtle"
+                                            borderRadius="full"
+                                            px={3}
+                                            py={1}
+                                            fontSize="sm"
+                                        >
+                                            {data?.rating_grade ?? "Berilmagan"}
+                                        </Badge>
+
+                                    </HStack>
                                 </Box>
                             </Flex>
                         </HStack>
 
                         {isAdmin && (
-                            <Tooltip label="Tahrirlash">
-                                <IconButton
-                                    icon={<Edit2 size={16} />}
-                                    onClick={editModal.onOpen}
-                                    variant="ghost"
-                                />
-                            </Tooltip>
+                            <HStack spacing={1}>
+                                <Tooltip label="Ratingni tahrirlash">
+                                    <IconButton
+                                        icon={<Star size={16} />}
+                                        onClick={ratingModal.onOpen}
+                                        variant="ghost"
+                                    />
+                                </Tooltip>
+                                <Tooltip label="Tahrirlash">
+                                    <IconButton
+                                        icon={<Edit2 size={16} />}
+                                        onClick={editModal.onOpen}
+                                        variant="ghost"
+                                    />
+                                </Tooltip>
+                            </HStack>
                         )}
                     </Flex>
                 </CardHeader>
@@ -208,6 +254,17 @@ export default function ClcompanyDetail({ role }) {
                     onClose={editModal.onClose}
                     data={data}
                     onSuccess={GetLocation}
+                />
+            )}
+
+            {data?.id && (
+                <RatingEditModal
+                    isOpen={ratingModal.isOpen}
+                    onClose={ratingModal.onClose}
+                    locationId={data.id}
+                    initialRating={data?.rating}
+                    initialGrade={data?.rating_grade}
+                    onUpdated={GetLocation}
                 />
             )}
         </Box>

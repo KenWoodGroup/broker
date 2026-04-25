@@ -55,16 +55,16 @@ import {
 const statusConfig = [
     { id: "new", label: "Yangi", icon: Star },
     { id: "in_progress", label: "Jarayonda", icon: Settings },
-    { id: "pending_confirmation", label: "Tasdiqlash kutilmoqda", icon: Clock },
     { id: "price_review", label: "Narx tekshiruvi", icon: DollarSign },
+    { id: "pending_confirmation", label: "Tasdiqlash kutilmoqda", icon: Clock },
     { id: "contract_ready", label: "Shartnoma tayyor", icon: FileText },
-    { id: "contract_signed", label: "Shartnoma imzolangan", icon: PenTool },
-    { id: "payment_in_progress", label: "To'lov jarayonida", icon: CreditCard },
-    { id: "items_in_progress", label: "Mahsulotlar tayyorlanmoqda", icon: Package },
-    { id: "in_delivery", label: "Yetkazib berishda", icon: Truck },
-    { id: "delivered", label: "Yetkazib berilgan", icon: Check },
-    { id: "completed", label: "Tugallangan", icon: CheckCircle2 },
-    { id: "cancelled", label: "Bekor qilingan", icon: X },
+    // { id: "contract_signed", label: "Shartnoma imzolangan", icon: PenTool },
+    // { id: "payment_in_progress", label: "To'lov jarayonida", icon: CreditCard },
+    // { id: "items_in_progress", label: "Mahsulotlar tayyorlanmoqda", icon: Package },
+    // { id: "in_delivery", label: "Yetkazib berishda", icon: Truck },
+    // { id: "delivered", label: "Yetkazib berilgan", icon: Check },
+    // { id: "completed", label: "Tugallangan", icon: CheckCircle2 },
+    // { id: "cancelled", label: "Bekor qilingan", icon: X },
 ];
 
 // Helper functions
@@ -169,12 +169,7 @@ const OfferCard = ({ offer, onClick, onStatusChange, isUpdating }) => {
                             {formatCurrency(offer.total_sum)}
                         </Text>
                     </VStack>
-                    <VStack align="end" spacing={0}>
-                        <Text fontSize="xs" >To'langan</Text>
-                        <Text fontSize="sm" fontWeight="medium" color="green.500">
-                            {formatCurrency(offer.paid_sum)}
-                        </Text>
-                    </VStack>
+                
                 </HStack>
 
                 {/* Date and Items */}
@@ -416,7 +411,7 @@ export default function AllOffers() {
     };
 
     const handleCardClick = (offerId) => {
-        navigate(`/operator/offers/${offerId}`);
+        navigate(`/offers/${offerId}`);
     };
 
     useEffect(() => {

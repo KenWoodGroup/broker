@@ -38,6 +38,7 @@ import {
     Tooltip,
     Icon,
     Center,
+    useColorModeValue,
 } from '@chakra-ui/react';
 import {
     AddIcon,
@@ -56,6 +57,17 @@ import { toastService } from '../../utils/toast';
 const WarehousesPage = ({ role = 'admin' }) => {
     const { factoryId } = useParams();
     const navigate = useNavigate();
+
+    const headerBorder = useColorModeValue("gray.200", "whiteAlpha.200");
+    const footerBg = useColorModeValue("gray.50", "whiteAlpha.50");
+    const createHeroBg = useColorModeValue(
+        "linear-gradient(135deg, #eff6ff 0%, #e0e7ff 50%, #ddd6fe 100%)",
+        "linear-gradient(135deg, rgba(59,130,246,0.18) 0%, rgba(99,102,241,0.22) 100%)"
+    );
+    const deleteHeroBg = useColorModeValue(
+        "linear-gradient(135deg, #fff1f2 0%, #ffe4e6 40%, #fff7ed 100%)",
+        "linear-gradient(135deg, rgba(239,68,68,0.18) 0%, rgba(249,115,22,0.16) 100%)"
+    );
 
     // State
     const [warehouses, setWarehouses] = useState([]);
@@ -552,12 +564,33 @@ const WarehousesPage = ({ role = 'admin' }) => {
             </Container>
 
             {/* Add Modal */}
-            <Modal isOpen={isAddOpen} onClose={onAddClose} size="xl">
-                <ModalOverlay />
-                <ModalContent bg="surface">
-                    <ModalHeader color="text">Yangi ombor yaratish</ModalHeader>
-                    <ModalCloseButton />
-                    <ModalBody>
+            <Modal
+                isOpen={isAddOpen}
+                onClose={onAddClose}
+                size="xl"
+                scrollBehavior="inside"
+                isCentered
+                motionPreset="slideInBottom"
+            >
+                <ModalOverlay bg="blackAlpha.600" backdropFilter="blur(6px)" />
+                <ModalContent borderRadius="2xl" overflow="hidden" boxShadow="2xl" maxH="90vh" bg="surface">
+                    <Box
+                        px={6}
+                        py={5}
+                        borderBottomWidth="1px"
+                        borderColor={headerBorder}
+                        bgImage={createHeroBg}
+                    >
+                        <ModalHeader p={0} color="text" lineHeight="normal">
+                            Yangi ombor yaratish
+                        </ModalHeader>
+                        <Text fontSize="sm" color="gray.600" mt={0.5}>
+                            Ombor rekvizitlarini to‘ldiring
+                        </Text>
+                        <ModalCloseButton top={4} />
+                    </Box>
+
+                    <ModalBody px={6} py={5}>
                         <VStack spacing={4}>
                             {hasRawMaterialOption && (
                                 <FormControl isRequired>
@@ -567,6 +600,7 @@ const WarehousesPage = ({ role = 'admin' }) => {
                                         onChange={(e) => setFormData({ ...formData, type: e.target.value })}
                                         bg="bg"
                                         color="text"
+                                        borderRadius="lg"
                                     >
                                         <option value="warehouse">Mahsulot ombori</option>
                                         <option value="m_warehouse">Xomashyo ombori</option>
@@ -582,6 +616,7 @@ const WarehousesPage = ({ role = 'admin' }) => {
                                     placeholder="Ombor nomi"
                                     bg="bg"
                                     color="text"
+                                    borderRadius="lg"
                                 />
                             </FormControl>
 
@@ -593,6 +628,7 @@ const WarehousesPage = ({ role = 'admin' }) => {
                                     placeholder="To'liq ism"
                                     bg="bg"
                                     color="text"
+                                    borderRadius="lg"
                                 />
                             </FormControl>
 
@@ -604,6 +640,7 @@ const WarehousesPage = ({ role = 'admin' }) => {
                                     placeholder="+998901234567"
                                     bg="bg"
                                     color="text"
+                                    borderRadius="lg"
                                 />
                             </FormControl>
 
@@ -615,6 +652,7 @@ const WarehousesPage = ({ role = 'admin' }) => {
                                     placeholder="Viloyatni tanlang"
                                     bg="bg"
                                     color="text"
+                                    borderRadius="lg"
                                 >
                                     {regions.map((region) => (
                                         <option key={region.id} value={region.id}>
@@ -633,6 +671,7 @@ const WarehousesPage = ({ role = 'admin' }) => {
                                     isDisabled={!formData.regionId}
                                     bg="bg"
                                     color="text"
+                                    borderRadius="lg"
                                 >
                                     {filteredDistricts.map((district) => (
                                         <option key={district.id} value={district.id}>
@@ -650,6 +689,7 @@ const WarehousesPage = ({ role = 'admin' }) => {
                                     placeholder="Username"
                                     bg="bg"
                                     color="text"
+                                    borderRadius="lg"
                                 />
                             </FormControl>
                             {role === 'admin' &&
@@ -663,6 +703,7 @@ const WarehousesPage = ({ role = 'admin' }) => {
                                             placeholder="Parol"
                                             bg="bg"
                                             color="text"
+                                            borderRadius="lg"
                                         />
                                     </FormControl>
 
@@ -675,20 +716,30 @@ const WarehousesPage = ({ role = 'admin' }) => {
                                             placeholder="Parolni tasdiqlash"
                                             bg="bg"
                                             color="text"
+                                            borderRadius="lg"
                                         />
                                     </FormControl>
                                 </>
                             }
                         </VStack>
                     </ModalBody>
-                    <ModalFooter>
-                        <Button variant="ghost" mr={3} onClick={onAddClose}>
+                    <ModalFooter
+                        bg={footerBg}
+                        borderTopWidth="1px"
+                        borderColor={headerBorder}
+                        gap={3}
+                        py={4}
+                        px={6}
+                    >
+                        <Button variant="ghost" onClick={onAddClose} isDisabled={formLoading}>
                             Bekor qilish
                         </Button>
                         <Button
                             colorScheme="blue"
                             onClick={handleAddSubmit}
                             isLoading={formLoading}
+                            px={8}
+                            borderRadius="xl"
                         >
                             Yaratish
                         </Button>
@@ -697,12 +748,33 @@ const WarehousesPage = ({ role = 'admin' }) => {
             </Modal>
 
             {/* Edit Modal */}
-            <Modal isOpen={isEditOpen} onClose={onEditClose} size="lg">
-                <ModalOverlay />
-                <ModalContent bg="surface">
-                    <ModalHeader color="text">Omborni tahrirlash</ModalHeader>
-                    <ModalCloseButton />
-                    <ModalBody>
+            <Modal
+                isOpen={isEditOpen}
+                onClose={onEditClose}
+                size="lg"
+                scrollBehavior="inside"
+                isCentered
+                motionPreset="slideInBottom"
+            >
+                <ModalOverlay bg="blackAlpha.600" backdropFilter="blur(6px)" />
+                <ModalContent borderRadius="2xl" overflow="hidden" boxShadow="2xl" bg="surface">
+                    <Box
+                        px={6}
+                        py={5}
+                        borderBottomWidth="1px"
+                        borderColor={headerBorder}
+                        bgImage={createHeroBg}
+                    >
+                        <ModalHeader p={0} color="text" lineHeight="normal">
+                            Omborni tahrirlash
+                        </ModalHeader>
+                        <Text fontSize="sm" color="gray.600" mt={0.5} noOfLines={1}>
+                            {currentWarehouse?.name || "Tanlangan ombor"}
+                        </Text>
+                        <ModalCloseButton top={4} />
+                    </Box>
+
+                    <ModalBody px={6} py={5}>
                         <VStack spacing={4}>
                             <FormControl isRequired>
                                 <FormLabel color="text">Ombor nomi</FormLabel>
@@ -711,6 +783,7 @@ const WarehousesPage = ({ role = 'admin' }) => {
                                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                                     bg="bg"
                                     color="text"
+                                    borderRadius="lg"
                                 />
                             </FormControl>
 
@@ -721,6 +794,7 @@ const WarehousesPage = ({ role = 'admin' }) => {
                                     onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                                     bg="bg"
                                     color="text"
+                                    borderRadius="lg"
                                 />
                             </FormControl>
 
@@ -731,6 +805,7 @@ const WarehousesPage = ({ role = 'admin' }) => {
                                     onChange={(e) => setFormData({ ...formData, regionId: e.target.value, districtId: '' })}
                                     bg="bg"
                                     color="text"
+                                    borderRadius="lg"
                                 >
                                     {regions.map((region) => (
                                         <option key={region.id} value={region.id}>
@@ -748,6 +823,7 @@ const WarehousesPage = ({ role = 'admin' }) => {
                                     isDisabled={!formData.regionId}
                                     bg="bg"
                                     color="text"
+                                    borderRadius="lg"
                                 >
                                     {filteredDistricts.map((district) => (
                                         <option key={district.id} value={district.id}>
@@ -769,14 +845,23 @@ const WarehousesPage = ({ role = 'admin' }) => {
                             </FormControl>
                         </VStack>
                     </ModalBody>
-                    <ModalFooter>
-                        <Button variant="ghost" mr={3} onClick={onEditClose}>
+                    <ModalFooter
+                        bg={footerBg}
+                        borderTopWidth="1px"
+                        borderColor={headerBorder}
+                        gap={3}
+                        py={4}
+                        px={6}
+                    >
+                        <Button variant="ghost" onClick={onEditClose} isDisabled={formLoading}>
                             Bekor qilish
                         </Button>
                         <Button
                             colorScheme="blue"
                             onClick={handleEditSubmit}
                             isLoading={formLoading}
+                            px={8}
+                            borderRadius="xl"
                         >
                             Saqlash
                         </Button>
@@ -785,15 +870,30 @@ const WarehousesPage = ({ role = 'admin' }) => {
             </Modal>
 
             {/* Delete Confirmation Modal */}
-            <Modal isOpen={isDeleteOpen} onClose={onDeleteClose} isCentered>
-                <ModalOverlay />
-                <ModalContent bg="surface">
-                    <ModalHeader color="text">Omborni o'chirish</ModalHeader>
-                    <ModalBody>
+            <Modal isOpen={isDeleteOpen} onClose={onDeleteClose} isCentered motionPreset="slideInBottom">
+                <ModalOverlay bg="blackAlpha.600" backdropFilter="blur(6px)" />
+                <ModalContent borderRadius="2xl" overflow="hidden" boxShadow="2xl" bg="surface">
+                    <Box
+                        px={6}
+                        py={5}
+                        borderBottomWidth="1px"
+                        borderColor={headerBorder}
+                        bgImage={deleteHeroBg}
+                    >
+                        <ModalHeader p={0} color="text" lineHeight="normal">
+                            O‘chirishni tasdiqlang
+                        </ModalHeader>
+                        <Text fontSize="sm" color="gray.600" mt={0.5}>
+                            Bu amalni ortga qaytarib bo‘lmaydi.
+                        </Text>
+                        <ModalCloseButton top={4} />
+                    </Box>
+
+                    <ModalBody px={6} py={5}>
                         {currentWarehouse && (
                             <VStack align="start" spacing={3}>
-                                <Text color="text">
-                                    Quyidagi omborni rostdan ham o'chirmoqchimisiz?
+                                <Text fontSize="sm" color="gray.600">
+                                    Quyidagi ombor o‘chiriladi:
                                 </Text>
                                 <Card bg="bg" width="100%" borderWidth="1px" borderColor="border">
                                     <CardBody>
@@ -823,11 +923,25 @@ const WarehousesPage = ({ role = 'admin' }) => {
                             </VStack>
                         )}
                     </ModalBody>
-                    <ModalFooter>
-                        <Button variant="ghost" mr={3} onClick={onDeleteClose}>
+                    <ModalFooter
+                        bg={footerBg}
+                        borderTopWidth="1px"
+                        borderColor={headerBorder}
+                        gap={3}
+                        py={4}
+                        px={6}
+                    >
+                        <Button variant="ghost" onClick={onDeleteClose} isDisabled={deleting}>
                             Bekor qilish
                         </Button>
-                        <Button isLoading={deleting} loadingText="O'chirilmoqda" colorScheme="red" onClick={handleDeleteConfirm}>
+                        <Button
+                            isLoading={deleting}
+                            loadingText="O'chirilmoqda"
+                            colorScheme="red"
+                            onClick={handleDeleteConfirm}
+                            borderRadius="xl"
+                            px={8}
+                        >
                             Ha, o'chirish
                         </Button>
                     </ModalFooter>

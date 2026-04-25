@@ -13,7 +13,7 @@ import {
     Tooltip,
     useColorMode,
 } from "@chakra-ui/react";
-import { NavLink } from "react-router-dom";
+import { NavLink, useLocation } from "react-router-dom";
 import {
     ChevronLeft,
     ChevronRight,
@@ -27,9 +27,8 @@ import {
 import { useAuth } from "../../hooks/useAuth";
 import { useAuthStore } from "../../store/authStore";
 import { useUIStore } from "../../store/useUIStore";
-import { changeLanguage } from "i18next";
-import { useTranslation } from "react-i18next";
 import LogoutModal from "./LogoutModal";
+import { useTranslation } from "react-i18next";
 
 
 export default function Sidebar({ collapsed, links = [], end }) {
@@ -37,11 +36,8 @@ export default function Sidebar({ collapsed, links = [], end }) {
     const setCollapsed = useUIStore((s) => s.toggleSidebar);
     const { logout } = useAuth();
     const { user } = useAuthStore();
-    const { i18n } = useTranslation();
-    const selectLanguage = (lang) => {
-        changeLanguage(lang);
-        localStorage.setItem("lang", lang);
-    }
+    const { pathname } = useLocation();
+
 
     return (
         <Flex
@@ -79,17 +75,28 @@ export default function Sidebar({ collapsed, links = [], end }) {
                 {links.map((item) => (
                     <NavLink key={item.to} to={item.to} style={{ textDecoration: "none" }} end={item.end}>
                         {({ isActive }) => (
+                            (() => {
+                                const prefixes = Array.isArray(item.activePrefixes)
+                                    ? item.activePrefixes
+                                    : item.activePrefixes
+                                        ? [item.activePrefixes]
+                                        : [];
+                                const prefixActive =
+                                    prefixes.length > 0 &&
+                                    prefixes.some((p) => p && pathname.startsWith(p));
+                                const active = isActive || prefixActive;
+                                return (
                             <Tooltip label={collapsed ? item.label : ""} placement="right">
                                 <Flex
                                     align="center"
                                     gap={3}
                                     p={3}
                                     borderRadius="lg"
-                                    bg={isActive ? "secondary" : "transparent"}
+                                    bg={active ? "secondary" : "transparent"}
                                     _hover={{ bg: "secondary", color: "white" }}
                                     cursor="pointer"
                                     transition="0.2s"
-                                    color={isActive ? "white" : "text"}
+                                    color={active ? "white" : "text"}
                                 >
                                     <Icon as={item.icon} w={5} h={5} />
                                     {!collapsed && (
@@ -97,6 +104,8 @@ export default function Sidebar({ collapsed, links = [], end }) {
                                     )}
                                 </Flex>
                             </Tooltip>
+                                );
+                            })()
                         )}
                     </NavLink>
                 ))}

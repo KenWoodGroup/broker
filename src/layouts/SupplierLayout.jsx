@@ -2,13 +2,13 @@ import { Outlet } from "react-router";
 import Sidebar from "../components/common/Sidebar";
 import { Box } from "@chakra-ui/react";
 import { useUIStore } from "../store/useUIStore";
-import { Boxes, CheckSquare2, Factory, GripVertical, Home } from "lucide-react";
+import { Boxes, CheckSquare2, Factory, GripVertical, Home, Scale3dIcon, ShoppingBag } from "lucide-react";
 
 const links = [
   { label: "Bosh sahifa", to: "/supplier", icon: Home, end: true },
+  { label: "Buyurtmalar", to: "/supplier/orders", icon: ShoppingBag, end: false },
   { label: "Zavodlar", to: "/supplier/factories", icon: Factory },
   { label: "Mahsulotlar", to: "/supplier/products", icon: Boxes },
-  { label: "T-zavodlar", to: "/supplier/lead-factory", icon: Factory },
   {
     label: "Narxni yangilash",
     to: "/supplier/taskprice",
@@ -16,8 +16,6 @@ const links = [
     end: false,
   },
     { label: "Mahsulot ko'paytirish", to: "/supplier/taskreorder", icon: GripVertical},
-
-
   // { label: "Products", to: "/products", icon: Boxes },
 ];
 

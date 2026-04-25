@@ -3,168 +3,275 @@ import {
     Button,
     Flex,
     Heading,
-    Table,
-    Tbody,
-    Td,
-    Th,
-    Thead,
-    Tr,
+    VStack,
+    Card,
+    CardBody,
+    CardHeader,
+    CardFooter,
+    HStack,
+    Text,
+    Badge,
     IconButton,
     useDisclosure,
     Spinner,
     Center,
-    Text,
-    Badge,
-    HStack,
+    Divider,
+    SimpleGrid,
+    Tag,
+    Wrap,
 } from "@chakra-ui/react"
-import { Edit, Trash2, Plus, Building } from "lucide-react"
+import { Edit, Trash2, List, Calendar, MapPin, Building, DollarSign, Hash, Clock, AlertTriangle, User } from "lucide-react"
 import { useEffect, useState } from "react"
-import { apiLocations } from "../../../utils/Controllers/Locations"
-import SiteFormModal from "./SiteFormModal"
-import DeleteSiteModal from "./DeleteSiteModal"
+import { apiLots } from "../../../utils/Controllers/Lots"
+import LotCreate from "./LotCraete"
 
-export default function ConstructionSites({ companyId, role }) {
-    const [sites, setSites] = useState([])
+export default function ConstructionSites({ companyId, role, data }) {
+    const [lots, setLots] = useState([])
     const [loading, setLoading] = useState(true)
-    const [selectedSite, setSelectedSite] = useState(null)
+    const [selectedLot, setSelectedLot] = useState(null)
     const { isOpen, onOpen, onClose } = useDisclosure()
-
-    // Delete modal state
     const { isOpen: isDeleteOpen, onOpen: onDeleteOpen, onClose: onDeleteClose } = useDisclosure()
-    const [siteToDelete, setSiteToDelete] = useState(null)
+    const [lotToDelete, setLotToDelete] = useState(null)
 
-    const fetchSites = async () => {
+    const fetchLots = async () => {
         setLoading(true)
         try {
-            const response = await apiLocations.GetLocationsByParent(companyId)
-            // Filter only construction sites if needed, or show all under this parent
-            setSites(response.data || [])
+            const response = await apiLots.GetLotsByParent(companyId, 1)
+            const records = response?.data?.records || response?.data?.data?.records || []
+            setLots(records)
         } catch (error) {
-            console.error("Error fetching sites:", error)
+            console.error("Error fetching lots:", error)
         } finally {
             setLoading(false)
         }
     }
 
     useEffect(() => {
-        if (companyId) {
-            fetchSites()
-        }
+        if (companyId) fetchLots()
     }, [companyId])
 
     const handleAdd = () => {
-        setSelectedSite(null)
+        setSelectedLot(null)
         onOpen()
     }
 
-    const handleEdit = (site) => {
-        setSelectedSite(site)
+    const handleEdit = (lot) => {
+        setSelectedLot(lot)
         onOpen()
     }
 
-    const handleDeleteClick = (site) => {
-        setSiteToDelete(site)
+    const handleDeleteClick = (lot) => {
+        setLotToDelete(lot)
         onDeleteOpen()
     }
 
+    // Формат даты: ДД.ММ.ГГГГ
+    const formatDate = (isoString) => {
+        if (!isoString) return "—"
+        const date = new Date(isoString)
+        const day = String(date.getDate()).padStart(2, '0')
+        const month = String(date.getMonth() + 1).padStart(2, '0')
+        const year = date.getFullYear()
+        return `${day}.${month}.${year}`
+    }
+
+    const formatAmount = (amount) => {
+        if (!amount) return "—"
+        const num = Number(amount)
+        return new Intl.NumberFormat("uz-UZ").format(num) + " so'm"
+    }
+
+    // Вычисление оставшихся дней/месяцев до end_date
+    const getRemainingInfo = (endDateStr) => {
+        if (!endDateStr) return null
+        const endDate = new Date(endDateStr)
+        const today = new Date()
+        today.setHours(0, 0, 0, 0)
+        const diffTime = endDate - today
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+
+        if (diffDays < 0) {
+            return { text: `Muddat ${Math.abs(diffDays)} kun o'tgan`, color: "red" }
+        } else if (diffDays === 0) {
+            return { text: "Bugun tugaydi", color: "orange" }
+        } else if (diffDays <= 7) {
+            return { text: `${diffDays} kun qoldi`, color: "orange" }
+        } else if (diffDays <= 30) {
+            return { text: `${diffDays} kun qoldi`, color: "yellow" }
+        } else {
+            const months = Math.floor(diffDays / 30)
+            const days = diffDays % 30
+            let text = ""
+            if (months > 0) text += `${months} oy `
+            if (days > 0) text += `${days} kun`
+            text += " qoldi"
+            return { text, color: "green" }
+        }
+    }
+
     return (
-        <Box mt={8}>
+        <Box>
             <Flex justify="space-between" align="center" mb={6}>
                 <HStack spacing={3}>
-                    <Building size={24} color="#3182CE" />
-                    <Heading size="lg">Obyektlar</Heading>
+                    <List size={24} color="#3182CE" />
+                    <Heading size="lg">Loyiha-lotlar</Heading>
                     {!loading && (
                         <Badge colorScheme="blue" borderRadius="full" px={3} py={1}>
-                            {sites.length}
+                            {lots.length}
                         </Badge>
                     )}
                 </HStack>
-                <Button
-                    leftIcon={<Plus size={18} />}
-                    colorScheme="blue"
-                    onClick={handleAdd}
-                    borderRadius="lg"
-                >
-                    Obyekt qo'shish
-                </Button>
+                <LotCreate data={data} />
             </Flex>
 
             {loading ? (
                 <Center py={10}>
                     <Spinner size="xl" color="blue.500" thickness="4px" />
                 </Center>
-            ) : sites.length > 0 ? (
-                <Box overflowX="auto" bg="white" borderRadius="xl" boxShadow="sm" border="1px solid" borderColor="gray.100" _dark={{ bg: "gray.800", borderColor: "gray.700" }}>
-                    <Table variant="simple">
-                        <Thead bg="gray.50" _dark={{ bg: "gray.700" }}>
-                            <Tr>
-                                <Th>Nomi</Th>
-                                <Th>Telefon</Th>
-                                <Th>Manzil</Th>
-                                {role === "Admin" && (
-                                    <Th textAlign="right">Amallar</Th>
-                                )}
-                            </Tr>
-                        </Thead>
-                        <Tbody>
-                            {sites.map((site) => (
-                                <Tr key={site.id} _hover={{ bg: "gray.50" }} _dark={{ _hover: { bg: "gray" } }} transition="background 0.2s">
-                                    <Td fontWeight="medium">{site.name}</Td>
-                                    <Td>{site.phone || "—"}</Td>
-                                    <Td>{site.address || "—"}</Td>
+            ) : lots.length > 0 ? (
+                <VStack spacing={6} align="stretch">
+                    {lots.map((lot) => {
+                        const remaining = getRemainingInfo(lot.end_date)
+                        return (
+                            <Card key={lot.id} variant="outline" borderRadius="2xl" boxShadow="lg" _hover={{ boxShadow: "xl" }} transition="all 0.2s">
+                                <CardHeader pb={0}>
+                                    <Flex justify="space-between" align="start">
+                                        <Box>
+                                            <Heading size="md">{lot.lot_name || lot.name || "—"}</Heading>
+                                            {lot.lot_number && (
+                                                <HStack spacing={1} mt={1}>
+                                                    <Hash size={14} color="gray" />
+                                                    <Text fontSize="sm" color="gray.500">Lot raqami: {lot.lot_number}</Text>
+                                                </HStack>
+                                            )}
+                                        </Box>
+                                    </Flex>
+                                </CardHeader>
 
-                                    {role === "Admin" && (
-                                        <Td textAlign="right">
-                                            <HStack justify="flex-end" spacing={2}>
-                                                <IconButton
-                                                    icon={<Edit size={16} />}
-                                                    aria-label="Edit"
-                                                    size="sm"
-                                                    variant="ghost"
-                                                    colorScheme="blue"
-                                                    onClick={() => handleEdit(site)}
-                                                />
-                                                <IconButton
-                                                    icon={<Trash2 size={16} />}
-                                                    aria-label="Delete"
-                                                    size="sm"
-                                                    variant="ghost"
-                                                    colorScheme="red"
-                                                    onClick={() => handleDeleteClick(site)}
-                                                />
+                                <CardBody>
+                                    <VStack spacing={4} align="stretch">
+                                        <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4}>
+                                            <HStack spacing={3} align="start">
+                                                <MapPin size={18} color="#3182CE" />
+                                                <Box>
+                                                    <Text fontSize="xs" color="gray.500">Manzil</Text>
+                                                    <Text fontWeight="medium">{lot.address || "—"}</Text>
+                                                </Box>
                                             </HStack>
-                                        </Td>
-                                    )}
-                                </Tr>
-                            ))}
-                        </Tbody>
-                    </Table>
-                </Box>
+
+                                            <HStack spacing={3} align="start">
+                                                <DollarSign size={18} color="#3182CE" />
+                                                <Box>
+                                                    <Text fontSize="xs" color="gray.500">Summa</Text>
+                                                    <Text fontWeight="bold" fontSize="lg" color="green.600">{formatAmount(lot.amount)}</Text>
+                                                </Box>
+                                            </HStack>
+
+                                            <HStack spacing={3} align="start">
+                                                <Calendar size={18} color="#3182CE" />
+                                                <Box>
+                                                    <Text fontSize="xs" color="gray.500">Boshlanish sanasi</Text>
+                                                    <Text>{formatDate(lot.start_date)}</Text>
+                                                </Box>
+                                            </HStack>
+
+                                            <HStack spacing={3} align="start">
+                                                <Calendar size={18} color="#3182CE" />
+                                                <Box>
+                                                    <Text fontSize="xs" color="gray.500">Tugash sanasi</Text>
+                                                    <HStack spacing={2}>
+                                                        <Text>{formatDate(lot.end_date)}</Text>
+                                                        {remaining && (
+                                                            <Badge colorScheme={remaining.color} fontSize="xs" variant="subtle">
+                                                                {remaining.text}
+                                                            </Badge>
+                                                        )}
+                                                    </HStack>
+                                                </Box>
+                                            </HStack>
+
+                                            <HStack spacing={3} align="start">
+                                                <Clock size={18} color="#3182CE" />
+                                                <Box>
+                                                    <Text fontSize="xs" color="gray.500">Turi / Kategoriya</Text>
+                                                    <Wrap spacing={2}>
+                                                        <Tag size="sm" colorScheme="purple">{lot.type || "Noma'lum"}</Tag>
+                                                        <Tag size="sm" colorScheme="cyan">{lot.category || "Noma'lum"}</Tag>
+                                                    </Wrap>
+                                                </Box>
+                                            </HStack>
+                                        </SimpleGrid>
+
+                                        <Divider />
+
+                                        <Box>
+                                            <HStack spacing={2} mb={2}>
+                                                <Building size={18} color="#3182CE" />
+                                                <Heading size="sm">Buyurtmachi</Heading>
+                                            </HStack>
+                                            <SimpleGrid columns={{ base: 1, md: 2 }} spacing={3} pl={6}>
+                                                <Text fontSize="sm"><strong>Nomi:</strong> {lot.customer?.name || "—"}</Text>
+                                                <Text fontSize="sm"><strong>Direktor:</strong> {lot.customer?.director_name || "—"}</Text>
+                                                <Text fontSize="sm"><strong>Manzil:</strong> {lot.customer?.address || "—"}</Text>
+                                                <Text fontSize="sm"><strong>Telefon:</strong> {lot.customer?.phone || "—"}</Text>
+                                                <Text fontSize="sm"><strong>INN:</strong> {lot.customer?.inn || "—"}</Text>
+                                            </SimpleGrid>
+                                        </Box>
+
+                                        {lot.builder && (
+                                            <>
+                                                <Divider />
+                                                <Box>
+                                                    <HStack spacing={2} mb={2}>
+                                                        <User size={18} color="#3182CE" />
+                                                        <Heading size="sm">Podryadchi</Heading>
+                                                    </HStack>
+                                                    <SimpleGrid columns={{ base: 1, md: 2 }} spacing={3} pl={6}>
+                                                        <Text fontSize="sm"><strong>Nomi:</strong> {lot.builder?.name || "—"}</Text>
+                                                        <Text fontSize="sm"><strong>Direktor:</strong> {lot.builder?.director_name || "—"}</Text>
+                                                        <Text fontSize="sm"><strong>Telefon:</strong> {lot.builder?.phone || "—"}</Text>
+                                                        <Text fontSize="sm"><strong>INN:</strong> {lot.builder?.inn || "—"}</Text>
+                                                    </SimpleGrid>
+                                                </Box>
+                                            </>
+                                        )}
+                                    </VStack>
+                                </CardBody>
+
+                                {role === "Admin" && (
+                                    <CardFooter justify="flex-end" pt={0}>
+                                        <HStack spacing={3}>
+                                            <IconButton
+                                                icon={<Edit size={18} />}
+                                                aria-label="Edit"
+                                                variant="outline"
+                                                colorScheme="blue"
+                                                onClick={() => handleEdit(lot)}
+                                            />
+                                            <IconButton
+                                                icon={<Trash2 size={18} />}
+                                                aria-label="Delete"
+                                                variant="outline"
+                                                colorScheme="red"
+                                                onClick={() => handleDeleteClick(lot)}
+                                            />
+                                        </HStack>
+                                    </CardFooter>
+                                )}
+                            </Card>
+                        )
+                    })}
+                </VStack>
             ) : (
                 <Center py={10} bg="gray.50" borderRadius="xl" border="2px dashed" borderColor="gray.200" _dark={{ bg: "gray.800", borderColor: "gray.700" }}>
                     <Box textAlign="center">
-                        <Text color="gray.500" mb={2}>Obyektlar mavjud emas</Text>
+                        <Text color="gray.500" mb={2}>Lotlar mavjud emas</Text>
                         <Button size="sm" variant="link" colorScheme="blue" onClick={handleAdd}>
-                            Birinchi obyektni qo'shing
+                            Birinchi lotni qo'shing
                         </Button>
                     </Box>
                 </Center>
             )}
-
-            <SiteFormModal
-                isOpen={isOpen}
-                onClose={onClose}
-                companyId={companyId}
-                site={selectedSite}
-                onSuccess={fetchSites}
-            />
-
-            <DeleteSiteModal
-                isOpen={isDeleteOpen}
-                onClose={onDeleteClose}
-                site={siteToDelete}
-                onSuccess={fetchSites}
-            />
         </Box>
     )
 }

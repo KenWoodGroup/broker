@@ -18,7 +18,7 @@ class apiERPLocations {
         return response
     }
     static getFactory = async (name, location_id) => {
-        const response = await $api.get(`${BASE_URL}/api/erp/locations/by-name/factory/${name}?location_id=${location_id}   `);
+        const response = await $api.get(`${BASE_URL}/api/erp/locations/by-name/factory/${name}?location_id=${location_id}`);
         return response
     }
     static getLocalClients = async (facId, search, page) => {

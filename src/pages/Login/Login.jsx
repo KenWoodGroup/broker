@@ -11,6 +11,9 @@ import {
     FormErrorMessage,
     Link,
 } from "@chakra-ui/react";
+import Cookies from "js-cookie";
+
+
 import { useRef, useState } from "react";
 import { Auth } from "../../utils/Controllers/Auth";
 import { useAuth } from "../../hooks/useAuth";
@@ -21,7 +24,7 @@ export default function Login() {
     const { login } = useAuth();
     const navigate = useNavigate();
     // UI states
-    const [loading, setLoading] = useState(false)
+    const [loading, setLoading] = useState(false);
 
     const passInput = useRef("");
     const logInput = useRef("");
@@ -75,6 +78,8 @@ export default function Login() {
                     refreshToken: data.tokens.refresh_token,
                     user: userData
                 });
+                Cookies.set("token", data.tokens.access_token);
+                Cookies.set("u_refresh_token", data.tokens.refresh_token);
                 const role = userData.role;
                 if (role === "admin") {
                     navigate("/")
@@ -105,7 +110,6 @@ export default function Login() {
 
         } catch (err) {
             console.log(err);
-
             if (err) { toastService.error(err?.response?.data?.message || "Tizim xatosi") }
         } finally {
             setLoading(false)

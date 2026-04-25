@@ -9,6 +9,16 @@ class apiLocations {
         const response = await $api.get(`${BASE_URL}/api/erp/filter/page?${params.toString()}`)
         return response;
     }
+    static GetCustomer = async (name) => {
+        const response = await $api.get(`${BASE_URL}/api/locations/by-name/customer/${name}`)
+        return response;
+    }
+    static getCustomersPage = async (page = 1, searchText = "all") => {
+        const response = await $api.get(
+            `${BASE_URL}/api/locations/type/customer/${searchText}/page?page=${page}`
+        )
+        return response
+    }
     static pageFactoryWarehouses = async (page, factoryId) => {
         const response = await $api.get(`${BASE_URL}/api/erp/locations/warehouse/${factoryId}/page?page=${page}`)
         return response;
@@ -19,6 +29,12 @@ class apiLocations {
     }
     static getLocation = async (id) => {
         const response = await $api.get(`${BASE_URL}/api/locations/${id}`);
+        return response
+    }
+    static updateRating = async (id, data) => {
+        const response = await $api.put(`${BASE_URL}/api/locations/rating/${id}`, data, {
+            showSuccessToast: "Rating yangilandi",
+        })
         return response
     }
     static getFactory = async (name, location_id) => {
@@ -81,8 +97,8 @@ class apiLocations {
         const response = await $api.get(`${BASE_URL}/api/locations/address?address=${address}&searchName=${search}&page=${page}`,)
         return response;
     }
-    static FilterCompany = async (address, search, activeType, page) => {
-        const response = await $api.get(`${BASE_URL}/api/locations/filter?address=${address}&searchName=${search}&activeType=${activeType}&page=${page}`,)
+    static FilterCompany = async (address, search, activeType, lot, page) => {
+        const response = await $api.get(`${BASE_URL}/api/locations/filter?address=${address}&searchName=${search}&activeType=${activeType}&lot=${lot}&page=${page}`,)
         return response;
     }
 

@@ -16,7 +16,6 @@ const brokerRoutes = [
         name: "br offers",
         path: "offers",
         element: <AllOffers />
-        // element: <Offers link="/operator/offers/" status={`price_review`} />
     },
     {
         name: "br offer detail",

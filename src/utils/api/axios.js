@@ -85,7 +85,7 @@ $api.interceptors.response.use(
             isRefreshing = true;
 
             try {
-                const refreshToken = Cookies.get("refresh_token");
+                const refreshToken = Cookies.get("u_refresh_token");
                 const userId = Cookies.get("user_id");
 
                 if (!refreshToken || !userId) {
@@ -102,10 +102,12 @@ $api.interceptors.response.use(
                 const newRefresh = res.data.refresh_token;
 
                 // ---- Save new tokens ----
-                store.setTokens({
-                    token: newAccess,
-                    refreshToken: newRefresh,
-                });
+                // store.setTokens({
+                //     token: newAccess,
+                //     refreshToken: newRefresh,
+                // });
+                Cookies.set("token", newAccess);
+                Cookies.set("u_refresh_token", newRefresh);
 
                 $api.defaults.headers.Authorization = `Bearer ${newAccess}`;
 
@@ -116,9 +118,13 @@ $api.interceptors.response.use(
                 originalRequest.headers.Authorization = `Bearer ${newAccess}`;
                 return $api(originalRequest);
             } catch (err) {
+                console.log("a ins:"+ err);
+                
                 // Clear auth + redirect
                 processQueue(err, null);
                 toastService.error("Sessiya tugadi. Iltimos qayta kiring.")
+                console.log("Store va Login navigate");
+                
                 store.logout();
                 window.location.href = "/login";
                 return Promise.reject(err);
