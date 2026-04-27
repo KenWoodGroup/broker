@@ -5,10 +5,10 @@ class apiStock {
   static GetStock = async (data = {}) => {
     const params = new URLSearchParams({
       page: data?.page || 1,
-      type: "product",
       name: data?.name || "",
       address: data?.address || "all",
-      // location_id: data?.locationId || "all",
+      ...(data?.locationId && {location_id: data?.locationId}),
+      type: "product",
     });
     return await $api.get(`${BASE_URL}/api/erp/search?${params.toString()}`);
   };
