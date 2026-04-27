@@ -375,7 +375,7 @@ export default function OrderItemDetail() {
                 page: page || 1,
                 name: name || "",
                 address: address || "all",
-                locationId: locationId || "all",
+                locationId: locationId,
             });
             const data = res.data;
             setSearchResults(data.data || []);
@@ -392,7 +392,7 @@ export default function OrderItemDetail() {
 
     const handleSearch = () => {
         setSelectedLocationId("");
-        doSearch({ name: searchName, address: searchAddress, locationId: "all", page: 1 });
+        doSearch({ name: searchName, address: searchAddress, page: 1 });
     };
 
     const handleRegionChange = (regionId) => {
@@ -644,7 +644,7 @@ export default function OrderItemDetail() {
                                 <VStack align="stretch" gap={1.5}>
                                     <InfoRow label="Mijoz narxi:" value={Number(orderItem.customer_price) > 0 ? fmtPrice(orderItem.customer_price) : null} />
                                     <InfoRow label="Tannarx:" value={Number(orderItem.cost_price) > 0 ? fmtPrice(orderItem.cost_price) : null} />
-                                    <InfoRow label="Sotuv narxi:" value={Number(orderItem.sale_price) > 0 ? fmtPrice(orderItem.sale_price) : null} />
+                                    {/* <InfoRow label="Sotuv narxi:" value={Number(orderItem.sale_price) > 0 ? fmtPrice(orderItem.sale_price) : null} /> */}
                                 </VStack>
                             </Box>
 
@@ -825,7 +825,7 @@ export default function OrderItemDetail() {
                                                     maxW="220px"
                                                     overflow="hidden"
                                                     textOverflow="ellipsis"
-                                                    onClick={() => handleLocationFilter(loc.id)}
+                                                    onClick={() => handleLocationFilter(loc?.id)}
                                                 >
                                                     {loc.name}
                                                 </Button>

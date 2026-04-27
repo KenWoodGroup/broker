@@ -5,15 +5,12 @@ class apiStock {
   static GetStock = async (data = {}) => {
     const params = new URLSearchParams({
       page: data?.page || 1,
-      type: "product",
       name: data?.name || "",
       address: data?.address || "all",
+      ...(data?.locationId && {location_id: data?.locationId}),
+      type: "product",
     });
-    // When factory (zavod) is selected we filter by its id.
-    // Backend expects `location_id` query param for filtering.
-    if (data?.location_id) {
-      params.set("location_id", data.location_id);
-    }
+   
     return await $api.get(`${BASE_URL}/api/erp/search?${params.toString()}`);
   };
   static GetByLocationId = async (locationId, page) => {
