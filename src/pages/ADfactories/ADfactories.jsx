@@ -30,6 +30,7 @@ import regions from "../../constants/regions/regions.json";
 import districts from "../../constants/regions/districts.json";
 import { apiLocations } from "../../utils/Controllers/Locations";
 import PaginationBar from "../../components/common/PaginationBar";
+import useSessionStorageState from "../../hooks/useSessionStorageState";
 
 /* ─────────────────────────────────────────────────────────────────────────────
    Constants
@@ -307,15 +308,30 @@ export default function ADfactories({ reloadDependance, role = "admin" }) {
     const isFirstRender = useRef(true);
 
     /* ── Address filter ── */
-    const [selectedRegion, setSelectedRegion] = useState("");
-    const [selectedDistrict, setSelectedDistrict] = useState("");
+    const [selectedRegion, setSelectedRegion] = useSessionStorageState(
+        "factories_filter_region",
+        ""
+    );
+    const [selectedDistrict, setSelectedDistrict] = useSessionStorageState(
+        "factories_filter_district",
+        ""
+    );
     const [filteredDistricts, setFilteredDistricts] = useState(districts);
-    const [selectedAddresses, setSelectedAddresses] = useState([]); // [{id, label}]
+    const [selectedAddresses, setSelectedAddresses] = useSessionStorageState(
+        "factories_filter_addresses",
+        []
+    ); // [{id, label}]
 
     /* ── Category filter ── */
-    const [selectedCategories, setSelectedCategories] = useState([]); // [{id, name}]
+    const [selectedCategories, setSelectedCategories] = useSessionStorageState(
+        "factories_filter_categories",
+        []
+    ); // [{id, name}]
     // Price Freshness filter
-    const [selectedPriceFreshness, setSelectedPriceFreshness] = useState("all");
+    const [selectedPriceFreshness, setSelectedPriceFreshness] = useSessionStorageState(
+        "factories_filter_priceFreshness",
+        "all"
+    );
 
 
     /* ─── Pagination helpers ─── */

@@ -42,6 +42,7 @@ import {
   Wrap,
   WrapItem,
   IconButton,
+  Tooltip,
 } from "@chakra-ui/react";
 import {
   ChevronLeftIcon,
@@ -53,28 +54,45 @@ import { FiUpload, FiFile, FiPackage } from "react-icons/fi";
 import { apiStock } from "../../utils/Controllers/apiStock";
 import { apiInvoices } from "../../utils/Controllers/apiInvoices";
 import { apiUsers } from "../../utils/Controllers/Users";
+import { apiLocalCategories } from "../../utils/Controllers/apiLocalCategories";
 import { toastService } from "../../utils/toast";
-import { Edit, Edit2, EditIcon } from "lucide-react";
+import { Edit, Edit2, EditIcon, LayoutGrid } from "lucide-react";
 import SalePriceEditButton from "./components/SalePriceEditButton";
 import { PRICE_UPDATE_RULES } from "../../constants/priceFreshness";
 import PaginationBar from "../../components/common/PaginationBar";
+import CategoryCard from "../ADfacLocalCats/_components/CategoryCard";
+import CategoryCardSkeleton from "../../components/ui/CategoryCardSkeleton";
 
 const WarehouseStockPage = () => {
   const temporarelyFreshness = PRICE_UPDATE_RULES.medium;
 
-  const [searchParams] = useSearchParams();
+  const user = Cookies.get("user") ? JSON.parse(Cookies.get("user")) : null;
+  const role = (user?.role || "supplier").toLowerCase();
+
+  const [searchParams, setSearchParams] = useSearchParams();
   const taskStockId = searchParams.get("task_stock_id");
+  const selectedCategoryId = searchParams.get("category_id");
+  const selectedCategoryName = searchParams.get("category_name");
 
   const { factoryId, warehouseId } = useParams();
   const location = useLocation();
   const navigate = useNavigate();
   const warehouseName = location.state?.warehouseName || "Ombor";
 
+  const [viewMode, setViewMode] = useState(() =>
+    selectedCategoryId ? "table" : "categories",
+  );
+
   const [stocks, setStocks] = useState([]);
   const [pagination, setPagination] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [loading, setLoading] = useState(true);
   const [lastSyncTime, setLastSyncTime] = useState(null);
+
+  const [categories, setCategories] = useState([]);
+  const [categoriesLoading, setCategoriesLoading] = useState(false);
+  const [categoryPage, setCategoryPage] = useState(1);
+  const [categoryTotalPages, setCategoryTotalPages] = useState(1);
 
   const [taskStock, setTaskStock] = useState(null);
   const [taskStockLoading, setTaskStockLoading] = useState(false);
@@ -103,10 +121,27 @@ const WarehouseStockPage = () => {
   const [factoryUser, setFactoryUser] = useState(null);
   const [actionType, setActionType] = useState("add");
 
+  const fetchCategories = async (page = 1, append = false) => {
+    if (!factoryId) return;
+    setCategoriesLoading(true);
+    try {
+      const res = await apiLocalCategories.pageAll(page, "all", factoryId, "product");
+      const records = res?.data?.data?.records ?? [];
+      const total = res?.data?.data?.pagination?.total_pages ?? 1;
+      setCategoryTotalPages(total);
+      setCategoryPage(page);
+      setCategories((prev) => (append ? [...prev, ...records] : records));
+    } finally {
+      setCategoriesLoading(false);
+    }
+  };
+
   const fetchStocks = async () => {
     setLoading(true);
     try {
-      const response = await apiStock.GetByLocationId(warehouseId, currentPage);
+      const response = selectedCategoryId
+        ? await apiStock.GetByCategory(warehouseId, selectedCategoryId, "product", currentPage)
+        : await apiStock.GetByLocationId(warehouseId, currentPage);
       setStocks(response.data?.data?.records || []);
       setPagination(response.data?.data?.pagination || null);
       setLastSyncTime(new Date());
@@ -116,8 +151,42 @@ const WarehouseStockPage = () => {
   };
 
   useEffect(() => {
+    if (viewMode !== "table") return;
     fetchStocks();
-  }, [currentPage, warehouseId]);
+  }, [currentPage, warehouseId, selectedCategoryId, viewMode]);
+
+  useEffect(() => {
+    if (viewMode !== "categories") return;
+    fetchCategories(1, false);
+  }, [factoryId, viewMode]);
+
+  useEffect(() => {
+    if (viewMode === "table") setCurrentPage(1);
+  }, [selectedCategoryId, viewMode]);
+
+  const openCategories = () => {
+    setViewMode("categories");
+    const next = new URLSearchParams(searchParams);
+    next.delete("category_id");
+    next.delete("category_name");
+    setSearchParams(next, { replace: true });
+  };
+
+  const openTableAll = () => {
+    setViewMode("table");
+    const next = new URLSearchParams(searchParams);
+    next.delete("category_id");
+    next.delete("category_name");
+    setSearchParams(next, { replace: true });
+  };
+
+  const selectCategory = (cat) => {
+    setViewMode("table");
+    const next = new URLSearchParams(searchParams);
+    next.set("category_id", String(cat?.id));
+    next.set("category_name", cat?.name ? String(cat.name) : "");
+    setSearchParams(next, { replace: true });
+  };
 
   const fetchUsers = async () => {
     setLoading(true);
@@ -515,19 +584,41 @@ const WarehouseStockPage = () => {
                 <Heading size="lg" color="text">
                   {warehouseName}
                 </Heading>
+                {viewMode === "table" && selectedCategoryName ? (
+                  <Text fontSize="xs" color="gray.500">
+                    Category: {selectedCategoryName}
+                  </Text>
+                ) : null}
                 {lastSyncTime && (
                   <Text fontSize="xs" color="gray.500">
                     Oxirgi yangilanish: {formatDate(lastSyncTime)}
                   </Text>
                 )}
               </VStack>
-              <Button
-                leftIcon={<DownloadIcon />}
-                colorScheme="green"
-                onClick={handleUploadClick}
-              >
-                Excel yuklash
-              </Button>
+              <HStack>
+                <Tooltip
+                  label={viewMode === "table" ? "Category" : "Table"}
+                  placement="bottom"
+                >
+                  <IconButton
+                    aria-label={viewMode === "table" ? "Category" : "Table"}
+                    onClick={() =>
+                      viewMode === "table" ? openCategories() : openTableAll()
+                    }
+                    bg={viewMode === "table" ? "brand.400" : "neutral.300"}
+                    _hover={{ bg: "" }}
+                    color={viewMode === "table" ? "neutral.50" : "brand.800"}
+                    icon={<LayoutGrid />}
+                  />
+                </Tooltip>
+                <Button
+                  leftIcon={<DownloadIcon />}
+                  colorScheme="green"
+                  onClick={handleUploadClick}
+                >
+                  Excel yuklash
+                </Button>
+              </HStack>
             </HStack>
           </VStack>
         </Container>
@@ -553,7 +644,62 @@ const WarehouseStockPage = () => {
       </Container>
 
       <Container maxW="container.xl" py={6}>
-        {loading ? (
+        {viewMode === "categories" ? (
+          <Card bg="surfBlur">
+            <CardBody>
+              <VStack align="stretch" spacing={4}>
+                <HStack justify="space-between">
+                  <Heading size="sm" color="text">
+                    Mahsulot kategoriyalari
+                  </Heading>
+                  {categoryPage < categoryTotalPages && (
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      isLoading={categoriesLoading}
+                      onClick={() => fetchCategories(categoryPage + 1, true)}
+                    >
+                      Yana yuklash
+                    </Button>
+                  )}
+                </HStack>
+
+                {categoriesLoading && categories.length === 0 ? (
+                  <SimpleGrid columns={{ base: 1, md: 2, xl: 3 }} spacing="20px">
+                    {Array.from({ length: 9 }).map((_, i) => (
+                      <CategoryCardSkeleton key={i} />
+                    ))}
+                  </SimpleGrid>
+                ) : categories.length === 0 ? (
+                  <Center py={10}>
+                    <VStack spacing={2}>
+                      <Text fontWeight="semibold" color="text">
+                        Category yo'q
+                      </Text>
+                      <Text fontSize="sm" color="gray.500" textAlign="center">
+                        Hozircha kategoriyalar topilmadi.
+                      </Text>
+                    </VStack>
+                  </Center>
+                ) : (
+                  <SimpleGrid columns={{ base: 1, md: 2, xl: 3 }} spacing="20px">
+                    {categories.map((cat) => (
+                      <CategoryCard
+                        key={cat?.id}
+                        role={role}
+                        showActions={false}
+                        category={cat}
+                        onEdit={() => fetchCategories(1, false)}
+                        onDelete={() => fetchCategories(1, false)}
+                        onOpen={() => selectCategory(cat)}
+                      />
+                    ))}
+                  </SimpleGrid>
+                )}
+              </VStack>
+            </CardBody>
+          </Card>
+        ) : loading ? (
           <VStack spacing={4} align="stretch">
             {[1, 2, 3, 4, 5].map((i) => (
               <Card key={i} bg="surface">
@@ -574,10 +720,14 @@ const WarehouseStockPage = () => {
                 <Icon as={FiPackage} boxSize={16} color="gray.300" />
                 <VStack spacing={2}>
                   <Text fontSize="lg" fontWeight="medium" color="text">
-                    Hozircha mahsulotlar yo'q
+                    {selectedCategoryId
+                      ? "Bu kategoriyada mahsulot yo'q"
+                      : "Hozircha mahsulotlar yo'q"}
                   </Text>
                   <Text fontSize="sm" color="gray.500">
-                    Excel orqali mahsulotlarni yuklang
+                    {selectedCategoryId
+                      ? "Boshqa kategoriyani tanlang"
+                      : "Excel orqali mahsulotlarni yuklang"}
                   </Text>
                 </VStack>
                 <Button

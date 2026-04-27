@@ -13,6 +13,35 @@ class apiLocalProducts {
         const response = await $api.post(`${BASE_URL}/api/erp/local-products/upload-product/${facID}`, data);
         return response;
     }
+
+    static UpdateById = async (id, data) => {
+        // $api baseURL already includes "/api" in dev/prod
+        try {
+            return await $api.put(
+                `/erp/local-products/by-id/${id}`,
+                data,
+                { showSuccessToast: "Product successfully updated" }
+            )
+        } catch (e) {
+            // some backends expose update as PATCH
+            if (e?.response?.status === 404 || e?.response?.status === 405) {
+                return await $api.patch(
+                    `/erp/local-products/by-id/${id}`,
+                    data,
+                    { showSuccessToast: "Product successfully updated" }
+                )
+            }
+            throw e
+        }
+    }
+
+    static DeleteById = async (id) => {
+        const response = await $api.delete(
+            `/erp/local-products/${id}`,
+            { showSuccessToast: "Product successfully deleted" }
+        )
+        return response
+    }
     // static getFactoriesByCategory = async (id, page, searchText) => {
     //     const response = await $api.get(`${BASE_URL}/api/location-location-categories/category/page?category_id=${id}&name=${searchText}&page=${page}`)
     //     return response;

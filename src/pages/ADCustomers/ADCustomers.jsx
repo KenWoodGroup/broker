@@ -26,6 +26,7 @@ import { PencilLine, Plus, Search, Trash2, X } from "lucide-react";
 import PaginationBar from "../../components/common/PaginationBar";
 import EntityCardDetailRows from "../../components/common/EntityCardDetailRows";
 import regions from "../../constants/regions/regions.json";
+import useSessionStorageState from "../../hooks/useSessionStorageState";
 
 export default function ADCustomers() {
   const navigate = useNavigate();
@@ -40,7 +41,10 @@ export default function ADCustomers() {
   const [pagination, setPagination] = useState(null);
   const [activeCustomerId, setActiveCustomerId] = useState(null);
   const [activeCustomer, setActiveCustomer] = useState(null);
-  const [selectedRegion, setSelectedRegion] = useState("");
+  const [selectedRegion, setSelectedRegion] = useSessionStorageState(
+    "customers_filter_region",
+    "",
+  );
   const seqRef = useRef(0);
   const cardBg = useColorModeValue("white", "gray.800");
   const cardBorder = useColorModeValue("gray.200", "gray.700");

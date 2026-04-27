@@ -21,6 +21,16 @@ class apiLocalCategories {
         const response = await $api.delete(`${BASE_URL}/api/erp/local-categories/${id}`, { showSuccessToast: "Category successfully deleted" })
         return response;
     }
+
+    static Update = async (id, data) => {
+        // $api baseURL already includes "/api" in dev/prod
+        const response = await $api.put(
+            `/erp/local-categories/${id}`,
+            data,
+            { showSuccessToast: "Category successfully updated" }
+        )
+        return response
+    }
 }
 
 export { apiLocalCategories };

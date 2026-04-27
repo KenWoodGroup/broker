@@ -42,6 +42,29 @@ class apiStock {
     );
     return response;
   };
+
+  static GetByCategory = async (
+    locationId,
+    categoryId,
+    productType = "product",
+    page = 1,
+  ) => {
+    const safeType = productType || "product";
+    try {
+      // Some environments expose this endpoint without "stock" segment
+      return await $api.get(
+        `/erp/by-category/${locationId}/${categoryId}/${safeType}/page?page=${page}`,
+      );
+    } catch (e) {
+      // Fallback for backends that expose it under /erp/stock/by-category/...
+      if (e?.response?.status === 404) {
+        return await $api.get(
+          `/erp/stock/by-category/${locationId}/${categoryId}/${safeType}/page?page=${page}`,
+        );
+      }
+      throw e;
+    }
+  };
 }
 
 export { apiStock };
