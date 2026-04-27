@@ -49,6 +49,7 @@ export default function ADCustomers() {
     const data = res?.data;
     const records = data?.data?.records ?? data?.records ?? data?.data ?? data;
     const pag = data?.data?.pagination ?? data?.pagination ?? null;
+    console.log("FULL RESPONSE DATA:", JSON.stringify(data, null, 2));
     return {
       records: Array.isArray(records) ? records : [],
       pagination: pag,
@@ -64,6 +65,7 @@ export default function ADCustomers() {
           type: "customer",
           searchName,
           page,
+          region: selectedRegion || undefined,
         });
         if (seq === seqRef.current) {
           const list = extractList(res);
@@ -76,8 +78,7 @@ export default function ADCustomers() {
     }, 350);
 
     return () => clearTimeout(t);
-  }, [searchName, page]);
-
+  }, [searchName, page, selectedRegion]);
   useEffect(() => {
     const t = setTimeout(() => {
       setPage(1);
@@ -85,6 +86,10 @@ export default function ADCustomers() {
     }, 400);
     return () => clearTimeout(t);
   }, [searchInput]);
+
+  useEffect(() => {
+    setPage(1);
+  }, [selectedRegion]);
 
   return (
     <Box pr="20px" pb="20px" pt="20px">
@@ -254,7 +259,6 @@ export default function ADCustomers() {
         initialName={searchInput}
         onCreated={() => {
           setPage(1);
-          // re-trigger fetch
           setSearchName((p) => (p === "all" ? "all " : p + " "));
           setTimeout(() => setSearchName((p) => p.trim()), 0);
         }}
