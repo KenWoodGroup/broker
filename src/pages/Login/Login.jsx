@@ -152,7 +152,7 @@ export default function Login() {
                         fontWeight="bold"
                         fontSize="md"
                     >
-                        <img src="../../../public/logo.jpg" alt="" />
+                        <img src="../../../public/USD.jpg" alt="" />
                     </Box>
                 </Flex>
 

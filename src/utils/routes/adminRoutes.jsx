@@ -5,7 +5,7 @@ import ADcompany from "../../pages/BRcompany/BRcompany";
 import ADOperators from "../../pages/ADOperators/ADOperators";
 import ADLotCreators from "../../pages/ADLotCreators/ADLotCreators";
 import Clcompany from "../../pages/CLcompany/Clcompany";
-import OptionsPage from "../../pages/ADoptions/ADoptions";
+import ADbaseCategory from "../../pages/ADbaseCategory/ADbaseCategory";
 import ClcompanyDetail from "../../pages/ClcompanyDetail/ClcompanyDetail";
 import CLOffersCreate from "../../pages/CLOffersCreate/CLOffersCreate";
 import SPoperators from "../../pages/SPoperators/SPoperators";
@@ -86,7 +86,7 @@ const adminRoutes = [
     {
         path: 'options',
         name: 'options',
-        element: <OptionsPage />
+        element: <ADbaseCategory />
     },
     {
         name: "sp operators",
