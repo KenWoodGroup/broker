@@ -10,6 +10,7 @@ class apiStock {
       ...(data?.locationId && {location_id: data?.locationId}),
       type: "product",
     });
+   
     return await $api.get(`${BASE_URL}/api/erp/search?${params.toString()}`);
   };
   static GetByLocationId = async (locationId, page) => {

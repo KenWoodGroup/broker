@@ -150,7 +150,7 @@ const CreateFactoryButton = ({ onReload, role = "admin" }) => {
             />
             <FormErrorMessage>{errors.phone}</FormErrorMessage>
           </FormControl>
-          {role === "admin" && (
+          {/* {role === "admin" && (
             <FormControl isInvalid={!!errors.password}>
               <FormLabel>Parol</FormLabel>
               <Input
@@ -172,8 +172,8 @@ const CreateFactoryButton = ({ onReload, role = "admin" }) => {
               />
               <FormErrorMessage>{errors.password}</FormErrorMessage>
             </FormControl>
-          )}
-          {role === "admin" && (
+          )} */}
+          {/* {role === "admin" && (
             <FormControl isInvalid={!!errors.confirmPassword}>
               <FormLabel>Parolni tasdiqlang</FormLabel>
               <Input
@@ -189,7 +189,7 @@ const CreateFactoryButton = ({ onReload, role = "admin" }) => {
               />
               <FormErrorMessage>{errors.confirmPassword}</FormErrorMessage>
             </FormControl>
-          )}
+          )} */}
         </VStack>
       </TaskModalShell>
     </>
