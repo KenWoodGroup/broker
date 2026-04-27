@@ -52,6 +52,9 @@ export default function StatusEdit({ data, refresh }) {
             }}
             borderRadius="md"
             cursor="pointer"
+            variant="unstyled"
+            bg="transparent"
+            borderColor="transparent"
             _hover={{
                 borderColor: "blue.400"
             }}

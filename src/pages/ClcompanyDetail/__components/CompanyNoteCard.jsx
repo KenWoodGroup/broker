@@ -108,6 +108,15 @@ export default function CompanyNoteCard({ locationId }) {
 
     }
 
+    const handleCommentKeyDown = (e) => {
+        // Enter -> submit, Shift+Enter -> newline
+        if (e?.isComposing) return
+        if (e.key === "Enter" && !e.shiftKey) {
+            e.preventDefault()
+            if (!isPosting && newComment.trim()) handlePostComment()
+        }
+    }
+
     const formatDate = (dateString) => {
         if (!dateString) return "—"
 
@@ -262,6 +271,7 @@ export default function CompanyNoteCard({ locationId }) {
                         <Textarea
                             value={newComment}
                             onChange={(e) => setNewComment(e.target.value)}
+                            onKeyDown={handleCommentKeyDown}
                             placeholder="Yangi izoh yozing..."
                             size="md"
                             borderRadius="lg"

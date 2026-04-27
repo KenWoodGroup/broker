@@ -143,16 +143,22 @@ export default function Login() {
                     <Box
                         w="60px"
                         h="60px"
-                        bg="blue.500"
                         rounded="full"
+                        overflow="hidden"
                         display="flex"
                         alignItems="center"
                         justifyContent="center"
-                        color="white"
-                        fontWeight="bold"
-                        fontSize="md"
                     >
-                        <img src="../../../public/USD.jpg" alt="" />
+                        <img
+                            src="/USD.jpg"
+                            alt="USD"
+                            style={{
+                                width: "100%",
+                                height: "100%",
+                                objectFit: "cover",
+                                display: "block",
+                            }}
+                        />
                     </Box>
                 </Flex>
 
