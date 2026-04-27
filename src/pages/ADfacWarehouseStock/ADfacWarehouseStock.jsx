@@ -6,6 +6,7 @@ import {
   useSearchParams,
 } from "react-router-dom";
 import Cookies from "js-cookie";
+import useDebounce from "../../hooks/useDebounce";
 import {
   Box,
   Container,
@@ -14,6 +15,8 @@ import {
   Button,
   Badge,
   Input,
+  InputGroup,
+  InputRightElement,
   Modal,
   ModalOverlay,
   ModalContent,
@@ -56,7 +59,7 @@ import { apiInvoices } from "../../utils/Controllers/apiInvoices";
 import { apiUsers } from "../../utils/Controllers/Users";
 import { apiLocalCategories } from "../../utils/Controllers/apiLocalCategories";
 import { toastService } from "../../utils/toast";
-import { Edit, Edit2, EditIcon, LayoutGrid } from "lucide-react";
+import { Edit, Edit2, EditIcon, LayoutGrid, Search, X } from "lucide-react";
 import SalePriceEditButton from "./components/SalePriceEditButton";
 import { PRICE_UPDATE_RULES } from "../../constants/priceFreshness";
 import PaginationBar from "../../components/common/PaginationBar";
@@ -93,6 +96,8 @@ const WarehouseStockPage = () => {
   const [categoriesLoading, setCategoriesLoading] = useState(false);
   const [categoryPage, setCategoryPage] = useState(1);
   const [categoryTotalPages, setCategoryTotalPages] = useState(1);
+  const [categorySearch, setCategorySearch] = useState("");
+  const debouncedCategorySearch = useDebounce(categorySearch.trim() || "all", 500);
 
   const [taskStock, setTaskStock] = useState(null);
   const [taskStockLoading, setTaskStockLoading] = useState(false);
@@ -121,11 +126,11 @@ const WarehouseStockPage = () => {
   const [factoryUser, setFactoryUser] = useState(null);
   const [actionType, setActionType] = useState("add");
 
-  const fetchCategories = async (page = 1, append = false) => {
+  const fetchCategories = async (page = 1, append = false, searchText = "all") => {
     if (!factoryId) return;
     setCategoriesLoading(true);
     try {
-      const res = await apiLocalCategories.pageAll(page, "all", factoryId, "product");
+      const res = await apiLocalCategories.pageAll(page, searchText, factoryId, "product");
       const records = res?.data?.data?.records ?? [];
       const total = res?.data?.data?.pagination?.total_pages ?? 1;
       setCategoryTotalPages(total);
@@ -157,8 +162,8 @@ const WarehouseStockPage = () => {
 
   useEffect(() => {
     if (viewMode !== "categories") return;
-    fetchCategories(1, false);
-  }, [factoryId, viewMode]);
+    fetchCategories(1, false, debouncedCategorySearch);
+  }, [factoryId, viewMode, debouncedCategorySearch]);
 
   useEffect(() => {
     if (viewMode === "table") setCurrentPage(1);
@@ -562,7 +567,7 @@ const WarehouseStockPage = () => {
         top={0}
         zIndex={1}
       >
-        <Container maxW="container.xl" py={4}>
+        <Container maxW="container.2xl" py={4}>
           <VStack align="stretch" spacing={3}>
             <Breadcrumb
               spacing="8px"
@@ -624,7 +629,7 @@ const WarehouseStockPage = () => {
         </Container>
       </Box>
 
-      <Container maxW="container.xl" pt={6}>
+      <Container maxW="container.2xl" pt={6}>
         {taskStockId && (
           <Box mb={2}>
             {taskStockLoading ? (
@@ -643,62 +648,89 @@ const WarehouseStockPage = () => {
         )}
       </Container>
 
-      <Container maxW="container.xl" py={6}>
+      <Container maxW="container.2xl" py={6}>
         {viewMode === "categories" ? (
-          <Card bg="surfBlur">
-            <CardBody>
-              <VStack align="stretch" spacing={4}>
-                <HStack justify="space-between">
-                  <Heading size="sm" color="text">
-                    Mahsulot kategoriyalari
-                  </Heading>
-                  {categoryPage < categoryTotalPages && (
-                    <Button
+          <Box w="full">
+            <VStack align="stretch" spacing={4}>
+              <HStack justify="space-between" gap={4} flexWrap="wrap">
+                <Heading size="sm" color="text">
+                  Mahsulot kategoriyalari
+                </Heading>
+                {categoryPage < categoryTotalPages && (
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    isLoading={categoriesLoading}
+                    onClick={() => fetchCategories(categoryPage + 1, true, debouncedCategorySearch)}
+                  >
+                    Yana yuklash
+                  </Button>
+                )}
+              </HStack>
+
+              <InputGroup maxW={{ base: "100%", md: "60%" }}>
+                <Input
+                  placeholder="Search categories..."
+                  value={categorySearch}
+                  onChange={(e) => setCategorySearch(e.target.value)}
+                />
+                <InputRightElement>
+                  {categorySearch ? (
+                    <IconButton
                       size="sm"
                       variant="ghost"
-                      isLoading={categoriesLoading}
-                      onClick={() => fetchCategories(categoryPage + 1, true)}
-                    >
-                      Yana yuklash
-                    </Button>
+                      icon={<X size={16} />}
+                      aria-label="Clear"
+                      onClick={() => setCategorySearch("")}
+                    />
+                  ) : (
+                    <Search size={16} />
                   )}
-                </HStack>
+                </InputRightElement>
+              </InputGroup>
 
-                {categoriesLoading && categories.length === 0 ? (
-                  <SimpleGrid columns={{ base: 1, md: 2, xl: 3 }} spacing="20px">
-                    {Array.from({ length: 9 }).map((_, i) => (
-                      <CategoryCardSkeleton key={i} />
-                    ))}
-                  </SimpleGrid>
-                ) : categories.length === 0 ? (
-                  <Center py={10}>
-                    <VStack spacing={2}>
-                      <Text fontWeight="semibold" color="text">
-                        Category yo'q
-                      </Text>
-                      <Text fontSize="sm" color="gray.500" textAlign="center">
-                        Hozircha kategoriyalar topilmadi.
-                      </Text>
-                    </VStack>
-                  </Center>
-                ) : (
-                  <SimpleGrid columns={{ base: 1, md: 2, xl: 3 }} spacing="20px">
-                    {categories.map((cat) => (
-                      <CategoryCard
-                        key={cat?.id}
-                        role={role}
-                        showActions={false}
-                        category={cat}
-                        onEdit={() => fetchCategories(1, false)}
-                        onDelete={() => fetchCategories(1, false)}
-                        onOpen={() => selectCategory(cat)}
-                      />
-                    ))}
-                  </SimpleGrid>
-                )}
-              </VStack>
-            </CardBody>
-          </Card>
+              {categoriesLoading && categories.length === 0 ? (
+                <SimpleGrid
+                  w="full"
+                  columns={{ base: 1, sm: 2, lg: 3, xl: 4, "2xl": 5 }}
+                  spacing="20px"
+                >
+                  {Array.from({ length: 9 }).map((_, i) => (
+                    <CategoryCardSkeleton key={i} />
+                  ))}
+                </SimpleGrid>
+              ) : categories.length === 0 ? (
+                <Center py={10}>
+                  <VStack spacing={2}>
+                    <Text fontWeight="semibold" color="text">
+                      Category yo'q
+                    </Text>
+                    <Text fontSize="sm" color="gray.500" textAlign="center">
+                      Hozircha kategoriyalar topilmadi.
+                    </Text>
+                  </VStack>
+                </Center>
+              ) : (
+                <SimpleGrid
+                  w="full"
+                  columns={{ base: 1, sm: 2, lg: 3, xl: 4, "2xl": 5 }}
+                  spacing="20px"
+                >
+                  {categories.map((cat) => (
+                    <CategoryCard
+                      key={cat?.id}
+                      role={role}
+                      showActions={false}
+                      category={cat}
+                      onEdit={() => fetchCategories(1, false, debouncedCategorySearch)}
+                      onDelete={() => fetchCategories(1, false, debouncedCategorySearch)}
+                      onOpen={() => selectCategory(cat)}
+                    />
+                  ))}
+                </SimpleGrid>
+              )}
+            </VStack>
+          </Box>
         ) : loading ? (
           <VStack spacing={4} align="stretch">
             {[1, 2, 3, 4, 5].map((i) => (

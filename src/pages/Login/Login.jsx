@@ -5,34 +5,32 @@ import {
   Text,
   Input,
   Button,
-  useColorMode,
   FormControl,
   FormLabel,
   FormErrorMessage,
-  Link,
   Container,
   Image,
 } from "@chakra-ui/react";
 import Cookies from "js-cookie";
-
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import { Auth } from "../../utils/Controllers/Auth";
 import { useAuth } from "../../hooks/useAuth";
 import { toastService } from "../../utils/toast";
 import { useNavigate } from "react-router";
 
+// ========== 1-USUL: Rasimni import qilish (ENG TO'G'RI) ==========
+import logoImage from "../../../public/USD.jpg"; // Yo'lni tekshiring
+
 export default function Login() {
   const { login } = useAuth();
   const navigate = useNavigate();
-  // UI states
   const [loading, setLoading] = useState(false);
+  const [imageError, setImageError] = useState(false); // Rasm yuklanmasa
 
   const passInput = useRef("");
   const logInput = useRef("");
-
   const [errors, setErrors] = useState({ login: "", password: "" });
 
-  // ❗ Input o'zgarsa error avtomatik tozalanadi
   const clearError = (field) => {
     setErrors((prev) => ({ ...prev, [field]: "" }));
   };
@@ -44,12 +42,10 @@ export default function Login() {
 
     let newErrors = {};
 
-    // Login validation
     if (!loginText) {
       newErrors.login = "Login kiritilmadi";
     }
 
-    // Password validation
     if (!password) {
       newErrors.password = "Parol kiritilmadi";
     } else if (password.length < 6) {
@@ -58,8 +54,8 @@ export default function Login() {
 
     setErrors(newErrors);
 
-    // Agar hatolik bo'lsa API chaqirilmaydi
     if (Object.keys(newErrors).length > 0) return;
+    
     try {
       const payload = {
         username: logInput.current.value,
@@ -67,20 +63,25 @@ export default function Login() {
       };
       setLoading(true);
       const res = await Auth.Login(payload);
+      
       if (res.status == 200 || res.status == 201) {
         const data = res.data;
         const userData = data.user || data.newUser;
+        
         if (!userData) {
           toastService.error("Foydalanuvchi ma'lumotlari topilmadi");
           return;
         }
+        
         login({
           token: data.tokens.access_token,
           refreshToken: data.tokens.refresh_token,
           user: userData,
         });
+        
         Cookies.set("token", data.tokens.access_token);
         Cookies.set("u_refresh_token", data.tokens.refresh_token);
+        
         const role = userData.role;
         if (role === "admin") {
           navigate("/");
@@ -118,66 +119,81 @@ export default function Login() {
 
   return (
     <Flex minH="100vh" align="center" justify="center" bg="bg" px={4}>
-      {/* Dark/Light toggle button */}
-      {/* <Button
-                position="absolute"
-                top="20px"
-                right="20px"
-                size="sm"
-                onClick={toggleColorMode}
-            >
-                Tema
-            </Button> */}
       <Box
         as="form"
-        onSubmit={(e) => handleSubmit(e)}
+        onSubmit={handleSubmit}
         w={{ base: "100%", sm: "400px" }}
         bg="surface"
         p={8}
         rounded="xl"
         shadow="lg"
       >
-        {/* Logo */}
+        {/* Logo qismi - 3 xil usul */}
         <Flex justify="center" mb={4}>
           <Box
-            w="90px"
-            h="60px"
-            rounded="full"
+            w="70px"
+            h="70px"
             display="flex"
             alignItems="center"
             justifyContent="center"
-            color="white"
-            fontWeight="bold"
-            fontSize="md"
           >
-            {/* <img src="../../../public/USD.jpg" alt="" /> */}
+            {/* ========== 1-USUL: Import qilingan rasm (TAVSIYA ETILADI) ========== */}
+            <Image
+              src={logoImage}
+              alt="USD currency"
+              rounded="full"
+              objectFit="cover"
+              w="100%"
+              h="100%"
+              onError={() => setImageError(true)}
+              fallbackSrc="https://via.placeholder.com/90x60?text=Logo"
+            />
 
-            <Container>
-              <Image
-                src="/public/USD.jpg"
-                alt="USD currency"
-                rounded={6}
-                // width="100%"
-                // maxW="300px"
-                // height="auto"
-                // shadow="md" // soya effekti
-                // _hover={{ transform: "scale(1.05)" }} // hover efekti
-              />
-            </Container>
+            {/* ========== 2-USUL: Public papkadan to'g'ri yo'l (agar 1-usul ishlamasa) ========== */}
+            {/* 
+            <Image
+              src="/USD.jpg"
+              alt="USD currency"
+              rounded={6}
+              objectFit="cover"
+              w="100%"
+              h="100%"
+              onError={() => setImageError(true)}
+              fallbackSrc="https://via.placeholder.com/90x60?text=Logo"
+            />
+            */}
+
+            {/* ========== 3-USUL: Environment variable bilan (agar 1 va 2 ishlamasa) ========== */}
+            {/* 
+            <Image
+              src={`${process.env.PUBLIC_URL}/USD.jpg`}
+              alt="USD currency"
+              rounded={6}
+              objectFit="cover"
+              w="100%"
+              h="100%"
+              onError={() => setImageError(true)}
+              fallbackSrc="https://via.placeholder.com/90x60?text=Logo"
+            />
+            */}
+
+            {/* ========== XATOLIK BO'LSA KO'RSATISH ========== */}
+            {imageError && (
+              <Text color="red.500" fontSize="xs" textAlign="center">
+                Rasm yuklanmadi
+              </Text>
+            )}
           </Box>
         </Flex>
 
-        {/* Title */}
         <Heading textAlign="center" size="lg" mb={2} color="text">
           Tizimga kirish
         </Heading>
 
-        {/* Subtitle */}
         <Text textAlign="center" color="gray.500" mb={6}>
-          Tizimga kirish uchun ma’lumotlarni kiriting
+          Tizimga kirish uchun ma'lumotlarni kiriting
         </Text>
 
-        {/* Login input */}
         <FormControl mb={4} isInvalid={!!errors.login}>
           <FormLabel color="text">Login</FormLabel>
           <Input
@@ -188,7 +204,6 @@ export default function Login() {
           <FormErrorMessage>{errors.login}</FormErrorMessage>
         </FormControl>
 
-        {/* Password input */}
         <FormControl mb={2} isInvalid={!!errors.password}>
           <FormLabel color="text">Parol</FormLabel>
           <Input
@@ -200,9 +215,6 @@ export default function Login() {
           <FormErrorMessage>{errors.password}</FormErrorMessage>
         </FormControl>
 
-        {/* Forgot password */}
-
-        {/* Login button */}
         <Button
           type="submit"
           style={{ cursor: loading ? "progress" : "pointer" }}
